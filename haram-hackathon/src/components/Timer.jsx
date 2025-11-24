@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "@emotion/styled";
 import Countdown from "react-countdown";
+import { useState } from "react";
 
 
 const TimerCard = styled.div`
@@ -148,13 +149,18 @@ const renderer = ({ seconds, minutes, hours, completed }) => {
 
 export default function Timer() {
 
+
+ 
   return (
     <>
       <TimerCard>
         <DdayBox>
           <Text>D-DAY</Text>
         </DdayBox>
-        <Countdown date={new Date("2025-12-30T00:00:00").getTime()} renderer={renderer} />
+        <Countdown 
+
+        date={new Date("2025-12-30T00:00:00").getTime()} renderer={renderer} 
+/>
       </TimerCard>
     </>
   )

@@ -32,7 +32,6 @@ import Header from "../components/Header.jsx";
     flex-direction: column;
     align-items: flex-start;
     gap: 32px;
-    
         
     margin: 0px 0px 0px 0px;
   `;
@@ -132,8 +131,8 @@ export default function AfterHome() {
             <Card
             width="217px"
             height="56px"
-            title="크레딧 조회"
-            description="클릭하여 우리 팀 잔액을 확인해요"
+            isCredit = "true"
+            credit= "20,000"
             />
             <Card
             width="217px"

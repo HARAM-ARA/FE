@@ -75,6 +75,9 @@ const LoginBtn = styled.button`
     &:hover{
       border:1px solid var(--Primary-150, #FDB882);
     }
+    &:focus {
+      outline: none;
+    }
   `;
 
   const CreditColor = styled.span`
