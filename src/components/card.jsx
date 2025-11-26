@@ -35,6 +35,7 @@ const Box = styled.div`
     background-color:white;
     cursor: "pointer"
     
+    
   `;
 
 const InBox = styled.div`

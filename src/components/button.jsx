@@ -14,17 +14,18 @@ export default function({path, text, active}){
     gap: 10px;
     flex-shrink: 0;
     border-radius: var(--4XL, 80px);
-    background-color:${active ? '#F07F23' : 'white'};
+    background-color:${active ? '#FFF2E4' : 'white'};
     &:hover{
       border-radius: var(--4XL, 80px);
-      background: var(--Primary-200, #F07F23);
-      color:#fff;
+      background: ${active ? '#FFF2E4' : " #F07F23"};
+      color:${active ? '#F07F23' : '#fff'};
       border:none;
     }
-    &:focus {
-      outline: none;
+    &:focus{
+      border:none;
+      outline:none;
     }
-    color:${active ? 'white' : '#646464'};
+    color:${active ? '#F07F23' : '#646464'};
     font-family: Pretendard;
     font-size: 16px;
     font-style: normal;

@@ -159,7 +159,7 @@ export default function AfterHome() {
             title="추억의 뽑기 게임"
             description="뽑기 버튼 한 번으로 운을 시험해보세요!"
             buttonText="시작하기"
-            
+            onClick={() => navigate("/selet")}
             />
             <Card 
             title="타자게임"

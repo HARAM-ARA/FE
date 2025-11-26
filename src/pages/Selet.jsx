@@ -1,0 +1,30 @@
+import Header from "../components/Header"
+import styled from "@emotion/styled";
+
+const Borad = styled.div`
+  display: flex;
+  width: 1098px;
+  padding: 42px 41px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 12px;
+  border: 1px solid #B2B2B2;
+  margin: 0px 130px;
+`;
+
+export default function selet() {
+  return (
+    <>
+      <Header
+        teamName="하람"
+        isTeamName="true"
+        isCredit="true"
+        Credit="20,000"
+      />
+      <Borad>
+
+      </Borad>
+    </>
+  )
+}
