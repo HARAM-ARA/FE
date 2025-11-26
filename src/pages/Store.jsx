@@ -123,13 +123,13 @@ export default function Store() {
     { id: 7, name: "세 번째", price: 9000, img: Mock, type: 1, stock: 1 }
   ];
   const mockData2 = [
-    { id: 8, name: "전체 팀에게 공지 날리기", price: 5000, img: Mock, type: 2 },
-    { id: 9, name: "두 번째", price: 7000, img: Mock, type: 2 },
-    { id: 10, name: "세 번째", price: 9000, img: Mock, type: 2 },
-    { id: 11, name: "세 번째", price: 9000, img: Mock, type: 2 },
-    { id: 12, name: "세 번째", price: 9000, img: Mock, type: 2 },
-    { id: 13, name: "세 번째", price: 9000, img: Mock, type: 2 },
-    { id: 14, name: "세 번째", price: 9000, img: Mock, type: 2 },
+    { id: 8, name: "전체 팀에게 공지 날리기", price: 5000, img: Mock, type: 2, stock: 1},
+    { id: 9, name: "두 번째", price: 7000, img: Mock, type: 2, stock: 1},
+    { id: 10, name: "세 번째", price: 9000, img: Mock, type: 2, stock: 1},
+    { id: 11, name: "세 번째", price: 9000, img: Mock, type: 2, stock: 1},
+    { id: 12, name: "세 번째", price: 9000, img: Mock, type: 2, stock: 1},
+    { id: 13, name: "세 번째", price: 9000, img: Mock, type: 2, stock: 1},
+    { id: 14, name: "세 번째", price: 9000, img: Mock, type: 2, stock: 1},
   ];
 
   const [checkedCards, setCheckedCards] = useState({});

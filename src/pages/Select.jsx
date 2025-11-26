@@ -13,7 +13,19 @@ const Borad = styled.div`
   margin: 0px 130px;
 `;
 
-export default function selet() {
+const Card = styled.div`
+  width: 80px;
+  height: 80px;
+`;
+
+function selectCard(){
+  return(
+    <Card></Card>
+  )
+
+}
+
+export default function select() {
   return (
     <>
       <Header

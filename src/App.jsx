@@ -2,7 +2,7 @@ import React from "react"
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/StudentHome.jsx";
 import Store from "./pages/store.jsx";
-import Selet from "./pages/Selet.jsx";
+import Select from "./pages/Select.jsx";
 
 
 export default function App() {
@@ -12,7 +12,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/store" element={<Store />} />
-          <Route path="/selet" element={<Selet />} />
+          <Route path="/select" element={<Select />} />
         </Routes>
       </BrowserRouter>
     </>
