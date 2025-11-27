@@ -85,12 +85,13 @@ const RightMenu = styled.div`
   align-items: center;
   flex-shrink: 0;
   border-radius: 12px;
-  border: 2px solid rgb(178, 178, 178, ${props => (props.active ? 1 : 0.2)}); 
+  border: 2px solid rgb(178, 178, 178, ${props => (props.active ? 0 : 0.2)}); 
   cursor:pointer;
+  background-color: ${props => (props.active ? "#FFF2E4" : "white")}
 `;
 
 const Cost = styled.p`
-  color: #646464; 
+  color: ${props => (props.active ? "#F07F23" : "#646464")};
   text-align: center;
   font-family: Pretendard;
   font-size: 20px;
@@ -176,7 +177,10 @@ export default function Store() {
               />
             </Filtering>
           </LeftMenu>
-          <RightMenu active={anyChecked} onClick={() => anyChecked && setIsOpen(true)}><Cost active={anyChecked}>구매하기</Cost></RightMenu>
+          <RightMenu active={anyChecked}
+          onClick={() => anyChecked && setIsOpen(true)}>
+            <Cost active={anyChecked}>구매하기</Cost>
+            </RightMenu>
 
           <ModalComponent isOpen={isOpen} onClose={() => setIsOpen(false)}
             title="구매완료! 상품을 가져가세요!" 
@@ -197,6 +201,7 @@ export default function Store() {
                 onChange={(e) => handleCheck(item.id, e.target.checked)}
               />)}
           </Items>
+          
           :
 
           <Items>

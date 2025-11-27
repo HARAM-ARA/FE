@@ -1,7 +1,10 @@
 import React from "react";
 import styled from '@emotion/styled';
 
-export default function({path, text, active}){
+export default function({path, text, active}){ 
+  
+  // 이동경로, 안에 들어갈 텍스트, 필터링용 active (true: 간식/ false: 쿠폰)
+
 
   const Btn = styled.button`
     border: 1px solid ${active ? 'none' : '#B2B2B2;'};
@@ -17,9 +20,9 @@ export default function({path, text, active}){
     background-color:${active ? '#FFF2E4' : 'white'};
     &:hover{
       border-radius: var(--4XL, 80px);
-      background: ${active ? '#FFF2E4' : " #F07F23"};
-      color:${active ? '#F07F23' : '#fff'};
+      background: var(--Primary-50, #FFF2E4);
       border:none;
+      color: var(--Primary-200, #F07F23);
     }
     &:focus{
       border:none;
@@ -36,7 +39,7 @@ export default function({path, text, active}){
   
   return (
     <>
-      <Btn onClick={path}>{text}</Btn>
+      <Btn onClick={path}> {text} </Btn>
     </>
   )
 }

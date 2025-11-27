@@ -7,12 +7,13 @@ import Header from "../components/Header.jsx";
 
 
   const Body = styled.div`
-    width: 1339px;
+    width: 100vh;
     height: 575px;
     display: flex;
     align-items: flex-end;
     gap: 55px;
     margin: 0px 50px 95px 50px;
+    
   `;
 
   const LeftBox = styled.div`
@@ -139,6 +140,7 @@ export default function Student() {
             height="56px"
             title="상점"
             description="상정에서 원하는 상품을 구매해요"
+            isOrange="true"
             onClick={() => navigate("/store")}
             />
           </ButtonRow>

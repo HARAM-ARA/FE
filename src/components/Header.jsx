@@ -102,9 +102,6 @@ const LoginBtn = styled.button`
 
 
 
-
-
-
 export default function Header({teamName, isTeamName = false, isLogin = false, isCredit = false, Credit}) {
 
   const handleGoogleLogin = () => {

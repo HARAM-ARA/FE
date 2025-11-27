@@ -60,7 +60,7 @@ const Img = styled.img`
   cursor: pointer;
 `;
 
-export default function ModalComponent({ isOpen, onClose, title, img}) {
+export default function ModalComponent({ isOpen, onClose, title, img, }) {
   return (
     <Modal
       isOpen={isOpen}
