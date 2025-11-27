@@ -104,7 +104,7 @@ import Header from "../components/Header.jsx";
 
 
 
-export default function AfterHome() {
+export default function Student() {
 
 
   const navigate = useNavigate();
