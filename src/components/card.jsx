@@ -5,7 +5,7 @@ import Button from './Button.jsx';
 
 
 
-export default function Card({ width, height, title, description, buttonText, onClick, showButton = true, isTimer = false, isCredit = false, credit, isOrange = false }) {
+export default function Card({ width, height, title, description, buttonText, onClick, showButton = true, isTimer = false, isCredit = false, credit, isOrange = false, isTeacher = false }) {
 
   const [key, setKey] = useState(0);
 
@@ -16,15 +16,15 @@ export default function Card({ width, height, title, description, buttonText, on
   return (
     <>
 
-      <Box width={width} height={height} onClick={onClick} isOrange={isOrange} >
+      <Box width={width} height={height} onClick={onClick} isOrange={isOrange} isTeacher={isTeacher} >
         {/* 크레딧 띄우는 카드를 isCredit으로 판단해서 보여줌 */}
         {isCredit && credit && <Gray> 우리 팀 크레딧 </Gray>}
         {isCredit && credit && <Credit> {credit} 크레딧 </Credit>}
 
-        <InBox>
+        <InBox isTeacher={isTeacher}>
           {/* 기본작인 타이틀과 설명 */}
-          <Title>{title}</Title>
-          <Description>{description}</Description>
+          <Title isTeacher={isTeacher}>{title}</Title>
+          <Description isTeacher={isTeacher}>{description}</Description>
 
           {/* showButton이 false가 아니면 (기본 true) 버튼을 띄운다. */}
           {showButton && buttonText && <Button onClick={onClick} text={buttonText} />}
@@ -59,7 +59,8 @@ const Title = styled.p`
   font-size: 24px;
   font-weight: 500;
   margin:0px 0px 0px 0px;
-  cursor: "pointer"
+  cursor: "pointer";
+  text-align: ${props => props.isTeacher ? "center" : "left"};
 `;
 
 const Description = styled.p`
@@ -68,16 +69,18 @@ const Description = styled.p`
   font-size: 16px;
   font-weight: 400;
   margin:0px 0px 0px 0px;
-  cursor: "pointer"
+  cursor: "pointer";
+  text-align: ${props => props.isTeacher ? "center" : "left"};
 `;
 
 const Box = styled.div`
     width: ${props => props.width || "246px"};
     height: ${props => props.height || "106px"};
     display: flex;
-    padding: 57px 37px;
+    padding: ${props => props.isTeacher ? "32px 40px" : props.padding || "57px 37px"};
     flex-direction: column;
     align-items: flex-start;
+    justify-content: flex-start;
     gap: 10px;
     border-radius: 12px;
     border: 1px solid #8B8B8B;
