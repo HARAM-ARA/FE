@@ -1,9 +1,58 @@
-import React from "react";
-import styled from '@emotion/styled';
-import Button from './button.jsx';
-import Countdown from "react-countdown";
 import { useState } from "react";
+import Countdown from "react-countdown";
+import styled from '@emotion/styled';
+import Button from './Button.jsx';
 
+
+
+export default function Card({ width, height, title, description, buttonText, onClick, showButton = true, isTimer = false, isCredit = false, credit, isOrange = false }) {
+
+  const [key, setKey] = useState(0);
+
+  const handleKey = () => {
+    setKey(prev => prev + 1);
+  }
+
+  return (
+    <>
+
+      <Box width={width} height={height} onClick={onClick} isOrange={isOrange} >
+        {/* 크레딧 띄우는 카드를 isCredit으로 판단해서 보여줌 */}
+        {isCredit && credit && <Gray> 우리 팀 크레딧 </Gray>}
+        {isCredit && credit && <Credit> {credit} 크레딧 </Credit>}
+
+        <InBox>
+          {/* 기본작인 타이틀과 설명 */}
+          <Title>{title}</Title>
+          <Description>{description}</Description>
+
+          {/* showButton이 false가 아니면 (기본 true) 버튼을 띄운다. */}
+          {showButton && buttonText && <Button onClick={onClick} text={buttonText} />}
+
+          {/* 타자게임용 2시간 타이머 */}
+          {isTimer &&
+            <Timer>
+              <Countdown
+                key={key}
+                date={Date.now() + 2 * 60 * 60 * 1000}
+                renderer={({ hours, minutes, seconds }) => (
+                  <TimerText>
+                    {String(hours).padStart(2, "0")} :
+                    {String(minutes).padStart(2, "0")} :
+                    {String(seconds).padStart(2, "0")}
+                  </TimerText>
+                )}
+                onComplete={handleKey}
+              />
+            </Timer>}
+
+
+        </InBox>
+      </Box>
+
+    </>
+  )
+}
 const Title = styled.p`
   color: #1D1D1D;
   font-family: Pretendard;
@@ -32,11 +81,12 @@ const Box = styled.div`
     gap: 10px;
     border-radius: 12px;
     border: 1px solid #8B8B8B;
-    background-color:white;
-    cursor: "pointer"
-    
-    
-  `;
+    background-color: white;
+    cursor: pointer;
+    &:hover{
+      background-color:  ${(props) => (props.isOrange ? "#FFF2E4" : "white")};
+    }
+`;
 
 const InBox = styled.div`
     
@@ -45,8 +95,7 @@ const InBox = styled.div`
     align-items: flex-start;
     gap: 8px;
     align-self: stretch;
-    background-color:white;
-    cursor: "pointer"
+    cursor: pointer;
     
   `;
 
@@ -92,44 +141,3 @@ const Credit = styled.p`
     line-height: normal;
     margin:0;
   `;
-
-export default function Card({ width, height, title, description, buttonText, onClick, showButton = true, isTimer = false, isCredit = false, credit}) {
-
-  const [key, setKey] = useState(0);
-
-  const handleKey = () =>{
-    setKey(prev => prev +1);
-  }
-
-  return (
-    <>
-      <Box width={width} height={height} onClick={onClick}>
-          {isCredit && credit && <Gray> 우리 팀 크레딧 </Gray>}
-          {isCredit && credit && <Credit> {credit} 크레딧 </Credit>}
-
-        <InBox>
-          <Title>{title}</Title>
-          <Description>{description}</Description>
-
-          {showButton && buttonText && <Button onClick={onClick} text={buttonText} />}
-          {isTimer && 
-          <Timer>
-            <Countdown
-            key={key}
-            date={Date.now() + 2 * 60 * 60 * 1000}
-            renderer={({ hours, minutes, seconds }) => (
-              <TimerText>
-                {String(hours).padStart(2, "0")} :
-                {String(minutes).padStart(2, "0")} :
-                {String(seconds).padStart(2, "0")}
-              </TimerText>
-            )}
-            onComplete={handleKey}
-          />
-          </Timer>}
-        </InBox>
-      </Box>
-
-    </>
-  )
-}

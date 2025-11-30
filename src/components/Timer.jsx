@@ -154,9 +154,9 @@ export default function Timer() {
   return (
     <>
       <TimerCard>
-        <DdayBox>
+        {/* <DdayBox>
           <Text>D-DAY</Text>
-        </DdayBox>
+        </DdayBox> */}
         <Countdown 
 
         date={new Date("2025-12-30T00:00:00").getTime()} renderer={renderer} 

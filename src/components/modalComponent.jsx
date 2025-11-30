@@ -1,12 +1,12 @@
-
 import React from "react";
 import Modal from "react-modal";
 import styled from "@emotion/styled";
 import xImg from "../assets/Frame.svg";
+import Btn from "./Button.jsx";
 
-Modal.setAppElement("#root"); 
+Modal.setAppElement("#root");
 
-const customModalStyles = {
+const customModalStyles = { // 기본 디폴트 스타일
   overlay: {
     backgroundColor: "rgba(0, 0, 0, 0.4)",
     width: "100%",
@@ -18,7 +18,7 @@ const customModalStyles = {
   },
   content: {
     width: "648px",
-    height: "445px",
+    height: "445px", 
     flexShrink: "0",
     top: "50%",
     left: "50%",
@@ -27,17 +27,44 @@ const customModalStyles = {
     backgroundColor: "#fff",
     overflow: "auto",
     alignItems: "center",
-    display: "flex",      
-    justifyContent: "center", 
-    flexDirection: "column" 
+    display: "flex",
+    justifyContent: "center",
+    flexDirection: "column"
+  },
+};
+
+const guideModalStyles = { // 가이드 모달 전용 스타일
+  overlay: {
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    width: "100%",
+    height: "100vh",
+    zIndex: "10",
+    position: "fixed",
+    top: "0",
+    left: "0",
+  },
+  content: {
+    width: "877px",
+    height: "543px", 
+    flexShrink: "0",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    borderRadius: "24px",
+    backgroundColor: "#fff",
+    overflow: "auto",
+    alignItems: "center",
+    display: "flex",
+    justifyContent: "center",
+    flexDirection: "column"
   },
 };
 
 const Div = styled.div`
   display: flex;
-  width: 479px;
+  width:  ${props => props.isGuide ? '697px' : '479px'};
   flex-direction: column;
-  align-items: center;
+  align-items: ${props => props.isGuide ? 'flex-start' : 'center'};
   gap: 4px;
 `;
 
@@ -60,19 +87,67 @@ const Img = styled.img`
   cursor: pointer;
 `;
 
-export default function ModalComponent({ isOpen, onClose, title, img}) {
+const Description = styled.p`
+  color: #B2B2B2;
+  font-feature-settings: 'liga' off, 'clig' off;
+  font-family: Pretendard;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 160%; /* 32px */
+  margin: 24px 8px 0px 0px;
+  text-align: ${props => props.isGuide ? 'left' : 'center'};
+  white-space: pre-line;
+`;
+
+const Catchphrase = styled.p`
+  color: #1D1D1D;
+  font-feature-settings: 'liga' off, 'clig' off;
+  font-family: Pretendard;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 160%; /* 38.4px */
+  margin-top: 0;
+  margin-bottom: 40px;
+  text-align: ${props => props.isGuide ? 'left' : 'center'};
+`;
+
+export default function ModalComponent({ 
+  isOpen, 
+  onClose, 
+  title, 
+  img, 
+  isGuide = false, // 게임 설명 모달
+  description, 
+  catchphrase, 
+  btnText,
+  onButtonClick 
+}) {
   return (
     <Modal
       isOpen={isOpen}
       onRequestClose={onClose}
-      style={customModalStyles}
+      style={isGuide ? guideModalStyles : customModalStyles}
       shouldCloseOnOverlayClick={true}
     >
-      <Img src={xImg} onClick={onClose}></Img>
-      <Div>
-        <img src={img} ></img>
-        <Title>{title}</Title>
-      </Div>
+      <Img src={xImg} onClick={onClose} />  {/* x 시 모달 닫기 */}
+
+      {isGuide ? (
+        <Div isGuide={isGuide}>  {/* 게임 가이드일 때 쓰는 버튼 + 긴 설명 구조 */}
+          <Title>{title}</Title>
+          <Description isGuide={isGuide}>{description}</Description>
+          <Catchphrase isGuide={isGuide}>{catchphrase}</Catchphrase>
+          <div style={{width: "100%", display: "flex", justifyContent: "flex-end"}}>
+            <Btn onClick={onButtonClick} text={btnText} isModal="true" />
+          </div>
+        </Div>
+      ) : (
+        <Div> {/* 기본 사진 + 타이틀 구조 */}
+          <img src={img} alt="card" />
+          <Title>{title}</Title>
+        </Div>
+      )}
     </Modal>
   );
 }
