@@ -1,7 +1,7 @@
 import React from "react";
 import styled from '@emotion/styled';
 
-export default function({path, onClick, text, active, isModal}){  
+export default function({path, onClick, text, active, isModal, isSelect}){  
   
   // 이동경로, 안에 들어갈 텍스트, 필터링용 active (true: 간식/ false: 쿠폰), 모달용
 
@@ -9,18 +9,17 @@ export default function({path, onClick, text, active, isModal}){
   const Btn = styled.button`
     border: 1px solid ${props => 
     props.isModal ? '#F07F23' : (props.active ? 'none' : '#B2B2B2')};
-    height: 38px;
+    height: ${props => props.isModal ? '50px' : "37px"};
     display: inline-flex;
-    height: 38px;
     padding: 10px 24px;
     justify-content: center;
     align-items: center;
     gap: 10px;
     flex-shrink: 0;
-    border-radius: var(--4XL, 80px);
+    border-radius: ${isSelect ? '12px' : 'var(--4XL, 80px)'};
     background-color:${active ? '#FFF2E4' : 'white'};
     &:hover{
-      border-radius: var(--4XL, 80px);
+      border-radius: ${isSelect ? '12px' : 'var(--4XL, 80px)'};
       background: var(--Primary-50, #FFF2E4);
       border:none;
       color: var(--Primary-200, #F07F23);
