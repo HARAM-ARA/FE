@@ -10,6 +10,7 @@ const Headerbox = styled.div`
     position: relative; 
     justify-content: flex-end;
     flex-wrap: nowrap;
+    background: #fff;
     
   `;
 

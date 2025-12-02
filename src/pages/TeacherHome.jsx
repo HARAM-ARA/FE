@@ -14,6 +14,7 @@ const Body = styled.div`
   margin: 0px 50px 90px 50px;
 `;
 
+
 const LeftBox = styled.div`
   width: 837px;
   height: 572px;
