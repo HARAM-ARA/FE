@@ -7,12 +7,13 @@ import Header from "../components/Header.jsx";
 
 
 const Body = styled.div`
-    width: 1339px;
-    height: 575px;
+    width: 100%;
+    height: 100%;
     display: flex;
     align-items: flex-end;
-    gap: 55px;
     margin: 0px 50px 95px 50px;
+    background: #fff;
+    gap:50px;
   `;
 
 const LeftBox = styled.div`

@@ -201,7 +201,7 @@ export default function ModalComponent({
           :
           (
             <Div> {/* 기본 사진 + 타이틀 구조 */}
-              <Img src={img} alt="card" />
+              <img src={img} alt="card" />
               <Title>{title}</Title>
             </Div>
           )

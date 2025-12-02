@@ -14,11 +14,12 @@ const Body = styled.div`
   align-items: flex-end;
   gap: 55px;
   margin: 0px 50px 95px 70px;
+  background: #fff;
 `;
 
 const Menu = styled.div`
   display: flex;
-  width: 1339px;
+  width: 1320px;
   height: 181px;
   align-items: flex-start;
   gap: 840px;

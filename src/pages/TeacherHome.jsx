@@ -6,13 +6,14 @@ import { useNavigate } from "react-router-dom";
 import Header from "../components/Header.jsx";
 
 const Body = styled.div`
-  width: 100vh;
-  height: 575px;
-  display: flex;
-  align-items: flex-end;
-  gap: 50px;
-  margin: 0px 50px 90px 50px;
-`;
+    display: flex;
+    width: 1440px;
+    padding: 26px 51px 162px 50px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 50px;
+    background: #fff;
+  `;
 
 const LeftBox = styled.div`
   width: 837px;
