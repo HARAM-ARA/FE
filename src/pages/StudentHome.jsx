@@ -13,6 +13,7 @@ const Body = styled.div`
     align-items: flex-end;
     gap: 55px;
     margin: 0px 50px 95px 50px;
+    background: #fff;
     
   `;
 
@@ -172,6 +173,7 @@ export default function Student() {
               title="강화하기 게임"
               description="백준 루비를 향한 여정을 시작하세요!"
               buttonText="시작하기"
+              onClick={() => navigate("/enforce")}
             />
             <Card
               title="공룡 게임"

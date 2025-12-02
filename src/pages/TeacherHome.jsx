@@ -13,6 +13,7 @@ const Body = styled.div`
     flex-direction: column;
     align-items: flex-start;
     gap: 50px;
+    background: #fff;
   `;
 
 const LeftBox = styled.div`

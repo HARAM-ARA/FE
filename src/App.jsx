@@ -5,6 +5,7 @@ import Student from "./pages/StudentHome.jsx";
 import Store from "./pages/store.jsx";
 import Select from "./pages/Select.jsx";
 import Teacher from "./pages/TeacherHome.jsx";
+import Enforce from "./pages/Enforce.jsx";
 
 
 export default function App() {
@@ -16,7 +17,9 @@ export default function App() {
           <Route path="/std" element={<Student/>}/>
           <Route path="/store" element={<Store />} />
           <Route path="/select" element={<Select />} />
+          <Route path="/enforce" element={<Enforce/>}/>
           <Route path="/tch" element={<Teacher/>}/>
+
         </Routes>
       </BrowserRouter>
     </>
