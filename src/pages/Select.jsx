@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "../components/Header";
 import styled from "@emotion/styled";
 import Star from "../assets/Star.svg";
@@ -45,6 +45,7 @@ export default function Select() {
   const [isTeamSelectOpen, setIsTeamSelectOpen] = useState(false);
   const navigate = useNavigate();
   const [isEffectOpen, setIsEffectOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
 
   const mockTeams = [
@@ -69,6 +70,49 @@ export default function Select() {
     { message: "하은이의 분노!!!!!!!!", effect: "anger" },
   ];
 
+  const loadDrawnCards = async (isInitialLoad = false) => {
+    try {
+      let cards = [];
+
+      if (window.storage) {
+        const result = await window.storage.get('drawn_cards', true);
+        if (result && result.value) {
+          cards = JSON.parse(result.value);
+        }
+      } else if (typeof localStorage !== 'undefined') { // 윈도우 안돼서 예비로 로칼해둠
+        const stored = localStorage.getItem('drawn_cards');
+        if (stored) {
+          cards = JSON.parse(stored);
+        }
+      } 
+      setDrawnCards(cards);
+    } catch (error) {
+      console.log('뽑힌 카드가 없습니다. 새로 시작합니다.');
+      setDrawnCards([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const saveDrawnCards = async (cards) => {
+    try {
+      if (window.storage) {
+        await window.storage.set('drawn_cards', JSON.stringify(cards), true);
+      }
+      else if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('drawn_cards', JSON.stringify(cards));
+      }
+    } catch (error) {
+      console.error('카드 저장 실패:', error);
+    }
+  };
+
+  //뽑힌 카드 목록
+  useEffect(() => {
+    loadDrawnCards();
+  }, []);
+
+
   // 가이드 모달 버튼 클릭 -> 게임 시작
   const handleStartGame = () => {
     setIsGuideOpen(false);
@@ -78,13 +122,10 @@ export default function Select() {
   const goHome = () => {
     navigate("/std")
 
-    if (drawnCards.length >= 100) { // 100번째 카드를 뽑은 직후
-      setDrawnCards([]);
-    }
   }
 
   const getEffectImage = (effect) => {
-    switch(effect) {
+    switch (effect) {
       case "add1": return add1;
       case "add2": return add2;
       case "add3": return add3;
@@ -158,11 +199,27 @@ export default function Select() {
 
       const data = { ...mockData, cardId: cardId };
       setCardResult(mockData);
-      setDrawnCards(prev => [...prev, cardId]);
+
+      const newDrawnCards = [...drawnCards, cardId];
+      setDrawnCards(newDrawnCards);
+
+
+      if (newDrawnCards.length >= 100) {
+        await saveDrawnCards(newDrawnCards);
+        setTimeout(async () => {
+          if (window.storage) {
+            await window.storage.set('drawn_cards', JSON.stringify([]), true);
+          }
+          await loadDrawnCards(false);
+          console.log('게임판이 리셋됩니다.');
+        }, 2000);
+      } else {
+        await saveDrawnCards(newDrawnCards);
+      }
 
       if (data.effect === "swap" || data.effect === "steal" || data.effect === "anger") {
         // 팀 선택이 필요한지 판단
-        setIsEffectOpen(true); 
+        setIsEffectOpen(true);
       } else {
         setIsResultOpen(true);
       }
@@ -261,17 +318,25 @@ export default function Select() {
         Credit="20,000"
       />
 
-      <Borad>
-        {Array.from({ length: 100 }).map((_, index) => (
-          <SelectCard
-            key={index}
-            cardId={index}
-            onCardClick={handleDraw}
-            isDrawing={isDrawing}
-            isDrawn={drawnCards.includes(index)}
-          />
-        ))}
-      </Borad>
+      {isLoading ? (
+        <LoadingContainer>
+          <p>게임판을 불러오는 중...</p>
+        </LoadingContainer>
+      ) : (
+        <Borad>
+          {Array.from({ length: 100 }).map((_, index) => (
+            <SelectCard
+              key={index}
+              cardId={index}
+              onCardClick={handleDraw}
+              isDrawing={isDrawing}
+              isDrawn={drawnCards.includes(index)}
+            />
+          ))}
+        </Borad>
+      )}
+
+
 
       {/* 가이드 모달 */}
       <ModalComponent
@@ -322,12 +387,12 @@ export default function Select() {
           title={
             cardResult.myTeam
               ? cardResult.message
-              : cardResult.message 
+              : cardResult.message
           }
           img={getEffectImage(cardResult?.effect)}
           isResult={true}
           effect={cardResult?.effect}
-          
+
         />
       )}
     </>
@@ -346,6 +411,7 @@ const Borad = styled.div`
   border: 1px solid #B2B2B2;
   margin: 0px 130px;
   gap: 24px;
+  background: #fff;
 `;
 
 const Card = styled.div`
@@ -377,4 +443,21 @@ const EmptyCard = styled.div`
   justify-content: center;
   cursor: not-allowed;
   opacity: 0.5;
+`;
+
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1098px;
+  height: 400px;
+  margin: 0px 130px;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #B2B2B2;
+  
+  p {
+    font-size: 18px;
+    color: #666;
+  }
 `;
