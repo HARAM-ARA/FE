@@ -5,10 +5,10 @@ import ModalComponent from "../components/ModalComponent";
 import { useNavigate } from "react-router-dom";
 import bronze from "../assets/bronze.svg";
 import icon1 from "../assets/icon1.svg";
+import NextBtn from "../assets/nextBtn.svg";
 
 const Body = styled.div`
-    
-    height: 575px;
+    height: 650px;
     display: flex;
     align-items: flex-end;
     gap: 12%;
@@ -19,10 +19,19 @@ const Body = styled.div`
 
 const MenuTap = styled.div`
   display: flex;
-  width: 329px;
+   margin: 0;
   flex-direction: column;
   align-items: flex-start;
   gap: 16px;
+  margin: 0% 0% 5% 0%;
+`;
+
+const MenuTap2 = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 16px;
+  margin: 0% 0% 5% 0%;
 `;
 
 const MenuEachBox = styled.div`
@@ -49,7 +58,7 @@ const TierTap = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 90px;
-  margin: 0% 0% 20% 0%;
+  
 `;
 
 const TierImgBox = styled.div`
@@ -61,6 +70,14 @@ const TierImgBox = styled.div`
   margin-left:0;
 `;
 
+const TierImgBox2 = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+`;
+
+
 const Title = styled.div`
   color: #2E4358;
   text-align: center;
@@ -70,6 +87,36 @@ const Title = styled.div`
   font-weight: 700;
   line-height: normal;
   letter-spacing: -0.84px;
+`;
+
+const Percent = styled.p`
+  color: #3A3A3A;
+  text-align: center;
+  font-family: Pretendard;
+  font-size: 40px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: -0.48px;
+`;
+
+const Text = styled.p`
+  color: #6A6A6A;
+  text-align: center;
+  font-family: Pretendard;
+  font-size: 40px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: -0.48px;
+  margin:0;
+`;
+
+const Img = styled.img`
+  width: 200px;
+  height: 200px;
+  margin: 15% 15% 0% 0%;
+  cursor:pointer;
 `;
 
 
@@ -87,6 +134,7 @@ export default function Enforce() {
     navigate("/std")
   }
 
+
   return (
     <>
       <Header
@@ -99,15 +147,15 @@ export default function Enforce() {
         <MenuTap>
           <MenuEachBox>
             <img src={icon1} />
-            <MenuText> 크레딧으로 교환하기 </MenuText>
+            <MenuText> 코드를 유출해요 </MenuText>
           </MenuEachBox>
           <MenuEachBox>
             <img src={icon1} />
-            <MenuText> 크레딧으로 교환하기 </MenuText>
+            <MenuText> 티어를 살 수 있어요 </MenuText>
           </MenuEachBox>
           <MenuEachBox>
             <img src={icon1} />
-            <MenuText> 크레딧으로 교환하기 </MenuText>
+            <MenuText> 크레딧으로 교환해요 </MenuText>
           </MenuEachBox>
         </MenuTap>
 
@@ -116,7 +164,17 @@ export default function Enforce() {
             <Title> 티어 강화하기 </Title>
             <img src={bronze} />
           </TierImgBox>
+          <TierImgBox2>
+            <Title> +8 실버 3 </Title>
+            <Percent>80%</Percent>
+          </TierImgBox2>
         </TierTap>
+
+        <MenuTap2>
+          <Text>푼 문제 수 : 10000</Text>
+          <Text>남은 문제 수 : 10000</Text>
+          <Img src={NextBtn}/>
+        </MenuTap2>
 
 
       </Body>
