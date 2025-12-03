@@ -10,7 +10,6 @@ const Headerbox = styled.div`
     position: relative; 
     justify-content: flex-end;
     flex-wrap: nowrap;
-    background: #fff;
     
   `;
 
@@ -103,6 +102,9 @@ const LoginBtn = styled.button`
 
 
 
+
+
+
 export default function Header({teamName, isTeamName = false, isLogin = false, isCredit = false, Credit}) {
 
   const handleGoogleLogin = () => {
@@ -124,7 +126,7 @@ export default function Header({teamName, isTeamName = false, isLogin = false, i
       <Headerbox>
         <LogoImg src={HaramLogo}></LogoImg>
         <FunctionBox>
-            {isTeamName && <AmountText>{teamName}</AmountText>}
+            {isTeamName && <AmountText>TEAM {teamName}</AmountText>}
          
             {isLogin && <LoginBtn type="google" onClick={handleGoogleLogin}>로그인</LoginBtn>}
             {isCredit && <CreditBtn><CreditColor>{Credit}</CreditColor><Gray>크레딧</Gray></CreditBtn>}
