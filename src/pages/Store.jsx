@@ -1,10 +1,10 @@
 import { useState } from "react";
 import Header from "../components/Header";
 import styled from "@emotion/styled";
-import Button from "../components/button";
+import Button from "../components/Button";
 import ItemCard from "../components/ItemCard";
 import Mock from "../assets/Mock.png";
-import ModalComponent from "../components/modalComponent";
+import ModalComponent from "../components/ModalComponent";
 import storeImg from "../assets/store.svg";
 
 
@@ -14,11 +14,12 @@ const Body = styled.div`
   align-items: flex-end;
   gap: 55px;
   margin: 0px 50px 95px 70px;
+  background: #fff;
 `;
 
 const Menu = styled.div`
   display: flex;
-  width: 1339px;
+  width: 1320px;
   height: 181px;
   align-items: flex-start;
   gap: 840px;
@@ -85,12 +86,13 @@ const RightMenu = styled.div`
   align-items: center;
   flex-shrink: 0;
   border-radius: 12px;
-  border: 2px solid rgb(178, 178, 178, ${props => (props.active ? 1 : 0.2)}); 
+  border: 2px solid rgb(178, 178, 178, ${props => (props.active ? 0 : 0.2)}); 
   cursor:pointer;
+  background-color: ${props => (props.active ? "#FFF2E4" : "white")}
 `;
 
 const Cost = styled.p`
-  color: #646464; 
+  color: ${props => (props.active ? "#F07F23" : "#646464")};
   text-align: center;
   font-family: Pretendard;
   font-size: 20px;
@@ -114,8 +116,8 @@ const Items = styled.div`
 export default function Store() {
 
   const mockData = [
-    { id: 1, name: "첫 번째", price: 5000, img: Mock, type: 1, stock: 1},
-    { id: 2, name: "두 번째", price: 7000, img: Mock, type: 1, stock: 1},
+    { id: 1, name: "첫 번째", price: 5000, img: Mock, type: 1, stock: 1 },
+    { id: 2, name: "두 번째", price: 7000, img: Mock, type: 1, stock: 1 },
     { id: 3, name: "세 번째", price: 9000, img: Mock, type: 1, stock: 1 },
     { id: 4, name: "세 번째", price: 9000, img: Mock, type: 1, stock: 1 },
     { id: 5, name: "세 번째", price: 9000, img: Mock, type: 1, stock: 0 },
@@ -123,13 +125,13 @@ export default function Store() {
     { id: 7, name: "세 번째", price: 9000, img: Mock, type: 1, stock: 1 }
   ];
   const mockData2 = [
-    { id: 8, name: "전체 팀에게 공지 날리기", price: 5000, img: Mock, type: 2, stock: 1},
-    { id: 9, name: "두 번째", price: 7000, img: Mock, type: 2, stock: 1},
-    { id: 10, name: "세 번째", price: 9000, img: Mock, type: 2, stock: 1},
-    { id: 11, name: "세 번째", price: 9000, img: Mock, type: 2, stock: 1},
-    { id: 12, name: "세 번째", price: 9000, img: Mock, type: 2, stock: 1},
-    { id: 13, name: "세 번째", price: 9000, img: Mock, type: 2, stock: 1},
-    { id: 14, name: "세 번째", price: 9000, img: Mock, type: 2, stock: 1},
+    { id: 8, name: "전체 팀에게 공지 날리기", price: 5000, img: Mock, type: 2, stock: 1 },
+    { id: 9, name: "두 번째", price: 7000, img: Mock, type: 2, stock: 1 },
+    { id: 10, name: "세 번째", price: 9000, img: Mock, type: 2, stock: 1 },
+    { id: 11, name: "세 번째", price: 9000, img: Mock, type: 2, stock: 1 },
+    { id: 12, name: "세 번째", price: 9000, img: Mock, type: 2, stock: 1 },
+    { id: 13, name: "세 번째", price: 9000, img: Mock, type: 2, stock: 1 },
+    { id: 14, name: "세 번째", price: 9000, img: Mock, type: 2, stock: 1 },
   ];
 
   const [checkedCards, setCheckedCards] = useState({});
@@ -176,11 +178,14 @@ export default function Store() {
               />
             </Filtering>
           </LeftMenu>
-          <RightMenu active={anyChecked} onClick={() => anyChecked && setIsOpen(true)}><Cost active={anyChecked}>구매하기</Cost></RightMenu>
+          <RightMenu active={anyChecked}
+            onClick={() => anyChecked && setIsOpen(true)}>
+            <Cost active={anyChecked}>구매하기</Cost>
+          </RightMenu>
 
           <ModalComponent isOpen={isOpen} onClose={() => setIsOpen(false)}
-            title="구매완료! 상품을 가져가세요!" 
-            img = {storeImg} >
+            title="구매완료! 상품을 가져가세요!"
+            img={storeImg} >
           </ModalComponent>
         </Menu>
 
@@ -197,6 +202,7 @@ export default function Store() {
                 onChange={(e) => handleCheck(item.id, e.target.checked)}
               />)}
           </Items>
+
           :
 
           <Items>

@@ -6,16 +6,18 @@ import { useNavigate } from "react-router-dom";
 import Header from "../components/Header.jsx";
 
 
-  const Body = styled.div`
-    width: 1339px;
+const Body = styled.div`
+    width: 100vh;
     height: 575px;
     display: flex;
     align-items: flex-end;
     gap: 55px;
     margin: 0px 50px 95px 50px;
+    background: #fff;
+    
   `;
 
-  const LeftBox = styled.div`
+const LeftBox = styled.div`
     width: 609px;
     height: 575px;
     display: flex;
@@ -25,7 +27,7 @@ import Header from "../components/Header.jsx";
     margin: 0px 0px 0px 0px;
   `;
 
-  const RightBox = styled.div`
+const RightBox = styled.div`
     width: 677px;
     height: 575px;
     display: flex;
@@ -37,7 +39,7 @@ import Header from "../components/Header.jsx";
   `;
 
 
-  const TextBox = styled.div`
+const TextBox = styled.div`
     width: 240px;
     height: 80px;
     margin: 0px 0px 0px 0px;
@@ -48,7 +50,7 @@ import Header from "../components/Header.jsx";
     
   `;
 
-    const TitleText = styled.p`
+const TitleText = styled.p`
     color: #1D1D1D;
     margin:0px 0px 0px 0px;
     font-family: Pretendard;
@@ -58,7 +60,7 @@ import Header from "../components/Header.jsx";
     line-height: 160%; /* 44.8px */
   `;
 
-  const Text = styled.p`
+const Text = styled.p`
     color: #B2B2B2;
     margin:0px 0px 0px 0px;
     align-self: stretch;
@@ -69,7 +71,7 @@ import Header from "../components/Header.jsx";
     line-height: 160%; /* 32px */
   `;
 
-  const TimerBox = styled.div`
+const TimerBox = styled.div`
     display: flex;
     height: 392px;
     flex-direction: column;
@@ -80,7 +82,7 @@ import Header from "../components/Header.jsx";
   `;
 
 
-  const MinigameBox = styled.div`
+const MinigameBox = styled.div`
     width: 680px;
     height:464px;
     display: flex;
@@ -92,7 +94,7 @@ import Header from "../components/Header.jsx";
     flex-wrap: wrap;
   `;
 
-  const ButtonRow = styled.div`
+const ButtonRow = styled.div`
     margin:0px 0px 0px 0px;
     width:610px;
     height:151px;
@@ -104,17 +106,17 @@ import Header from "../components/Header.jsx";
 
 
 
-export default function AfterHome() {
+export default function Student() {
 
 
   const navigate = useNavigate();
   return (
     <>
-      <Header 
-      teamName="하람"
-      isTeamName="true"
-      isCredit="true"
-      Credit="20,000"
+      <Header
+        teamName="하람"
+        isTeamName="true"
+        isCredit="true"
+        Credit="20,000"
       />
 
       <Body>
@@ -124,22 +126,23 @@ export default function AfterHome() {
               <TitleText>타이머</TitleText>
               <Text>타이머로 남은 시간을 확인해요</Text>
             </TextBox>
-            <Timer/>
+            <Timer />
           </TimerBox>
 
           <ButtonRow>
             <Card
-            width="217px"
-            height="56px"
-            isCredit = "true"
-            credit= "20,000"
+              width="217px"
+              height="56px"
+              isCredit="true"
+              credit="20,000"
             />
             <Card
-            width="217px"
-            height="56px"
-            title="상점"
-            description="상정에서 원하는 상품을 구매해요"
-            onClick={() => navigate("/store")}
+              width="217px"
+              height="56px"
+              title="상점"
+              description="상정에서 원하는 상품을 구매해요"
+              isOrange="true"
+              onClick={() => navigate("/store")}
             />
           </ButtonRow>
 
@@ -153,28 +156,29 @@ export default function AfterHome() {
           </TextBox>
 
           <MinigameBox>
-            <Card 
-            width="246px"
-            height="106px"
-            title="추억의 뽑기 게임"
-            description="뽑기 버튼 한 번으로 운을 시험해보세요!"
-            buttonText="시작하기"
-            onClick={() => navigate("/selet")}
+            <Card
+              width="246px"
+              height="106px"
+              title="추억의 뽑기 게임"
+              description="뽑기 버튼 한 번으로 운을 시험해보세요!"
+              buttonText="시작하기"
+              onClick={() => navigate("/select")}
             />
-            <Card 
-            title="타자게임"
-            description="2시간에 한번, 타자 게임에 도전하세요!"
-            isTimer ="true"
+            <Card
+              title="타자게임"
+              description="2시간에 한번, 타자 게임에 도전하세요!"
+              isTimer="true"
             />
-            <Card 
-            title="강화하기 게임"
-            description="백준 루비를 향한 여정을 시작하세요!"
-            buttonText="시작하기"
+            <Card
+              title="강화하기 게임"
+              description="백준 루비를 향한 여정을 시작하세요!"
+              buttonText="시작하기"
+              onClick={() => navigate("/enforce")}
             />
-            <Card 
-            title="공룡 게임"
-            description="부소마고 선생님들 버전 공룡 게임!?"
-            buttonText="시작하기"
+            <Card
+              title="공룡 게임"
+              description="부소마고 선생님들 버전 공룡 게임!?"
+              buttonText="시작하기"
             />
           </MinigameBox>
         </RightBox>

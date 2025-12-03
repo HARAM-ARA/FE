@@ -90,8 +90,10 @@ const QuantityBtn = styled.button`
   border-radius: 80px;
   border: 1px solid #B2B2B2;
   &:hover{
-    border:1px solid #B2B2B2;
-    outline:none;
+    border:none;
+    
+    background: var(--Primary-50, #FFF2E4);
+    color: var(--Primary-200, #F07F23);   
   };
   &:focus{
     border:1px solid #B2B2B2;
@@ -119,6 +121,9 @@ const Gray = styled.p`
   font-weight: 500;
   line-height: normal;
   letter-spacing: -0.24px;
+  &:hover{
+    color: var(--Primary-200, #F07F23);
+  }
 `;
 
 const SoldOutOverlay = styled.div`
