@@ -8,10 +8,10 @@ const TimerCard = styled.div`
     display: flex;
     flex-direction: column;
     background-color:white;
-    height: ${(props)=> (props.isTeacher ? "700px" : "270px" )};
+    height:270px;
     border-radius: 12px;
     border: 1px solid #8B8B8B;
-    padding:${(props)=> (props.isTeacher ? "150px 126px 150px 126px;" : " 64px 87px 65px 87px" )};
+    padding: 64px 87px 65px 87px;
     justify-content: center;
     align-items: center;
     align-self: stretch;
@@ -41,7 +41,7 @@ const TimeText = styled.div`
     text-align: center;
     font-feature-settings: 'liga' off, 'clig' off;
     font-family: Pretendard;
-    font-size: ${(props)=> (props.isTeacher ? "106px" : "70px" )};
+    font-size: 70px;
     font-style: normal;
     font-weight: 700;
     line-height: normal;
@@ -50,7 +50,7 @@ const TimeText = styled.div`
   `;
 
 const TimeBox = styled.div`
-  width: ${(props)=> (props.isTeacher ? "585px" : "422px" )};
+  width: 433px;
   display: flex;
   align-items: center;  
   justify-content: center;
@@ -60,7 +60,7 @@ const TimeBox = styled.div`
 const Num = styled.div`
   display: flex;
   flex-direction: column; 
-  align-items: top;   
+  align-items: center;   
   magin:0; 
 `;
 
@@ -72,20 +72,20 @@ const NumberRow = styled.div`
 const Colon = styled.div`
   color: #5A5A5A;
   font-family: Pretendard;
-  font-size: ${(props)=> (props.isTeacher ? "106px" : "70px" )};
+  font-size: 70px;
   font-weight: 700;
   line-height: normal;
-  align-items: center;
   margin-left:5px;
 `;
 
+
+
 const Label = styled.div`
   color: #5A5A5A;
-  height: 0px;
   text-align: center;
   font-feature-settings: 'liga' off, 'clig' off;
   font-family: Pretendard;
-  font-size: ${(props)=> (props.isTeacher ? "24px" : "18px" )};
+  font-size: 18px;
   font-style: normal;
   font-weight: 400;
   line-height: normal;
@@ -96,56 +96,71 @@ const ColonNum = styled.div`
   gap:5px
 `;
 
-export default function Timer({height, isTeacher = false}) {
 
-  const renderer = ({ seconds, minutes, hours, completed }) => {
-    if (completed) {
-      return <TimeText isTeacher={isTeacher}>종료</TimeText>;
-    } else {
 
-      const h = String(hours).padStart(2, "0");
-      const m = String(minutes).padStart(2, "0");
-      const s = String(seconds).padStart(2, "0");
 
-      return (
+const renderer = ({ seconds, minutes, hours, completed }) => {
+  if (completed) {
+    return <TimeText>종료</TimeText>;
+  } else {
 
-        <TimeBox isTeacher={isTeacher}>
-          <Num>
+    const h = String(hours).padStart(2, "0");
+    const m = String(minutes).padStart(2, "0");
+    const s = String(seconds).padStart(2, "0");
+
+    return (
+
+      <TimeBox>
+        <Num>
+          <ColonNum>
             <NumberRow>
-              <TimeText isTeacher={isTeacher}>{h}</TimeText>
+              <TimeText>{h}</TimeText>
+              <Label>HOURS</Label>
             </NumberRow>
-            <Label isTeacher={isTeacher}>HOURS</Label>
-          </Num>
-          <Colon isTeacher={isTeacher}>:</Colon>
+            <Colon>:</Colon>
+          </ColonNum>
+        </Num>
 
-          <Num>
+        <Num>
+          <ColonNum>
             <NumberRow>
-              <TimeText isTeacher={isTeacher}>{m}</TimeText>
+              <TimeText>{m}</TimeText>
+              <Label>MINUTES</Label>
             </NumberRow>
-            <Label isTeacher={isTeacher}>MINUTES</Label>
-          </Num>
-          <Colon isTeacher={isTeacher}>:</Colon>
+            <Colon>:</Colon>
+          </ColonNum>
+        </Num>
 
-          <Num>
-            <NumberRow>
-              <TimeText isTeacher={isTeacher}>{s}</TimeText>
-            </NumberRow>
-            <Label isTeacher={isTeacher}>SECONDS</Label>
-          </Num>
-        </TimeBox>
+        <Num>
+          <NumberRow>
+            <TimeText>{s}</TimeText>
 
-      );
-    }
-  };
+          </NumberRow>
+          <Label>SECONDS</Label>
+        </Num>
+      </TimeBox>
+
+    );
+  }
+};
+
+
+
+
+export default function Timer() {
+
 
  
   return (
     <>
-      <TimerCard height={height} isTeacher={isTeacher} >
+      <TimerCard>
+        <DdayBox>
+          <Text>D-DAY</Text>
+        </DdayBox>
         <Countdown 
-          date={new Date("2025-12-30T00:00:00").getTime()} 
-          renderer={renderer} 
-        />
+
+        date={new Date("2025-12-30T00:00:00").getTime()} renderer={renderer} 
+/>
       </TimerCard>
     </>
   )
