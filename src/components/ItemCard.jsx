@@ -4,10 +4,10 @@ import { useState } from "react";
 
 const Card = styled.div`
   display:flex;
-  position: relative; 
+  position: relative;
   width: 350px;
   height: ${props => props.isCoupon ? "300px" : "111px"};
-  padding: 37.5px 38px 37.5px 20px;
+  padding: 32px 40px;
   border-radius: 12px;
   border: 1px solid #8B8B8B;
   margin: 0px 40px 32px 0px;
