@@ -114,26 +114,29 @@ export default function TeacherHome() {
           </TextBox>
 
           <FunctionBox>
-            <Card 
+            <Card
               width="450px"
               height="65px"
               isTeacher={true}
+              isOrange={true}
               title="팀스페이스 조회"
               description="모든 팀과 학생들을 조회해요"
               onClick={() => navigate("/teacher/teams")}
             />
-            <Card 
+            <Card
               width="450px"
               height="65px"
               isTeacher={true}
+              isOrange={true}
               title="전체 팀 크레딧 조회"
               description="모든 팀 크레딧을 조회하고 추가해요"
-              onClick={() => navigate("/teacher/credits")}
+              onClick={() => navigate("/credits")}
             />
-            <Card 
+            <Card
               width="450px"
               height="65px"
               isTeacher={true}
+              isOrange={true}
               title="상점"
               description="상점에 상품을 등록하고 수정해요"
               onClick={() => navigate("/teacher/store")}

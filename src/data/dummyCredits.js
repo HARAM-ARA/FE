@@ -1,0 +1,18 @@
+export const dummyCredits = [
+  { id: 1, name: "TEAM 하람", credit: null },
+  { id: 2, name: "TEAM 하람", credit: null },
+  { id: 3, name: "TEAM 하람", credit: null },
+  { id: 4, name: "TEAM 하람", credit: null },
+  { id: 5, name: "TEAM 하람", credit: null },
+  { id: 6, name: "TEAM 하람", credit: null },
+  { id: 7, name: "TEAM 하람", credit: null },
+  { id: 8, name: "TEAM 하람", credit: null },
+  { id: 9, name: "TEAM 하람", credit: null },
+  { id: 10, name: "TEAM 하람", credit: null },
+  { id: 11, name: "TEAM 하람", credit: null },
+  { id: 12, name: "TEAM 하람", credit: null },
+  { id: 13, name: "TEAM 하람", credit: null },
+  { id: 14, name: "TEAM 하람", credit: null },
+  { id: 15, name: "TEAM 하람", credit: null },
+  { id: 16, name: "TEAM 하람", credit: null },
+];
