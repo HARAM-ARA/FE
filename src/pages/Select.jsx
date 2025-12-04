@@ -73,13 +73,8 @@ export default function Select() {
   const loadDrawnCards = async (isInitialLoad = false) => {
     try {
       let cards = [];
-
-      if (window.storage) {
-        const result = await window.storage.get('drawn_cards', true);
-        if (result && result.value) {
-          cards = JSON.parse(result.value);
-        }
-      } else if (typeof localStorage !== 'undefined') { // 윈도우 안돼서 예비로 로칼해둠
+  
+      if (typeof localStorage !== 'undefined') { // 윈도우 안돼서 예비로 로칼해둠
         const stored = localStorage.getItem('drawn_cards');
         if (stored) {
           cards = JSON.parse(stored);

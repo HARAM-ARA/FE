@@ -4,7 +4,14 @@ import Header from "../components/Header";
 import ModalComponent from "../components/ModalComponent";
 import { useNavigate } from "react-router-dom";
 import bronze from "../assets/bronze.svg";
+import sliver from "../assets/sliver.svg";
+import gold from "../assets/gold.svg";
+import platinum from "../assets/platinum.svg";
+import diamomd from "../assets/Diamond.svg";
+import ruby from "../assets/ruby.svg";
 import icon1 from "../assets/icon1.svg";
+import icon2 from "../assets/icon2.svg";
+import icon3 from "../assets/icon3.svg";
 import NextBtn from "../assets/nextBtn.svg";
 
 const Body = styled.div`
@@ -112,19 +119,46 @@ const Text = styled.p`
   margin:0;
 `;
 
-const Img = styled.img`
+const BtnImg = styled.img`
   width: 200px;
   height: 200px;
   margin: 15% 15% 0% 0%;
   cursor:pointer;
 `;
 
+const TierImg = styled.img`
+  width: 159.999px;
+  height: 179.199px;
+  position: relative;
+`;
+
+const Number = styled.p`
+  color: #FFF;
+  text-align: center;
+  font-family: Pretendard;
+  font-size: 90px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: -1.103px;
+  position: absolute;
+  margin-top:10.5%;
+`;
+
+const FunctionImg = styled.img`
+  cursor:pointer;
+`;
 
 
 
 export default function Enforce() {
   const [isGuideOpen, setIsGuideOpen] = useState(true);
   const navigate = useNavigate();
+
+
+ 
+
+  
 
   const handleStartGame = () => {
     setIsGuideOpen(false);
@@ -146,15 +180,15 @@ export default function Enforce() {
       <Body>
         <MenuTap>
           <MenuEachBox>
-            <img src={icon1} />
+            <FunctionImg src={icon1} />
             <MenuText> 코드를 유출해요 </MenuText>
           </MenuEachBox>
           <MenuEachBox>
-            <img src={icon1} />
+            <FunctionImg src={icon2} />
             <MenuText> 티어를 살 수 있어요 </MenuText>
           </MenuEachBox>
           <MenuEachBox>
-            <img src={icon1} />
+            <FunctionImg src={icon3} />
             <MenuText> 크레딧으로 교환해요 </MenuText>
           </MenuEachBox>
         </MenuTap>
@@ -162,7 +196,7 @@ export default function Enforce() {
         <TierTap>
           <TierImgBox>
             <Title> 티어 강화하기 </Title>
-            <img src={bronze} />
+            <TierImg src={bronze}/> <Number>3</Number>
           </TierImgBox>
           <TierImgBox2>
             <Title> +8 실버 3 </Title>
@@ -171,9 +205,9 @@ export default function Enforce() {
         </TierTap>
 
         <MenuTap2>
-          <Text>푼 문제 수 : 10000</Text>
+          <Text>푼 문제 수 : 1000</Text>
           <Text>남은 문제 수 : 10000</Text>
-          <Img src={NextBtn}/>
+          <BtnImg src={NextBtn}/>
         </MenuTap2>
 
 
