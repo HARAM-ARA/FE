@@ -11,7 +11,6 @@ const Headerbox = styled.div`
     justify-content: flex-end;
     flex-wrap: nowrap;
     background: #fff;
-    
   `;
 
 const LogoImg = styled.img`
@@ -63,9 +62,9 @@ const LoginBtn = styled.button`
     border:none;
   `;
 
-  const CreditBtn = styled.button`
+  const CreditBox = styled.div`
     display: flex;
-    height: 44px;
+    height: 22px;
     padding: 13px 19px;
     justify-content: center;
     align-items: center;
@@ -124,10 +123,10 @@ export default function Header({teamName, isTeamName = false, isLogin = false, i
       <Headerbox>
         <LogoImg src={HaramLogo}></LogoImg>
         <FunctionBox>
-            {isTeamName && <AmountText>{teamName}</AmountText>}
+            {isTeamName && <AmountText> TEAM {teamName}</AmountText>}
          
             {isLogin && <LoginBtn type="google" onClick={handleGoogleLogin}>로그인</LoginBtn>}
-            {isCredit && <CreditBtn><CreditColor>{Credit}</CreditColor><Gray>크레딧</Gray></CreditBtn>}
+            {isCredit && <CreditBox><CreditColor>{Credit}</CreditColor><Gray>크레딧</Gray></CreditBox>}
         </FunctionBox>
       </Headerbox>
     </>

@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "@emotion/styled";
-import Card from "../components/Card.jsx";
+import Card from "../components/card.jsx";
 import Timer from "../components/Timer.jsx";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header.jsx";
