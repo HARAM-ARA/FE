@@ -18,6 +18,7 @@ const Body = styled.div`
 
 const TitleSection = styled.div`
   margin-bottom: 20px;
+  margin-top: -50px;
 `;
 
 const Title = styled.h1`

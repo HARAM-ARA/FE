@@ -4,7 +4,7 @@ import styled from "@emotion/styled";
 const Headerbox = styled.div`
     width: 1340px;
     height: 90px;
-    margin:26px 50px 0px 50px;
+    margin: 26px 50px 40px 50px;
     display:flex;
     align-items: center;
     position: relative;
