@@ -73,7 +73,6 @@ export default function Select() {
   const loadDrawnCards = async (isInitialLoad = false) => {
     try {
       let cards = [];
-  
       if (typeof localStorage !== 'undefined') { // 윈도우 안돼서 예비로 로칼해둠
         const stored = localStorage.getItem('drawn_cards');
         if (stored) {

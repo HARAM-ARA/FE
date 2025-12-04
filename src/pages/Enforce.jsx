@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import Header from "../components/Header";
@@ -37,6 +38,7 @@ const MenuTap2 = styled.div`
   align-items: flex-end;
   gap: 16px;
   margin: 0 0 5% 0;
+
 `;
 
 const MenuEachBox = styled.div`
@@ -53,8 +55,10 @@ const MenuText = styled.p`
   font-size: 28px;
   font-style: normal;
   font-weight: 500;
+
   line-height: 160%;
   margin: 0;
+
 `;
 
 const TierTap = styled.div`
@@ -80,6 +84,7 @@ const TierImgBox2 = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 24px;
+
 `;
 
 const Title = styled.div`
@@ -92,6 +97,7 @@ const Title = styled.div`
   line-height: normal;
   letter-spacing: -0.84px;
 `;
+
 
 const NextTierText = styled.div`
   color: #5A5A5A;
@@ -275,6 +281,7 @@ export default function Enforce() {
     localStorage.setItem('enforceGameData', JSON.stringify(gameData));
   }, [currentTierIndex, currentLevel, solvedProblems, remainingProblems]);
 
+
   const handleStartGame = () => {
     setIsGuideOpen(false);
   };
@@ -282,6 +289,7 @@ export default function Enforce() {
   const goHome = () => {
     navigate("/std")
   }
+
 
 
   const getCurrentTier = () => TIERS[currentTierIndex];
@@ -473,6 +481,7 @@ export default function Enforce() {
   const currentTier = getCurrentTier();
   const successRate = getSuccessRate();
 
+
   return (
     <>
       <Header
@@ -484,6 +493,7 @@ export default function Enforce() {
       <Body>
         <MenuTap>
           <MenuEachBox>
+
             <FunctionImg src={icon1} />
             <MenuText> 코드를 유출해요 </MenuText>
           </MenuEachBox>
@@ -494,12 +504,14 @@ export default function Enforce() {
           <MenuEachBox>
             <FunctionImg src={icon3} />
             <MenuText> 크레딧으로 교환해요 </MenuText>
+
           </MenuEachBox>
         </MenuTap>
 
         <TierTap>
           <TierImgBox>
             <Title> 티어 강화하기 </Title>
+
             <TierImgWrapper>
               <TierImg src={currentTier.image} />
               <Number>{currentLevel}</Number>
@@ -538,6 +550,7 @@ export default function Enforce() {
         catchphrase="지금 바로 시작하기 버튼을 눌러 백준 루비를 향해 달려가세요!!"
         isGuide={true}
         btnText="게임 시작하기"
+
         onButtonClick={handleStartGame}
       />
 
