@@ -174,7 +174,7 @@ const FunctionImg = styled.img`
 // 티어 정보 배열 (5에서 1로 감소)
 const TIERS = [
   {
-    name: 'Bronze',
+    name: '브론즈',
     image: bronze,
     levels: {
       5: { successRate: 1.0, problems: 10, credit: 100 },
@@ -185,7 +185,7 @@ const TIERS = [
     }
   },
   {
-    name: 'Silver',
+    name: '실버',
     image: sliver,
     levels: {
       5: { successRate: 0.8, problems: 20, credit: 200 },
@@ -196,7 +196,7 @@ const TIERS = [
     }
   },
   {
-    name: 'Gold',
+    name: '골드',
     image: gold,
     levels: {
       5: { successRate: 0.6, problems: 30, credit: 300 },
@@ -207,7 +207,7 @@ const TIERS = [
     }
   },
   {
-    name: 'Platinum',
+    name: '플래티넘',
     image: platinum,
     levels: {
       5: { successRate: 0.4, problems: 40, credit: 400 },
@@ -218,7 +218,7 @@ const TIERS = [
     }
   },
   {
-    name: 'Diamond',
+    name: '다이아몬드',
     image: diamomd,
     levels: {
       5: { successRate: 0.2, problems: 50, credit: 500 },
@@ -229,7 +229,7 @@ const TIERS = [
     }
   },
   {
-    name: 'Ruby',
+    name: '루비',
     image: ruby,
     levels: {
       5: { successRate: 0.1, problems: 60, credit: 600 },
@@ -306,7 +306,7 @@ export default function Enforce() {
       };
     } else {
       return {
-        name: 'Ruby',
+        name: '루비',
         level: 1
       };
     }
@@ -378,7 +378,7 @@ export default function Enforce() {
           tier: success ? currentTierIndex : 0,
           problems: success ? levelInfo.problems : 0
         });
-      }, 500);
+      }, 50);
     });
   };
 
@@ -388,7 +388,7 @@ export default function Enforce() {
 
     if (currentTierIndex === TIERS.length - 1 && currentLevel === 1) {
       setResultMessage('이미 최고 등급입니다!');
-      setResultDescription('Ruby 1 등급을 달성하셨습니다!');
+      setResultDescription('루비 1 등급을 달성하셨습니다!');
       setIsResultModalOpen(true);
       return;
     }
@@ -418,7 +418,7 @@ export default function Enforce() {
       } else {
         // 실패 - 모달 표시
         setResultMessage('강화 실패!');
-        setResultDescription('아쉽게도 강화에 실패하여 Bronze 5로 초기화되었습니다.');
+        setResultDescription('아쉽게도 강화에 실패하여 브론즈 5로 초기화되었습니다.');
 
         // Bronze 5로 초기화
         setCurrentTierIndex(0);
@@ -451,7 +451,7 @@ export default function Enforce() {
       } else {
         // 실패 - 모달 표시
         setResultMessage('강화 실패!');
-        setResultDescription('아쉽게도 강화에 실패하여 Bronze 5로 초기화되었습니다.');
+        setResultDescription('아쉽게도 강화에 실패하여 브론즈 5로 초기화되었습니다.');
 
         // Bronze 5로 초기화
         setCurrentTierIndex(0);
@@ -471,7 +471,6 @@ export default function Enforce() {
   };
 
   const currentTier = getCurrentTier();
-  const nextTier = getNextTier();
   const successRate = getSuccessRate();
 
   return (
@@ -503,14 +502,14 @@ export default function Enforce() {
             <Title> 티어 강화하기 </Title>
             <TierImgWrapper>
               <TierImg src={currentTier.image} />
-              <Number>{getCurrentTierNumber()}</Number>
+              <Number>{currentLevel}</Number>
             </TierImgWrapper>
           </TierImgBox>
           <TierImgBox2>
             {currentTierIndex === TIERS.length - 1 && currentLevel === 1 ? (
               <Title>최고 등급 달성!</Title>
             ) : (
-              <NextTierText>+{getNextTierNumber()} {nextTier.name} {nextTier.level}</NextTierText>
+              <NextTierText>+{getCurrentTierNumber()} {currentTier.name} {currentLevel}</NextTierText>
             )}
             <Percent>{successRate}%</Percent>
           </TierImgBox2>
@@ -553,7 +552,7 @@ export default function Enforce() {
             ? '계속해서 더 높은 등급에 도전해보세요!'
             : resultMessage === '강화 실패!'
             ? '포기하지 마세요! 다시 도전하면 성공할 수 있습니다!'
-            : 'Ruby 1 등급을 달성하셨습니다!'
+            : '루비 1 등급을 달성하셨습니다!'
         }
         isGuide={true}
         btnText="확인"
