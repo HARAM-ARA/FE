@@ -9,7 +9,7 @@ const Body = styled.div`
     display: flex;
     width: 1440px;
     padding: 26px 51px 162px 50px;
-    flex-direction: column;
+    flex-direction: row;
     align-items: flex-start;
     gap: 50px;
     background: #fff;
