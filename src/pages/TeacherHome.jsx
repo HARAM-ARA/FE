@@ -9,7 +9,7 @@ const Body = styled.div`
     display: flex;
     width: 1440px;
     padding: 26px 51px 162px 50px;
-    flex-direction: column;
+    flex-direction: row;
     align-items: flex-start;
     gap: 50px;
     background: #fff;
@@ -131,7 +131,7 @@ export default function TeacherHome() {
               isOrange={true}
               title="전체 팀 크레딧 조회"
               description="모든 팀 크레딧을 조회하고 추가해요"
-              onClick={() => navigate("/teacher/credits")}
+              onClick={() => navigate("/credits")}
             />
             <Card
               width="450px"
