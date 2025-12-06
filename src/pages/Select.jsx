@@ -337,6 +337,7 @@ export default function Select() {
         isOpen={isGuideOpen}
         onClose={goHome} // X 버튼은 /std로 나가게
         title="추억의 뽑기 게임"
+        dismissKey="select-guide"
         description="추억의 문방구 뽑기 게임을 아시나요?
         뽑기 1회 당 500 크레딧을 지불하여 진행해요!
         뽑기 판 안에는 1000 크레딧부터 5000 크레딧까지 일반적인 보상과
@@ -362,6 +363,7 @@ export default function Select() {
           onButtonClick={handleOpenTeamSelect}
           isResult={true}
           effect={cardResult?.effect}
+          dismissKey="guide-modal"
         />
       )}
 

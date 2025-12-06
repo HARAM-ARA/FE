@@ -2,7 +2,9 @@
 import { useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import Header from "../components/Header";
-import ModalComponent from "../components/ModalComponent";
+import FunctionMenu from "../components/EnforceComponent/FunctionMenu.jsx";
+import TierDisplay from "../components/EnforceComponent/TierDisplay.jsx";
+import ProblemStats from "../components/EnforceComponent/ProblemStats.jsx";
 import { useNavigate } from "react-router-dom";
 import bronze from "../assets/bronze.svg";
 import sliver from "../assets/sliver.svg";
@@ -10,171 +12,20 @@ import gold from "../assets/gold.svg";
 import platinum from "../assets/platinum.svg";
 import diamomd from "../assets/Diamond.svg";
 import ruby from "../assets/ruby.svg";
-import icon1 from "../assets/icon1.svg";
-import icon2 from "../assets/icon2.svg";
-import icon3 from "../assets/icon3.svg";
-import NextBtn from "../assets/nextBtn.svg";
+import ModalComponent from "../components/ModalComponent";
+import Failure from "../assets/failure.svg";
+import icon1hover from "../assets/icon1hover.svg";
+import icon2hover from "../assets/icon2hover.svg";
+import icon3hover from "../assets/icon3hover.svg";
+import crown from "../assets/crown.svg";
 
 const Body = styled.div`
-    height: 650px;
-    display: flex;
-    align-items: center;
-    gap: 12%;
-    margin: 0px 50px 95px 50px;
-    background: #fff;
-  `;
-
-const MenuTap = styled.div`
+  height: 650px;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 16px;
-  margin: 0 0 5% 0;
-`;
-
-const MenuTap2 = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 16px;
-  margin: 0 0 5% 0;
-
-`;
-
-const MenuEachBox = styled.div`
-  display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 8px;
-`;
-
-const MenuText = styled.p`
-  color: #6A6A6A;
-  font-feature-settings: 'liga' off, 'clig' off;
-  font-family: Pretendard;
-  font-size: 28px;
-  font-style: normal;
-  font-weight: 500;
-
-  line-height: 160%;
-  margin: 0;
-
-`;
-
-const TierTap = styled.div`
-  display: flex;
-  width: 375px;
-  flex-direction: column;
-  align-items: center;
-  gap: 90px;
-`;
-
-const TierImgBox = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 60px;
-  align-self: stretch;
-  margin-left: 0;
-  position: relative;
-`;
-
-const TierImgBox2 = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-
-`;
-
-const Title = styled.div`
-  color: #2E4358;
-  text-align: center;
-  font-family: Pretendard;
-  font-size: 70px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-  letter-spacing: -0.84px;
-`;
-
-
-const NextTierText = styled.div`
-  color: #5A5A5A;
-  text-align: center;
-  font-family: Pretendard;
-  font-size: 70px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-  letter-spacing: -0.84px;
-  white-space: nowrap;
-`;
-
-const Percent = styled.p`
-  color: #3A3A3A;
-  text-align: center;
-  font-family: Pretendard;
-  font-size: 40px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-  letter-spacing: -0.48px;
-`;
-
-const Text = styled.p`
-  color: #6A6A6A;
-  text-align: center;
-  font-family: Pretendard;
-  font-size: 40px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: normal;
-  letter-spacing: -0.48px;
-  margin: 0;
-`;
-
-const BtnImg = styled.img`
-  width: 200px;
-  height: 200px;
-  margin: 15% 15% 0 0;
-  cursor: pointer;
-`;
-
-const TierImgWrapper = styled.div`
-  position: relative;
-  display: inline-block;
-  width: 160px;
-  height: 180px;
-`;
-
-const TierImg = styled.img`
-  width: 160px;
-  height: 180px;
-  position: absolute;
-  top: 0;
-  left: 0;
-`;
-
-const Number = styled.p`
-  color: #FFF;
-  text-align: center;
-  font-family: Pretendard;
-  font-size: 90px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-  letter-spacing: -1.103px;
-  position: absolute;
-  top: 36%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  margin: 0;
-  z-index: 1;
-`;
-
-const FunctionImg = styled.img`
-  cursor: pointer;
+  gap: 12%;
+  margin: 0px 50px 95px 50px;
+  background: #fff;
 `;
 
 // 티어 정보 배열 (5에서 1로 감소)
@@ -248,26 +99,44 @@ const TIERS = [
 ];
 
 export default function Enforce() {
+  const TEAM_NAME = '하람';
   const [isGuideOpen, setIsGuideOpen] = useState(true);
   const [currentTierIndex, setCurrentTierIndex] = useState(0);
   const [currentLevel, setCurrentLevel] = useState(5);
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [isResultModalOpen, setIsResultModalOpen] = useState(false);
+  const [isResultButton, setIsResultButton] = useState(true);
   const [resultMessage, setResultMessage] = useState('');
-  const [resultDescription, setResultDescription] = useState('');
+  const [isLeakResultModalOpen, setIsLeakResultModalOpen] = useState(false);
+  const [leakResultMessage, setLeakResultMessage] = useState('');
+  const [isExchangeResultModalOpen, setIsExchangeResultModalOpen] = useState(false);
+  const [exchangeResultMessage, setExchangeResultMessage] = useState('');
+  const [isBuyTierResultModalOpen, setIsBuyTierResultModalOpen] = useState(false);
+  const [buyTierResultMessage, setBuyTierResultMessage] = useState('');
   const [solvedProblems, setSolvedProblems] = useState(0);
-  const [remainingProblems, setRemainingProblems] = useState(10000);
+  const [remainingProblems, setRemainingProblems] = useState(1000);
+  const [credit, setCredit] = useState(20000);
+
+
+  // 기능 모달 상태
+  const [isLeakCodeModalOpen, setIsLeakCodeModalOpen] = useState(false);
+  const [isBuyTierModalOpen, setIsBuyTierModalOpen] = useState(false);
+  const [isExchangeCreditModalOpen, setIsExchangeCreditModalOpen] = useState(false);
+
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const savedData = localStorage.getItem('enforceGameData');
     if (savedData) {
-      const { tierIndex, level, solved, remaining } = JSON.parse(savedData);
+      const { tierIndex, level, solved, remaining, credit: savedCredit } = JSON.parse(savedData);
       setCurrentTierIndex(tierIndex);
       setCurrentLevel(level);
       setSolvedProblems(solved);
       setRemainingProblems(remaining);
+      if (savedCredit !== undefined) {
+        setCredit(savedCredit);
+      }
     }
   }, []);
 
@@ -276,10 +145,11 @@ export default function Enforce() {
       tierIndex: currentTierIndex,
       level: currentLevel,
       solved: solvedProblems,
-      remaining: remainingProblems
+      remaining: remainingProblems,
+      credit: credit
     };
     localStorage.setItem('enforceGameData', JSON.stringify(gameData));
-  }, [currentTierIndex, currentLevel, solvedProblems, remainingProblems]);
+  }, [currentTierIndex, currentLevel, solvedProblems, remainingProblems, credit]);
 
 
   const handleStartGame = () => {
@@ -291,33 +161,12 @@ export default function Enforce() {
   }
 
 
-
   const getCurrentTier = () => TIERS[currentTierIndex];
 
 
   const getCurrentLevelInfo = () => {
     const tier = getCurrentTier();
     return tier.levels[currentLevel];
-  };
-
-  // 다음 티어 정보 가져오기
-  const getNextTier = () => {
-    if (currentLevel > 1) {
-      return {
-        name: getCurrentTier().name,
-        level: currentLevel - 1
-      };
-    } else if (currentTierIndex < TIERS.length - 1) {
-      return {
-        name: TIERS[currentTierIndex + 1].name,
-        level: 5
-      };
-    } else {
-      return {
-        name: '루비',
-        level: 1
-      };
-    }
   };
 
   // 강화 성공률 가져오기
@@ -331,20 +180,26 @@ export default function Enforce() {
     return currentTierIndex * 5 + (6 - currentLevel);
   };
 
-  // 다음 티어의 숫자 계산
-  const getNextTierNumber = () => {
-    const next = getNextTier();
-    let nextTierIndex = currentTierIndex;
-
-    if (next.level < currentLevel) {
-      // 같은 티어 내에서 레벨업
-      nextTierIndex = currentTierIndex;
-    } else {
-      // 다음 티어로 이동
-      nextTierIndex = currentTierIndex + 1;
+  const getTierLabel = (tierKey) => {
+    switch (tierKey) {
+      case 'gold2':
+        return '골드 2';
+      case 'platinum4':
+        return '플레티넘 4';
+      default:
+        return '티어';
     }
+  };
 
-    return nextTierIndex * 5 + (6 - next.level);
+  const getTierCost = (tierKey) => {
+    switch (tierKey) {
+      case 'gold2':
+        return 600;
+      case 'platinum4':
+        return 1000;
+      default:
+        return 0;
+    }
   };
 
   // API 호출 함수
@@ -396,7 +251,6 @@ export default function Enforce() {
 
     if (currentTierIndex === TIERS.length - 1 && currentLevel === 1) {
       setResultMessage('이미 최고 등급입니다!');
-      setResultDescription('루비 1 등급을 달성하셨습니다!');
       setIsResultModalOpen(true);
       return;
     }
@@ -420,13 +274,12 @@ export default function Enforce() {
           setCurrentLevel(5);
         }
 
-        // 문제 수 업데이트
-        setSolvedProblems(prev => prev + problems);
+        // 남은 문제 수만 업데이트 (푼 문제 수는 코드 유출 시에만 증가)
         setRemainingProblems(prev => Math.max(0, prev - problems));
       } else {
         // 실패 - 모달 표시
-        setResultMessage('강화 실패!');
-        setResultDescription('아쉽게도 강화에 실패하여 브론즈 5로 초기화되었습니다.');
+        setResultMessage('계정 새로 만드세요!');
+        setIsResultButton(true);
 
         // Bronze 5로 초기화
         setCurrentTierIndex(0);
@@ -453,13 +306,12 @@ export default function Enforce() {
           setCurrentLevel(5);
         }
 
-        // 문제 수 업데이트
-        setSolvedProblems(prev => prev + levelInfo.problems);
+        // 남은 문제 수만 업데이트 (푼 문제 수는 코드 유출 시에만 증가)
         setRemainingProblems(prev => Math.max(0, prev - levelInfo.problems));
       } else {
         // 실패 - 모달 표시
-        setResultMessage('강화 실패!');
-        setResultDescription('아쉽게도 강화에 실패하여 브론즈 5로 초기화되었습니다.');
+        setResultMessage('계정을 다시 만드세요!');
+        setIsResultButton(true);
 
         // Bronze 5로 초기화
         setCurrentTierIndex(0);
@@ -478,6 +330,129 @@ export default function Enforce() {
     setIsResultModalOpen(false);
   };
 
+  // 기능 모달 핸들러
+  const handleLeakCodeClick = () => {
+    setIsLeakCodeModalOpen(true);
+  };
+
+  const handleBuyTierClick = () => {
+    setIsBuyTierModalOpen(true);
+  };
+
+  const handleExchangeCreditClick = () => {
+    setIsExchangeCreditModalOpen(true);
+  };
+
+  const closeLeakCodeModal = () => {
+    setIsLeakCodeModalOpen(false);
+  };
+
+  const closeLeakResultModal = () => {
+    setIsLeakResultModalOpen(false);
+  };
+
+  const closeExchangeResultModal = () => {
+    setIsExchangeResultModalOpen(false);
+  };
+
+  const closeBuyTierModal = () => {
+    setIsBuyTierModalOpen(false);
+  };
+
+  const closeExchangeCreditModal = () => {
+    setIsExchangeCreditModalOpen(false);
+  };
+
+  const closeBuyTierResultModal = () => {
+    setIsBuyTierResultModalOpen(false);
+  };
+
+
+
+  const handleLeakCodeAction = () => {
+    // 코드 유출 기능: 확정 성공
+    const levelInfo = getCurrentLevelInfo();
+    const earnedCredit = levelInfo.problems;
+    const earnedProblems = levelInfo.problems;
+
+    setCredit(prev => prev + earnedCredit);
+    setSolvedProblems(prev => prev + earnedProblems);
+
+    // 브론즈 5로 초기화
+    setCurrentTierIndex(0);
+    setCurrentLevel(5);
+
+    setLeakResultMessage(`${TEAM_NAME} 팀 ${earnedProblems}문제 지급!`);
+    setIsLeakResultModalOpen(true);
+    setIsLeakCodeModalOpen(false);
+  };
+
+
+
+  const handleBuyTierAction = (tierKey) => {
+    const requiredProblems = getTierCost(tierKey);
+
+    if (requiredProblems === 0) {
+      setResultMessage('구매할 티어를 선택하세요!');
+      setIsResultButton(true);
+      setIsResultModalOpen(true);
+      setIsBuyTierModalOpen(false);
+      return;
+    }
+
+    if (solvedProblems < requiredProblems) {
+      setResultMessage(`문제 수 부족! (필요: ${requiredProblems}, 현재: ${solvedProblems})`);
+      setIsResultButton(false);
+      setIsResultModalOpen(true);
+      setIsBuyTierModalOpen(false);
+      return;
+    }
+
+    // 최고 등급 체크
+    if (currentTierIndex === TIERS.length - 1 && currentLevel === 1) {
+      setResultMessage('이미 최고 등급입니다!');
+      setIsResultButton(true);
+      setIsResultModalOpen(true);
+      setIsBuyTierModalOpen(false);
+      return;
+    }
+
+    // 문제 차감 및 티어 업그레이드
+    setSolvedProblems(prev => Math.max(0, prev - requiredProblems));
+
+    if (currentLevel > 1) {
+      setCurrentLevel(prev => prev - 1);
+    } else if (currentTierIndex < TIERS.length - 1) {
+      setCurrentTierIndex(prev => prev + 1);
+      setCurrentLevel(5);
+    }
+
+    const tierLabel = getTierLabel(tierKey);
+    setBuyTierResultMessage(`${TEAM_NAME} 팀 ${tierLabel} 계정 구매 완료!`);
+    setIsBuyTierResultModalOpen(true);
+    setIsBuyTierModalOpen(false);
+  };
+
+  const handleExchangeCreditAction = () => {
+    // 크레딧 교환 기능: 문제 수 * 100 = 받는 크레딧
+    if (solvedProblems < 10) {
+      setResultMessage('문제 수 부족!');
+      setIsResultButton(false);
+      setIsResultModalOpen(true);
+      setIsExchangeCreditModalOpen(false);
+      return;
+    }
+
+    const earnedCredit = solvedProblems * 100;
+
+    setCredit(prev => prev + earnedCredit);
+    setSolvedProblems(0); // 교환 후 0으로 초기화
+
+    setExchangeResultMessage(`${TEAM_NAME} 팀 ${earnedCredit}크레딧 지급`);
+    setIsExchangeResultModalOpen(true);
+    setIsExchangeCreditModalOpen(false);
+  };
+
   const currentTier = getCurrentTier();
   const successRate = getSuccessRate();
 
@@ -485,56 +460,32 @@ export default function Enforce() {
   return (
     <>
       <Header
-        teamName="하람"
+        teamName={TEAM_NAME}
         isTeamName={true}
         isCredit={true}
-        Credit="20,000" />
+        Credit={credit.toLocaleString()} />
 
       <Body>
-        <MenuTap>
-          <MenuEachBox>
+        <FunctionMenu
+          handleLeakCodeClick={handleLeakCodeClick}
+          handleBuyTierClick={handleBuyTierClick}
+          handleExchangeCreditClick={handleExchangeCreditClick}
+        />
 
-            <FunctionImg src={icon1} />
-            <MenuText> 코드를 유출해요 </MenuText>
-          </MenuEachBox>
-          <MenuEachBox>
-            <FunctionImg src={icon2} />
-            <MenuText> 티어를 살 수 있어요 </MenuText>
-          </MenuEachBox>
-          <MenuEachBox>
-            <FunctionImg src={icon3} />
-            <MenuText> 크레딧으로 교환해요 </MenuText>
+        <TierDisplay
+          currentTier={currentTier}
+          currentLevel={currentLevel}
+          currentTierIndex={currentTierIndex}
+          getCurrentTierNumber={getCurrentTierNumber}
+          successRate={successRate}
+          tiersLength={TIERS.length}
+        />
 
-          </MenuEachBox>
-        </MenuTap>
-
-        <TierTap>
-          <TierImgBox>
-            <Title> 티어 강화하기 </Title>
-
-            <TierImgWrapper>
-              <TierImg src={currentTier.image} />
-              <Number>{currentLevel}</Number>
-            </TierImgWrapper>
-          </TierImgBox>
-          <TierImgBox2>
-            {currentTierIndex === TIERS.length - 1 && currentLevel === 1 ? (
-              <Title>최고 등급 달성!</Title>
-            ) : (
-              <NextTierText>+{getCurrentTierNumber()} {currentTier.name} {currentLevel}</NextTierText>
-            )}
-            <Percent>{successRate}%</Percent>
-          </TierImgBox2>
-        </TierTap>
-
-        <MenuTap2>
-          <Text>푼 문제 수 : {solvedProblems}</Text>
-          <Text>남은 문제 수 : {remainingProblems}</Text>
-          <BtnImg
-            src={NextBtn}
-            onClick={handleEnhance}
-          />
-        </MenuTap2>
+        <ProblemStats
+          solvedProblems={solvedProblems}
+          remainingProblems={remainingProblems}
+          handleEnhance={handleEnhance}
+        />
       </Body>
 
       {/* 게임 가이드 모달 */}
@@ -542,6 +493,7 @@ export default function Enforce() {
         isOpen={isGuideOpen}
         onClose={goHome}
         title="강화하기 게임"
+        dismissKey="guide-modal"
         description="검 강화하기 게임을 아시나요?
              버튼을 누르면 일정 확률로 검 강화에 성공하여 더 좋은 검을 만드는 게임이에요
              정해진 확률에 따라 강화를 하거나, 검을 판매하여 돈을 모을 수 있어요
@@ -559,17 +511,74 @@ export default function Enforce() {
         isOpen={isResultModalOpen}
         onClose={closeResultModal}
         title={resultMessage}
-        description={resultDescription}
-        catchphrase={
-          resultMessage === '강화 성공!'
-            ? '계속해서 더 높은 등급에 도전해보세요!'
-            : resultMessage === '강화 실패!'
-            ? '포기하지 마세요! 다시 도전하면 성공할 수 있습니다!'
-            : '루비 1 등급을 달성하셨습니다!'
-        }
-        isGuide={true}
-        btnText="확인"
+        img={Failure}
         onButtonClick={closeResultModal}
+        isButton={isResultButton}
+        btnText="티어가 0으로 강등 됐어요 처음부터 시작하세요"
+      />
+
+
+
+
+      {/* 코드 유출 모달 */}
+      <ModalComponent
+        isOpen={isLeakCodeModalOpen}
+        onClose={closeLeakCodeModal}
+        title="당신은 코드를 파는 유저입니다......"
+        isButton={true}
+        img = {icon1hover}
+        btnText="코드를 팔아서 문제를 얻어요"
+        onButtonClick={handleLeakCodeAction}
+      />
+
+      {/* 코드 유출 결과 모달 */}
+      <ModalComponent
+        isOpen={isLeakResultModalOpen}
+        onClose={closeLeakResultModal}
+        title={leakResultMessage}
+        img={crown}
+        isButton={false}
+      />
+
+
+      {/* 티어 구매 모달 */}
+      <ModalComponent
+        isOpen={isBuyTierModalOpen}
+        onClose={closeBuyTierModal}
+        img={icon2hover}
+        title="티어 상점"
+        isTierShop={true}
+        onButtonClick={handleBuyTierAction}
+      />
+
+      {/* 크레딧 교환 모달 */}
+      <ModalComponent
+        isOpen={isExchangeCreditModalOpen}
+        onClose={closeExchangeCreditModal}
+        img={icon3hover}
+        btnText="10000 크레딧으로 교환해요"
+        title="크레딧 교환하기"
+        onButtonClick={handleExchangeCreditAction}
+        isButton={true}
+        isCreditChange={true}
+      />
+
+      {/* 크레딧 교환 결과 모달 */}
+      <ModalComponent
+        isOpen={isExchangeResultModalOpen}
+        onClose={closeExchangeResultModal}
+        title={exchangeResultMessage}
+        img={crown}
+        isButton={false}
+      />
+
+      {/* 티어 구매 결과 모달 */}
+      <ModalComponent
+        isOpen={isBuyTierResultModalOpen}
+        onClose={closeBuyTierResultModal}
+        title={buyTierResultMessage}
+        img={crown}
+        isButton={false}
       />
     </>
   )

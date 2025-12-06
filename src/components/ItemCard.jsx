@@ -5,7 +5,7 @@ import { useState } from "react";
 const Card = styled.div`
   display:flex;
   position: relative;
-  width: 350px;
+  width: 333px;
   height: ${props => props.isCoupon ? "300px" : "111px"};
   padding: 32px 40px;
   border-radius: 12px;
@@ -14,6 +14,7 @@ const Card = styled.div`
 `;
 
 const StyledInput = styled.input`
+    margin: 0;
   appearance: none;
   width: 1.5rem;
   height: 1.5rem;
@@ -27,6 +28,7 @@ const StyledInput = styled.input`
     background-repeat: no-repeat;
     background-color: #F07F23;
   }
+  
 `;
 
 const StyledLabel = styled.label`
@@ -39,7 +41,7 @@ const Img = styled.img`
   height: ${props => props.isCoupon ? "150px" : "110px"};
   flex-shrink: 0;
   border-radius: 12px;
-  margin: -15px 20px 0px 20px;
+  margin: 0px 15px 0px 20px;
 `;
 
 const Title = styled.p`
@@ -67,6 +69,7 @@ const Price = styled.p`
 const Des = styled.div`
   display : ${props => props.isCoupon ? "" : "flex"};
   align-items: center;
+   
 `;
 
 const QuantityBox = styled.div`
@@ -76,7 +79,7 @@ const QuantityBox = styled.div`
   gap: 12px;
   color:white;
   margin : ${props => props.isCoupon ? '0px  0px 0px 23px' : '0px 0px 0px 5px'};
-  
+   
 `;
 
 const QuantityBtn = styled.button`
@@ -89,6 +92,7 @@ const QuantityBtn = styled.button`
   flex-shrink: 0;
   border-radius: 80px;
   border: 1px solid #B2B2B2;
+   
   &:hover{
     border:none;
     
@@ -110,6 +114,7 @@ const Quantity = styled.p`
   font-weight: 500;
   line-height: normal;
   letter-spacing: -0.24px;
+    margin:0;
 `;
 
 const Gray = styled.p`
@@ -175,7 +180,7 @@ export default function ItemCard({ isCoupon = false, checked, onChange, img, tit
     <>
       <Card isCoupon={isCoupon}>
         {stock === 0 && <SoldOutOverlay>매진입니다!!</SoldOutOverlay>}
-        <div >
+        <div style={{margin:'0px'}}>
           <StyledLabel>
             <StyledInput type="checkbox" checked={checked} onChange={handleCheck} />
             <Des isCoupon={isCoupon}>

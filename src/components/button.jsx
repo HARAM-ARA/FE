@@ -9,7 +9,7 @@ export default function({path, onClick, text, active, isModal, isSelect}){
   const Btn = styled.button`
     border: 1px solid ${props => 
     props.isModal ? '#F07F23' : (props.active ? 'none' : '#B2B2B2')};
-    height: ${props => props.isModal ? '50px' : "37px"};
+    height: ${props => props.isModal ? '50px' : "40px"};
     display: inline-flex;
     padding: 10px 24px;
     justify-content: center;
