@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "@emotion/styled";
+import AddCreditModal from "./AddCreditModal.jsx";
 
 const CardContainer = styled.div`
   display: flex;
@@ -92,18 +93,38 @@ const OutlinedButton = styled.button`
 `;
 
 export default function CreditCard({ id, name, credit }) {
-  const handleClick = () => {
-    console.log("clicked", id);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleAddCredit = (amount) => {
+    console.log("Adding credit:", amount, "to team:", id);
+    // TODO: API 호출 또는 상태 업데이트 로직 추가
   };
 
   return (
-    <CardContainer>
-      <TeamName>{name}</TeamName>
-      {credit !== null ? (
-        <CreditAmount>{credit.toLocaleString()} 크레딧</CreditAmount>
-      ) : (
-        <OutlinedButton onClick={handleClick}>크레딧 추가하기</OutlinedButton>
-      )}
-    </CardContainer>
+    <>
+      <CardContainer>
+        <TeamName>{name}</TeamName>
+        {credit !== null ? (
+          <CreditAmount>{credit.toLocaleString()} 크레딧</CreditAmount>
+        ) : (
+          <OutlinedButton onClick={handleOpenModal}>크레딧 추가하기</OutlinedButton>
+        )}
+      </CardContainer>
+
+      <AddCreditModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        teamName={name}
+        onAdd={handleAddCredit}
+      />
+    </>
   );
 }
