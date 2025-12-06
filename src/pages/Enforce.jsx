@@ -105,6 +105,7 @@ export default function Enforce() {
   const [currentLevel, setCurrentLevel] = useState(5);
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [isResultModalOpen, setIsResultModalOpen] = useState(false);
+  const [isResultButton, setIsResultButton] = useState(true);
   const [resultMessage, setResultMessage] = useState('');
   const [isLeakResultModalOpen, setIsLeakResultModalOpen] = useState(false);
   const [leakResultMessage, setLeakResultMessage] = useState('');
@@ -190,6 +191,17 @@ export default function Enforce() {
     }
   };
 
+  const getTierCost = (tierKey) => {
+    switch (tierKey) {
+      case 'gold2':
+        return 600;
+      case 'platinum4':
+        return 1000;
+      default:
+        return 0;
+    }
+  };
+
   // API 호출 함수
   const callEnforceAPI = async () => {
     // 실제 API 호출 (현재 주석 처리됨)
@@ -267,6 +279,7 @@ export default function Enforce() {
       } else {
         // 실패 - 모달 표시
         setResultMessage('계정 새로 만드세요!');
+        setIsResultButton(true);
 
         // Bronze 5로 초기화
         setCurrentTierIndex(0);
@@ -298,6 +311,7 @@ export default function Enforce() {
       } else {
         // 실패 - 모달 표시
         setResultMessage('계정을 다시 만드세요!');
+        setIsResultButton(true);
 
         // Bronze 5로 초기화
         setCurrentTierIndex(0);
@@ -376,12 +390,19 @@ export default function Enforce() {
 
 
   const handleBuyTierAction = (tierKey) => {
-    // 티어 구매 기능: 현재 티어에 해당하는 크레딧 필요
-    const levelInfo = getCurrentLevelInfo();
-    const requiredCredit = levelInfo.credit;
+    const requiredProblems = getTierCost(tierKey);
 
-    if (credit < requiredCredit) {
-      setResultMessage('크레딧 부족!');
+    if (requiredProblems === 0) {
+      setResultMessage('구매할 티어를 선택하세요!');
+      setIsResultButton(true);
+      setIsResultModalOpen(true);
+      setIsBuyTierModalOpen(false);
+      return;
+    }
+
+    if (solvedProblems < requiredProblems) {
+      setResultMessage(`문제 수 부족! (필요: ${requiredProblems}, 현재: ${solvedProblems})`);
+      setIsResultButton(false);
       setIsResultModalOpen(true);
       setIsBuyTierModalOpen(false);
       return;
@@ -390,13 +411,14 @@ export default function Enforce() {
     // 최고 등급 체크
     if (currentTierIndex === TIERS.length - 1 && currentLevel === 1) {
       setResultMessage('이미 최고 등급입니다!');
+      setIsResultButton(true);
       setIsResultModalOpen(true);
       setIsBuyTierModalOpen(false);
       return;
     }
 
-    // 크레딧 차감 및 티어 업그레이드
-    setCredit(prev => prev - requiredCredit);
+    // 문제 차감 및 티어 업그레이드
+    setSolvedProblems(prev => Math.max(0, prev - requiredProblems));
 
     if (currentLevel > 1) {
       setCurrentLevel(prev => prev - 1);
@@ -406,7 +428,7 @@ export default function Enforce() {
     }
 
     const tierLabel = getTierLabel(tierKey);
-    setBuyTierResultMessage(`${tierLabel} 계정 구매 완료!`);
+    setBuyTierResultMessage(`${TEAM_NAME} 팀 ${tierLabel} 계정 구매 완료!`);
     setIsBuyTierResultModalOpen(true);
     setIsBuyTierModalOpen(false);
   };
@@ -415,6 +437,7 @@ export default function Enforce() {
     // 크레딧 교환 기능: 문제 수 * 100 = 받는 크레딧
     if (solvedProblems < 10) {
       setResultMessage('문제 수 부족!');
+      setIsResultButton(false);
       setIsResultModalOpen(true);
       setIsExchangeCreditModalOpen(false);
       return;
@@ -470,6 +493,7 @@ export default function Enforce() {
         isOpen={isGuideOpen}
         onClose={goHome}
         title="강화하기 게임"
+        dismissKey="guide-modal"
         description="검 강화하기 게임을 아시나요?
              버튼을 누르면 일정 확률로 검 강화에 성공하여 더 좋은 검을 만드는 게임이에요
              정해진 확률에 따라 강화를 하거나, 검을 판매하여 돈을 모을 수 있어요
@@ -489,7 +513,7 @@ export default function Enforce() {
         title={resultMessage}
         img={Failure}
         onButtonClick={closeResultModal}
-        isButton={true}
+        isButton={isResultButton}
         btnText="티어가 0으로 강등 됐어요 처음부터 시작하세요"
       />
 

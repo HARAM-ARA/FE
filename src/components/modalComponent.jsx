@@ -1,5 +1,5 @@
 // @refresh reload
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Modal from "react-modal";
 import styled from "@emotion/styled";
 import xImg from "../assets/Frame.svg";
@@ -7,6 +7,7 @@ import Btn from "./Button.jsx";
 import gold from "../assets/gold.svg";
 import platinum from "../assets/platinum.svg";
 import icon2hover from "../assets/icon2hover.svg";
+import Checkbox from "./Checkbox.jsx";
 
 
 Modal.setAppElement("#root");
@@ -234,6 +235,13 @@ const TierButton = styled.button`
   }
 `;
 
+const ActionRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+`;
+
 export default function ModalComponent({
   isOpen,
   onClose,
@@ -249,12 +257,42 @@ export default function ModalComponent({
   effect,
   isButton = false,
   isCreditChange = false,
-  isTierShop = false
+  isTierShop = false,
+  dismissKey // "다시 보지 않기" 체크박스를 표시할 때 사용하는 키 (localStorage)
 }) {
+  const storageKey = useMemo(() => dismissKey ? `modal:dismiss:${dismissKey}` : null, [dismissKey]);
+  const [isDismissed, setIsDismissed] = useState(() => {
+    if (!storageKey) return false;
+    return localStorage.getItem(storageKey) === 'true';
+  });
+
+  useEffect(() => {
+    if (!storageKey) return;
+    setIsDismissed(localStorage.getItem(storageKey) === 'true');
+  }, [storageKey]);
+
+  const handleDismissChange = (e) => {
+    const checked = e.target.checked;
+    setIsDismissed(checked);
+    if (storageKey) {
+      localStorage.setItem(storageKey, checked ? 'true' : 'false');
+    }
+    if (checked) {
+      if (onButtonClick) {
+        onButtonClick();
+      } else if (onClose) {
+        onClose();
+      }
+    }
+  };
+
+  const effectiveOpen = isOpen && !isDismissed;
+  const showDismissCheckbox = !!dismissKey;
+
   return (
     <Modal
       key={isTierShop ? 'tier-shop' : isGuide ? 'guide' : isResult ? 'result' : 'default'}
-      isOpen={isOpen}
+      isOpen={effectiveOpen}
       onRequestClose={onClose}
       style={isGuide ? guideModalStyles : customModalStyles}
       shouldCloseOnOverlayClick={true}
@@ -300,7 +338,16 @@ export default function ModalComponent({
           <Description isGuide={isGuide}>{description}</Description>
           <Catchphrase isGuide={isGuide}>{catchphrase}</Catchphrase>
           <div style={{ width: "100%", display: "flex", justifyContent: "flex-end", marginLeft: "70px" }}>
-            <Btn onClick={onButtonClick} text={btnText} isModal={true} />
+            <ActionRow>
+              {showDismissCheckbox && (
+                <Checkbox
+                  checked={isDismissed}
+                  onChange={handleDismissChange}
+                  label="다시 보지 않기"
+                />
+              )}
+              <Btn onClick={onButtonClick} text={btnText} isModal={true} />
+            </ActionRow>
           </div>
         </Div>
       )
@@ -333,7 +380,16 @@ export default function ModalComponent({
                     :
                         <div style={{margin:'30px'}}> </div>
                     }
-                  <Btn text={btnText} onClick={onButtonClick} />
+                  <ActionRow>
+                    {showDismissCheckbox && (
+                      <Checkbox
+                        checked={isDismissed}
+                        onChange={handleDismissChange}
+                        label="다시 보지 않기"
+                      />
+                    )}
+                    <Btn text={btnText} onClick={onButtonClick} />
+                  </ActionRow>
                 </>
               ) : (
                 <>
