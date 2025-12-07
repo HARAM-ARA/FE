@@ -92,7 +92,7 @@ const OutlinedButton = styled.button`
   }
 `;
 
-export default function CreditCard({ id, name, credit }) {
+export default function CreditCard({ id, name, credit, onAddCredit }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOpenModal = () => {
@@ -104,8 +104,11 @@ export default function CreditCard({ id, name, credit }) {
   };
 
   const handleAddCredit = (amount) => {
-    console.log("Adding credit:", amount, "to team:", id);
-    // TODO: API 호출 또는 상태 업데이트 로직 추가
+    // 부모 컴포넌트(Credits.jsx)의 handleAddCredit 함수 호출
+    // Credits.jsx에서 백엔드 API 호출 및 상태 업데이트 처리
+    if (onAddCredit) {
+      onAddCredit(id, amount);
+    }
   };
 
   return (

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "@emotion/styled";
 import Header from "../components/Header.jsx";
 import CreditCard from "../components/CreditCard.jsx";
@@ -49,6 +49,73 @@ const GridContainer = styled.div`
 `;
 
 export default function Credits() {
+  const [credits, setCredits] = useState(dummyCredits);
+
+  // 크레딧 추가 핸들러 (백엔드 API 호출)
+  const handleAddCredit = async (teamId, amount) => {
+    try {
+      /* ===== 백엔드 API 호출 코드 =====
+      const token = localStorage.getItem('access_token');
+
+      const response = await fetch('/api/teacher/credits/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          teamId: teamId,
+          amount: amount
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        if (error.error === "UNAUTHORIZED") {
+          alert("권한이 없습니다");
+        } else if (error.error === "NON_EXIST_TEAM") {
+          alert("존재하지 않는 팀입니다");
+        } else if (error.error === "INVALID_AMOUNT") {
+          alert("올바르지 않은 금액입니다");
+        }
+        return;
+      }
+
+      const data = await response.json();
+      // data 예시: { teamId: 1, teamName: "TEAM 하람", credit: 1500, addedAmount: 500 }
+
+      // 서버에서 받은 최신 크레딧 정보로 상태 업데이트
+      setCredits(prevCredits =>
+        prevCredits.map(team =>
+          team.id === teamId
+            ? { ...team, credit: data.credit }
+            : team
+        )
+      );
+
+      alert(`${data.teamName}에 ${amount.toLocaleString()} 크레딧이 추가되었습니다!`);
+      ================================= */
+
+      // 임시 로컬 처리 (백엔드 연동 전)
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      setCredits(prevCredits =>
+        prevCredits.map(team =>
+          team.id === teamId
+            ? { ...team, credit: (team.credit || 0) + amount }
+            : team
+        )
+      );
+
+      const teamName = credits.find(t => t.id === teamId)?.name;
+      alert(`${teamName}에 ${amount.toLocaleString()} 크레딧이 추가되었습니다!`);
+
+    } catch (error) {
+      console.error("크레딧 추가 실패:", error);
+      alert("크레딧 추가에 실패했습니다. 다시 시도해주세요.");
+    }
+  };
+
   return (
     <Container>
       <Header teamName="최병준 선생님" />
@@ -59,12 +126,13 @@ export default function Credits() {
           <Description>팀별로 크레딧을 추가할 수 있어요</Description>
         </TitleSection>
         <GridContainer>
-          {dummyCredits.map((team) => (
+          {credits.map((team) => (
             <CreditCard
               key={team.id}
               id={team.id}
               name={team.name}
               credit={team.credit}
+              onAddCredit={handleAddCredit}
             />
           ))}
         </GridContainer>
