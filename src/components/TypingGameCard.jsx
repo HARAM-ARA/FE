@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import Card from "./card.jsx";
 import ModalComponent from "./modalComponent.jsx";
+import TypingModalFlow from "./TypingModalFlow.jsx";
 
-export default function TypingGameCard({ testMode = false }) {
+export default function TypingGameCard({ testMode = false, myTeamName = "하람" }) {
   const [showGuideModal, setShowGuideModal] = useState(false);
   const [showGameModal, setShowGameModal] = useState(false);
 
@@ -44,18 +45,13 @@ export default function TypingGameCard({ testMode = false }) {
         btnText="게임 시작하기"
         onButtonClick={handleGuideConfirm}
         isGuide={true}
-
       />
 
-      {/* 게임 모달 (실제 게임 화면) */}
-      <ModalComponent
+      {/* 타자 게임 전체 플로우 모달 */}
+      <TypingModalFlow
         isOpen={showGameModal}
         onClose={handleGameClose}
-        title="타자 게임"
-        description="여기에 실제 타자 게임 로직이 들어갑니다."
-        btnText="완료"
-        onButtonClick={handleGameClose}
-        isButton={true}
+        myTeamName={myTeamName}
       />
     </>
   );
