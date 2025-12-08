@@ -238,7 +238,7 @@ export default function TeamSpace() {
 
     return (
         <>
-            <Header teamName="최병준 선생님" />
+            <Header teamName="최병준" isTeacher={true} />
             <Body>
                 <TopDiv>
                     <TitleSection>
