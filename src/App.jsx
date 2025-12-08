@@ -7,6 +7,7 @@ import Select from "./pages/Select.jsx";
 import Teacher from "./pages/TeacherHome.jsx";
 import Credits from "./pages/Credits.jsx";
 import Enforce from "./pages/Enforce.jsx";
+import TeamSpace from "./pages/TeamSpace.jsx";
 
 
 export default function App() {
@@ -20,7 +21,8 @@ export default function App() {
           <Route path="/select" element={<Select />} />
           <Route path="/tch" element={<Teacher/>} />
           <Route path="/credits" element={<Credits />}/>
-          <Route path="enforce" element={<Enforce />}/>
+          <Route path="/enforce" element={<Enforce />}/>
+          <Route path="/teacher/teams" element={<TeamSpace />}/>
         </Routes>
       </BrowserRouter>
     </>
