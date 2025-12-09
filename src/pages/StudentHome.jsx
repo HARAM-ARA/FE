@@ -2,6 +2,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import Card from "../components/card.jsx";
 import Timer from "../components/Timer.jsx";
+import TypingGameCard from "../components/TypingGameCard.jsx";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header.jsx";
 
@@ -107,9 +108,8 @@ const ButtonRow = styled.div`
 
 
 export default function Student() {
-
-
   const navigate = useNavigate();
+
   return (
     <>
       <Header
@@ -164,11 +164,7 @@ export default function Student() {
               buttonText="시작하기"
               onClick={() => navigate("/select")}
             />
-            <Card
-              title="타자게임"
-              description="2시간에 한번, 타자 게임에 도전하세요!"
-              isTimer="true"
-            />
+            <TypingGameCard testMode={true} /> {/*테스트 시 true*/}
             <Card
               title="강화하기 게임"
               description="백준 루비를 향한 여정을 시작하세요!"
