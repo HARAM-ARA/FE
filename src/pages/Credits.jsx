@@ -118,7 +118,7 @@ export default function Credits() {
 
   return (
     <Container>
-      <Header teamName="최병준 선생님" />
+      <Header teamName="최병준" isTeacher={true}/>
       <Body>
         <TitleSection>
           <Title>전체 팀 크레딧 조회</Title>

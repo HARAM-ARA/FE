@@ -1,5 +1,6 @@
 import HaramLogo from "../assets/Logo.svg";
 import styled from "@emotion/styled";
+import Logo from "../assets/HaramLogo.svg";
 
 const Headerbox = styled.div`
     width: 1340px;
@@ -100,10 +101,15 @@ const LoginBtn = styled.button`
     line-height: normal;
   `;
 
+  const Img = styled.img`
+      width: 40px;
+      height: 40px;
+  `;
 
 
 
-export default function Header({teamName, isTeamName = false, isLogin = false, isCredit = false, Credit}) {
+
+export default function Header({teamName, isTeacher=false, isTeamName = false, isLogin = false, isCredit = false, Credit}) {
 
   const handleGoogleLogin = () => {
     const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -125,6 +131,8 @@ export default function Header({teamName, isTeamName = false, isLogin = false, i
         <LogoImg src={HaramLogo}></LogoImg>
         <FunctionBox>
             {isTeamName && <AmountText>TEAM {teamName}</AmountText>}
+            {isTeacher && <><Img src={Logo}/> <AmountText> {teamName} 성생님</AmountText></>}
+
          
             {isLogin && <LoginBtn type="google" onClick={handleGoogleLogin}>로그인</LoginBtn>}
             {isCredit && <CreditBtn><CreditColor>{Credit}</CreditColor><Gray>크레딧</Gray></CreditBtn>}
