@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import HaramLogo from "../assets/Logo.svg";
 import styled from "@emotion/styled";
 import Logo from "../assets/HaramLogo.svg";
@@ -111,19 +113,21 @@ const LoginBtn = styled.button`
 
 export default function Header({teamName, isTeacher=false, isTeamName = false, isLogin = false, isCredit = false, Credit}) {
 
-  const handleGoogleLogin = () => {
-    const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    const GOOGLE_REDIRECT_URI = import.meta.env.VITE_GOOGLE_REDIRECT_URI;
-  
-  
-    const scope = encodeURIComponent(
-      "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"
-    );
-  
-    const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${GOOGLE_REDIRECT_URI}&response_type=token&scope=${scope}`;
-    
-    window.location.href = url;
-  };
+
+
+    const handleGoogleLogin = async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}haram/auth/login`);
+            const data = await res.json();
+            const authURL = data.authURL;
+            window.location.href = authURL;
+        } catch (e) {
+            console.error("구글 로그인 URL 요청 실패", e);
+        }
+
+    };
+
+
 
   return (
     <>
@@ -131,7 +135,7 @@ export default function Header({teamName, isTeacher=false, isTeamName = false, i
         <LogoImg src={HaramLogo}></LogoImg>
         <FunctionBox>
             {isTeamName && <AmountText>TEAM {teamName}</AmountText>}
-            {isTeacher && <><Img src={Logo}/> <AmountText> {teamName} 성생님</AmountText></>}
+            {isTeacher && <><Img src={Logo}/> <AmountText> {teamName} 선생님</AmountText></>}
 
          
             {isLogin && <LoginBtn type="google" onClick={handleGoogleLogin}>로그인</LoginBtn>}

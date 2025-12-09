@@ -141,7 +141,7 @@ export default function TeacherHome() {
               isOrange={true}
               title="상점"
               description="상점에 상품을 등록하고 수정해요"
-              onClick={() => navigate("/teacher/store")}
+              onClick={() => navigate("/store")}
             />
           </FunctionBox>
         </RightBox>

@@ -2,7 +2,6 @@ import React from "react";
 import styled from "@emotion/styled";
 import Card from "../components/card.jsx";
 import Timer from "../components/Timer.jsx";
-import { useNavigate } from "react-router-dom";
 import Header from "../components/Header.jsx";
 
 
@@ -33,8 +32,6 @@ const RightBox = styled.div`
     flex-direction: column;
     align-items: flex-start;
     gap: 32px;
-    
-        
     margin: 0px 0px 0px 0px;
   `;
 
@@ -108,7 +105,7 @@ const ButtonRow = styled.div`
 
 export default function BeforeHome() {
 
-  const navigate = useNavigate();
+
   return (
     <>
       <Header
