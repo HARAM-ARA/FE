@@ -1,8 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import HaramLogo from "../assets/Logo.svg";
 import styled from "@emotion/styled";
 import Logo from "../assets/HaramLogo.svg";
+import axios from "axios";
 
 const Headerbox = styled.div`
     width: 1340px;
@@ -113,21 +114,29 @@ const LoginBtn = styled.button`
 
 export default function Header({teamName, isTeacher=false, isTeamName = false, isLogin = false, isCredit = false, Credit}) {
 
-
+    const navigate = useNavigate();
 
     const handleGoogleLogin = async () => {
-        try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}haram/auth/login`);
+            const res = await axios.get(`http://blleaf.kro.kr:8031/haram/auth/login`);
             const data = await res.json();
-            const authURL = data.authURL;
-            window.location.href = authURL;
-        } catch (e) {
-            console.error("구글 로그인 URL 요청 실패", e);
-        }
-
+            window.location.href = data.authURL; // 이동만
     };
 
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const res = await axios.get(`${import.meta.env.VITE_API_URL}haram/auth/profile`, { credentials: "include" });
 
+                const data = await res.json();
+                if (data.role === 'teacher') navigate('/tch');
+                else if (data.role === 'student') navigate('/std');
+            } catch (err) {
+                console.warn("프로필 조회 실패", err);
+            }
+        };
+
+        fetchProfile();
+    }, [navigate]);
 
   return (
     <>

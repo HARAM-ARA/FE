@@ -1,11 +1,9 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import styled from "@emotion/styled";
 import Header from "../components/Header.jsx";
 import TeamCard from "../components/TeamSpaceComponent/TeamCard.jsx";
 import TeamDetailModal from "../components/TeamSpaceComponent/TeamDetailModal.jsx";
 import DeleteConfirmModal from "../components/TeamSpaceComponent/DeleteConfirmModal.jsx";
-import Btn from "../components/button.jsx";
-import SearchBtn from "../assets/searchButton.svg"
 
 const Body = styled.div`
     min-height: 575px;
@@ -127,6 +125,21 @@ const AddTeamText = styled.p`
     margin: 0;
 `;
 
+const AddTeamSubText = styled.p`
+    color: #B2B2B2;
+    font-family: Pretendard;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    margin: 0;
+`;
+
+const UploadErrorText = styled(AddTeamSubText)`
+    color: #D14343;
+    margin-top: 8px;
+`;
+
 const DeleteBtn = styled.button`
     display: flex;
     width: 184px;
@@ -156,6 +169,9 @@ export default function TeamSpace() {
     const [selectedTeams, setSelectedTeams] = useState([]);
     const [selectedTeamForDetail, setSelectedTeamForDetail] = useState(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadError, setUploadError] = useState("");
+    const fileInputRef = useRef(null);
 
     // 목업 데이터 - 실제로는 API에서 가져옴
     const [teams, setTeams] = useState([
@@ -236,10 +252,63 @@ export default function TeamSpace() {
         }));
     };
 
+    const handleAddTeamCardClick = () => {
+        if (isUploading) return;
+        fileInputRef.current?.click();
+    };
+
+    // API 연결~
+    const handleTeamFileUpload = async (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        setIsUploading(true);
+        setUploadError("");
+
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}tch/append`, {
+                method: "POST",
+                headers: {
+                    "Content-type": "multipart/form-data",
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
+
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error(`Upload failed with status ${response.status}`);
+            }
+
+            const data = await response.json().catch(() => null);
+            if (data?.teams) {
+                setTeams(data.teams);
+            }
+        } catch (error) {
+            console.error("팀 파일 업로드 실패", error);
+            setUploadError("팀을 업로드하지 못했어요. 다시 시도해 주세요.");
+        } finally {
+            setIsUploading(false);
+            if (event.target) {
+                event.target.value = "";
+            }
+        }
+    };
+
     return (
         <>
             <Header teamName="최병준" isTeacher={true} />
             <Body>
+                <input
+                    type="file"
+                    accept=".xlsx,.xls,.csv,.json"
+                    ref={fileInputRef}
+                    style={{ display: "none" }}
+                    onChange={handleTeamFileUpload}
+                />
                 <TopDiv>
                     <TitleSection>
                         <Title>팀스페이스 조회</Title>
@@ -278,10 +347,14 @@ export default function TeamSpace() {
                             onClick={() => handleTeamClick(team)}
                         />
                     ))}
-                    <AddTeamCard>
-                        <AddTeamText>팀 추가하기</AddTeamText>
+                    <AddTeamCard onClick={handleAddTeamCardClick}>
+                        <AddTeamText>{isUploading ? "업로드 중..." : "팀 추가하기"}</AddTeamText>
+                        <AddTeamSubText>팀 파일을 선택하면 자동으로 업로드돼요</AddTeamSubText>
                     </AddTeamCard>
                 </TeamGrid>
+                {uploadError && (
+                    <UploadErrorText>{uploadError}</UploadErrorText>
+                )}
             </Body>
 
             <TeamDetailModal
