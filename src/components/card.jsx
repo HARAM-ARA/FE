@@ -1,17 +1,69 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Countdown from "react-countdown";
 import styled from '@emotion/styled';
 import Button from './Button.jsx';
 
 
 
-export default function Card({ width, height, title, description, buttonText, onClick, showButton = true, isTimer = false, isCredit = false, credit, isOrange = false, isTeacher = false }) {
+export default function Card({ width, height, title, description, buttonText, onClick, showButton = true, isTimer = false, isCredit = false, credit, isOrange = false, isTeacher = false, isTypingGame = false, onTypingGameStart, testMode = false }) {
 
   const [key, setKey] = useState(0);
+  const [isTimerComplete, setIsTimerComplete] = useState(false);
+  const [nextEventTime, setNextEventTime] = useState(null);
+
+  // 타자 게임용: 서버 시간 기반으로 다음 이벤트 시간 계산
+  useEffect(() => {
+    if (isTypingGame) {
+      calculateNextEventTime();
+    }
+  }, [isTypingGame]);
+
+  const calculateNextEventTime = () => {
+    // TODO: 실제 백엔드 API로 교체 필요
+    // const response = await fetch('/api/typing-game/time');
+    // const data = await response.json();
+    // setNextEventTime(new Date(data.nextEventTime));
+
+    const now = new Date();
+
+    if (testMode) {
+      // 테스트 모드: 10초 후로 설정
+      const next = new Date(now.getTime() + 10 * 1000);
+      setNextEventTime(next);
+      setIsTimerComplete(false);
+      console.log('[테스트 모드] 타이머 10초 후 활성화:', next);
+    } else {
+      // 실제 운영: 로컬 시간 기반 2시간 주기
+      const currentHour = now.getHours();
+      const nextEventHour = Math.ceil(currentHour / 2) * 2;
+
+      const next = new Date(now);
+      next.setHours(nextEventHour, 0, 0, 0);
+
+      if (next <= now) {
+        next.setHours(next.getHours() + 2);
+      }
+
+      setNextEventTime(next);
+      setIsTimerComplete(false);
+    }
+  };
 
   const handleKey = () => {
     setKey(prev => prev + 1);
   }
+
+  const handleTypingGameComplete = () => {
+    setIsTimerComplete(true);
+  };
+
+  const handleTypingGameClick = () => {
+    if (onTypingGameStart) {
+      onTypingGameStart();
+    }
+    // 게임 시작 후 다시 타이머 시작
+    calculateNextEventTime();
+  };
 
   return (
     <>
@@ -26,25 +78,56 @@ export default function Card({ width, height, title, description, buttonText, on
           <Title isTeacher={isTeacher}>{title}</Title>
           <Description isTeacher={isTeacher}>{description}</Description>
 
-          {/* showButton이 false가 아니면 (기본 true) 버튼을 띄운다. */}
-          {showButton && buttonText && <Button onClick={onClick} text={buttonText} />}
+          {/* 타자게임용: 타이머 완료 전에는 타이머, 완료 후에는 버튼 */}
+          {isTypingGame ? (
+            isTimerComplete ? (
+              <Button onClick={handleTypingGameClick} text="타자 게임 시작하기" />
+            ) : (
+              nextEventTime && (
+                <Timer>
+                  <Countdown
+                    key={key}
+                    date={nextEventTime.getTime()}
+                    renderer={({ hours, minutes, seconds, completed }) => {
+                      if (completed) {
+                        return <TimerText>00 : 00 : 00</TimerText>;
+                      }
+                      return (
+                        <TimerText>
+                          {String(hours).padStart(2, "0")} :
+                          {String(minutes).padStart(2, "0")} :
+                          {String(seconds).padStart(2, "0")}
+                        </TimerText>
+                      );
+                    }}
+                    onComplete={handleTypingGameComplete}
+                  />
+                </Timer>
+              )
+            )
+          ) : (
+            <>
+              {/* 일반 버튼 */}
+              {showButton && buttonText && <Button onClick={onClick} text={buttonText} />}
 
-          {/* 타자게임용 2시간 타이머 */}
-          {isTimer &&
-            <Timer>
-              <Countdown
-                key={key}
-                date={Date.now() + 2 * 60 * 60 * 1000}
-                renderer={({ hours, minutes, seconds }) => (
-                  <TimerText>
-                    {String(hours).padStart(2, "0")} :
-                    {String(minutes).padStart(2, "0")} :
-                    {String(seconds).padStart(2, "0")}
-                  </TimerText>
-                )}
-                onComplete={handleKey}
-              />
-            </Timer>}
+              {/* 기존 타자게임용 2시간 타이머 (하위 호환성) */}
+              {isTimer &&
+                <Timer>
+                  <Countdown
+                    key={key}
+                    date={Date.now() + 2 * 60 * 60 * 1000}
+                    renderer={({ hours, minutes, seconds }) => (
+                      <TimerText>
+                        {String(hours).padStart(2, "0")} :
+                        {String(minutes).padStart(2, "0")} :
+                        {String(seconds).padStart(2, "0")}
+                      </TimerText>
+                    )}
+                    onComplete={handleKey}
+                  />
+                </Timer>}
+            </>
+          )}
 
 
         </InBox>
