@@ -8,6 +8,7 @@ import Teacher from "./pages/TeacherHome.jsx";
 import Credits from "./pages/Credits.jsx";
 import Enforce from "./pages/Enforce.jsx";
 import TeamSpace from "./pages/TeamSpace.jsx";
+import AdminStore from "./pages/AdminStore.jsx";
 
 
 export default function App() {
@@ -22,7 +23,8 @@ export default function App() {
           <Route path="/tch" element={<Teacher/>} />
           <Route path="/credits" element={<Credits />}/>
           <Route path="/enforce" element={<Enforce />}/>
-          <Route path="/teacher/teams" element={<TeamSpace />}/>
+          <Route path="/teams" element={<TeamSpace />}/>
+          <Route path="/adminstore" element={<AdminStore />}/>
         </Routes>
       </BrowserRouter>
     </>
