@@ -7,7 +7,9 @@ import Button from "../components/button.jsx";
 import ItemCard from "../components/ItemCard";
 import Mock from "../assets/Mock.png";
 import storeImg from "../assets/store.svg";
-import xImg from "../assets/Frame.svg"; // x 버튼 이미지 import
+import xImg from "../assets/Frame.svg";
+import axios from "axios";
+
 
 
 // --- 스타일 정의: AdminStore 기본 스타일 ---
@@ -122,7 +124,7 @@ const Items = styled.div`
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     justify-items: center;
-    gap: 24px;
+    gap: 0px;
 `;
 
 // --- 커스텀 모달 스타일 (AddItemComponent용) ---
@@ -461,13 +463,13 @@ const AddItemComponent = ({ onAddItem, onClose }) => {
 export default function AdminStore() {
     // Mock Data (생략)
     const mockData = [
-        { id: 1, name: "첫 번째 간식", price: 5000, img: Mock, type: 1, stock: 10 },
-        { id: 2, name: "두 번째 간식", price: 7000, img: Mock, type: 1, stock: 5 },
-        { id: 3, name: "세 번째 간식", price: 9000, img: Mock, type: 1, stock: 0 },
-        { id: 4, name: "네 번째 간식", price: 6000, img: Mock, type: 1, stock: 12 },
-        { id: 5, name: "다섯 번째 간식", price: 4500, img: Mock, type: 1, stock: 3 },
-        { id: 6, name: "여섯 번째 간식", price: 8000, img: Mock, type: 1, stock: 7 },
-        { id: 7, name: "일곱 번째 간식", price: 1000, img: Mock, type: 1, stock: 9 },
+        { id: 1, name: "첫 번째", price: 5000, img: Mock, type: 1, stock: 10 },
+        { id: 2, name: "두 번째", price: 7000, img: Mock, type: 1, stock: 5 },
+        { id: 3, name: "세 번째", price: 9000, img: Mock, type: 1, stock: 0 },
+        { id: 4, name: "네 번째", price: 6000, img: Mock, type: 1, stock: 12 },
+        { id: 5, name: "다섯 번째", price: 4500, img: Mock, type: 1, stock: 3 },
+        { id: 6, name: "여섯 번째", price: 8000, img: Mock, type: 1, stock: 7 },
+        { id: 7, name: "일곱 번째", price: 1000, img: Mock, type: 1, stock: 9 },
     ];
 
     const mockData2 = [
@@ -493,14 +495,55 @@ export default function AdminStore() {
         setSuccessMessage("");
     };
 
-    const handleAddItem = (newItem) => {
-        // 실제 상품 추가 로직은 여기에 구현
+    const handleAddItem = async (newItem) => {
+        try {
 
-        setIsFormModalOpen(false);
-        setSuccessMessage("상품 추가 완료!");
-        setIsSuccessModalOpen(true);
+            const token = localStorage.getItem("token"); // ⭐ 추가된 부분
+
+            if (!token) {
+                alert("토큰이 없습니다. 다시 로그인 해주세요.");
+                return;
+            }
+
+            const body = {
+                itemName: newItem.name,
+                description: newItem.description || "설명 없음",
+                image: newItem.image || "https://",
+                price: newItem.price,
+                quantity: newItem.stock,
+                type: 1
+            };
+
+            const response = await axios.post(
+                "/tch/store",
+                body,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            alert("상품이 추가되었습니다!");
+
+            setItems((prev) => [
+                ...prev,
+                {
+                    id: response.data.itemId,
+                    name: newItem.name,
+                    price: newItem.price,
+                    stock: newItem.stock
+                }
+            ]);
+
+            setIsFormModalOpen(false);
+
+        } catch (error) {
+            console.error("물품 추가 실패:", error);
+            alert("물품 추가 실패: " + error.message);
+        }
     };
-
     const handleDeleteItems = () => {
         if (!anyChecked) return;
         setCheckedCards({});
