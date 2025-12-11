@@ -34,7 +34,7 @@ export default function ProblemStats({ solvedProblems, remainingProblems, handle
   return (
     <MenuTap2>
       <Text>푼 문제 수 : {solvedProblems}</Text>
-      <Text>남은 문제 수 : {remainingProblems}</Text>
+      {/* <Text>남은 문제 수 : {remainingProblems}</Text> */}
       <BtnImg src={NextBtn} onClick={handleEnhance} />
     </MenuTap2>
   );
