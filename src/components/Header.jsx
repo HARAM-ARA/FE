@@ -1,6 +1,8 @@
 import HaramLogo from "../assets/Logo.svg";
 import styled from "@emotion/styled";
 import Logo from "../assets/HaramLogo.svg";
+import { AxiosInstnce, tokenUtils } from "../lib/customAxios";
+import { useEffect } from "react";
 
 const Headerbox = styled.div`
     width: 1340px;
@@ -64,7 +66,28 @@ const LoginBtn = styled.button`
     border:none;
   `;
 
-  const CreditBtn = styled.button`
+const LogoutBtn = styled.button`
+    height:48px;
+    padding: 12px 20px;
+    border-radius: var(--XS, 8px);
+    background: #6B7280;
+    color: var(--white, #FFF);
+    text-align: center;
+    font-size: 20px;
+    font-family: 'Pretendard', sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    &:focus {
+      outline: none;
+    }
+    &:hover {
+      background: #4B5563;
+    }
+    border:none;
+  `;
+
+const CreditBtn = styled.button`
     display: flex;
     height: 44px;
     padding: 13px 19px;
@@ -82,7 +105,7 @@ const LoginBtn = styled.button`
     }
   `;
 
-  const CreditColor = styled.span`
+const CreditColor = styled.span`
     color: var(--Primary-200, #F07F23);
     text-align: center;
     font-family: Pretendard;
@@ -92,7 +115,7 @@ const LoginBtn = styled.button`
     line-height: normal;
   `;
 
-  const Gray = styled.span`
+const Gray = styled.span`
     color: #B2B2B2;
     font-family: Pretendard;
     font-size: 20px;
@@ -101,7 +124,7 @@ const LoginBtn = styled.button`
     line-height: normal;
   `;
 
-  const Img = styled.img`
+const Img = styled.img`
       width: 40px;
       height: 40px;
   `;
@@ -109,20 +132,40 @@ const LoginBtn = styled.button`
 
 
 
-export default function Header({teamName, isTeacher=false, isTeamName = false, isLogin = false, isCredit = false, Credit}) {
-
-  const handleGoogleLogin = () => {
-    const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    const GOOGLE_REDIRECT_URI = import.meta.env.VITE_GOOGLE_REDIRECT_URI;
-  
-  
-    const scope = encodeURIComponent(
-      "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"
-    );
-  
-    const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${GOOGLE_REDIRECT_URI}&response_type=token&scope=${scope}`;
-    
-    window.location.href = url;
+export default function Header({ teamName, isTeacher = false, isTeamName = false, isLogin = false, isLogout = false, isCredit = false, Credit }) {
+  const handleGoogleLogin = async () => {
+    try {
+      const response = await AxiosInstnce.get('/haram/auth/login');
+      window.location.href = response.data.authURL;
+    } catch (error) {
+      console.error('로그인 요청 실패:', error);
+    }
+  };
+  const GetProfile = async () => {
+    try {
+      const response = await AxiosInstnce.get('/haram/auth/profile');
+      return response.data;
+    } catch (error) {
+      console.error('로그인 요청 실패:', error);
+    }
+  };
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const profile = await GetProfile();
+      console.log(profile);
+    };
+    fetchProfile();
+  }, []);
+  const handleLogout = async () => {
+    try {
+      await AxiosInstnce.post('/haram/auth/logout');
+      tokenUtils.removeToken();
+      window.location.href = '/';
+    } catch (error) {
+      console.error('로그아웃 요청 실패:', error);
+      tokenUtils.removeToken();
+      window.location.href = '/';
+    }
   };
 
   return (
@@ -130,12 +173,13 @@ export default function Header({teamName, isTeacher=false, isTeamName = false, i
       <Headerbox>
         <LogoImg src={HaramLogo}></LogoImg>
         <FunctionBox>
-            {isTeamName && <AmountText>TEAM {teamName}</AmountText>}
-            {isTeacher && <><Img src={Logo}/> <AmountText> {teamName} 성생님</AmountText></>}
+          {isTeamName && <AmountText>TEAM {teamName}</AmountText>}
+          {isTeacher && <><Img src={Logo} /> <AmountText> {teamName} 선생님</AmountText></>}
 
-         
-            {isLogin && <LoginBtn type="google" onClick={handleGoogleLogin}>로그인</LoginBtn>}
-            {isCredit && <CreditBtn><CreditColor>{Credit}</CreditColor><Gray>크레딧</Gray></CreditBtn>}
+
+          {isLogin && <LoginBtn type="google" onClick={handleGoogleLogin}>로그인</LoginBtn>}
+          {isLogout && <LogoutBtn onClick={handleLogout}>로그아웃</LogoutBtn>}
+          {isCredit && <CreditBtn><CreditColor>{Credit}</CreditColor><Gray>크레딧</Gray></CreditBtn>}
         </FunctionBox>
       </Headerbox>
     </>
