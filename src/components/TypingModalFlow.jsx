@@ -3,25 +3,7 @@ import styled from "@emotion/styled";
 import ModalBase from "./ModalBase.jsx";
 import Btn from './button.jsx';
 import crownIcon from "../assets/crown.svg";
-
-
-// 더미 데이터
-const DUMMY_QUESTIONS = [
-  "벚꽃잎꽃말은즐거움",
-  "마나게먹으면이긴다",
-  "프로그래밍은재미있다",
-  "타자게임최고점수",
-  "해커톤파이팅합시다"
-];
-
-const DUMMY_RANKINGS = [
-  { rank: 1, teamName: "TEAM 아라", time: "30.09초" },
-  { rank: 2, teamName: "TEAM 하람", time: "37.31초" },
-  { rank: 3, teamName: "TEAM 먀아", time: "38.99초" },
-  { rank: 4, teamName: "TEAM 아띠", time: "48.19초" },
-  { rank: 5, teamName: "TEAM 베르데", time: "46.35초" },
-  { rank: 13, teamName: "TEAM 앙", time: "76.05초" }
-];
+import { AxiosInstnce } from "../lib/customAxios.js";
 
 // 공통 스타일
 const ModalContent = styled.div`
@@ -122,28 +104,6 @@ const ButtonContainer = styled.div`
   display: flex;
   gap: 12px;
   margin-top: 32px;
-`;
-
-const Button = styled.button`
-  padding: 14px 32px;
-  border-radius: 12px;
-  font-family: Pretendard;
-  font-size: 18px;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  transition: all 0.2s ease;
-
-  background: ${props => props.primary ? '#FFF2E4' : '#F0F0F0'};
-  color: ${props => props.primary ? '#F07F23' : '#646464'};
-
-  &:hover {
-    background: ${props => props.primary ? '#FFE8CC' : '#E0E0E0'};
-  }
-
-  &:focus {
-    outline: none;
-  }
 `;
 
 const EndMessage = styled.div`
@@ -280,64 +240,101 @@ const RankingButtonContainer = styled.div`
 
 export default function TypingModalFlow({ isOpen, onClose, myTeamName = "하람", teamId }) {
   const [currentStep, setCurrentStep] = useState("game"); // game, end, ranking, credit
+  const [questions, setQuestions] = useState([]);
+  const [gameId, setGameId] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [userInput, setUserInput] = useState("");
   const [userAnswers, setUserAnswers] = useState([]); // 사용자 응답 저장
-  const [startTime, setStartTime] = useState(null);
-  const [endTime, setEndTime] = useState(null);
   const [myRank, setMyRank] = useState(null);
-  const [myResult, setMyResult] = useState(null);
+  const [rankings, setRankings] = useState([]);
+  const [myTeamRankInfo, setMyTeamRankInfo] = useState(null);
+  const [gameResultTime, setGameResultTime] = useState(0);
   const inputRef = useRef(null);
 
-  // 모달이 열릴 때마다 게임 상태 초기화
+  const fetchGame = async () => {
+    try {
+      const timeResponse = await AxiosInstnce.get('/std/typing/time');
+      const serverTime = parseInt(timeResponse.data.serverTime, 10);
+
+      const response = await AxiosInstnce.get('/std/typing/game');
+      const { gameId, words, startTime, endTime } = response.data;
+
+      if (serverTime >= endTime) {
+        alert("진행 중인 게임이 없습니다.");
+        onClose();
+        return;
+      }
+
+      setQuestions(words);
+      setGameId(gameId);
+    } catch (error) {
+      console.error("Error fetching game data:", error);
+      if (error.response && error.response.status === 404) {
+        alert("진행 중인 게임이 없습니다.");
+        onClose();
+      }
+    }
+  };
+
+  const submitAnswers = async (answers) => {
+    try {
+      const response = await AxiosInstnce.post('/std/typing/input', {
+        input: answers,
+        gameId: gameId,
+      });
+      setGameResultTime(response.data.time);
+      setCurrentStep("end");
+    } catch (error) {
+      console.error("Error submitting answers:", error);
+      if (error.response) {
+        alert(error.response.data.message || "결과 제출에 실패했습니다.");
+      } else {
+        alert("결과 제출에 실패했습니다.");
+      }
+      onClose();
+    }
+  };
+
+  const fetchRanking = async () => {
+    try {
+      const response = await AxiosInstnce.get('/std/typing/rank');
+      const { rank, winners, message } = response.data;
+      setMyRank(rank);
+      setRankings(winners);
+      setMyTeamRankInfo({ rank, message });
+      setCurrentStep("ranking");
+    } catch (error) {
+      console.error("Error fetching ranking:", error);
+      alert("순위를 불러오는데 실패했습니다.");
+    }
+  };
+
   useEffect(() => {
     if (isOpen) {
-      setCurrentStep("game");
-      setCurrentQuestion(0);
-      setUserInput("");
-      setUserAnswers([]);
-      setStartTime(null);
-      setEndTime(null);
-      setMyRank(null);
-      setMyResult(null);
+      resetGame();
+      fetchGame();
     }
   }, [isOpen]);
 
   useEffect(() => {
-    if (isOpen && currentStep === "game") {
-      setStartTime(Date.now());
+    if (isOpen && currentStep === "game" && questions.length > 0) {
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
     }
-  }, [isOpen, currentStep, currentQuestion]);
+  }, [isOpen, currentStep, currentQuestion, questions]);
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
-      // 현재 입력값을 저장
       const newAnswers = [...userAnswers, userInput];
       setUserAnswers(newAnswers);
 
-      if (currentQuestion < DUMMY_QUESTIONS.length - 1) {
-        // 다음 문제로
+      if (currentQuestion < questions.length - 1) {
         setCurrentQuestion(currentQuestion + 1);
         setUserInput("");
-        setTimeout(() => {
-          inputRef.current?.focus();
-        }, 50);
       } else {
-        // 게임 종료 - 5개 응답 모두 저장됨
-        setEndTime(Date.now());
-        setCurrentStep("end");
+        submitAnswers(newAnswers);
         setUserInput("");
-
-        // TODO: API - 게임 결과 제출
-        console.log('제출할 데이터:', {
-          teamId: teamId,
-          answers: newAnswers,
-          playTime: Date.now() - startTime
-        });
-        // const result = await submitGameAnswers({ teamId, answers: newAnswers });
       }
     }
   };
@@ -348,75 +345,36 @@ export default function TypingModalFlow({ isOpen, onClose, myTeamName = "하람"
 
   const handleEndGame = () => {
     onClose();
-    resetGame();
-  };
-
-  const findMyTeamResult = () => {
-    // 동일 팀명이 여러 개일 때 최신 결과 우선
-    const reversed = [...DUMMY_RANKINGS].reverse();
-    return reversed.find((item) => item.teamName.includes(myTeamName)) || null;
   };
 
   const handleShowRanking = () => {
-    // TODO: API - 게임 결과 제출 및 순위 조회
-    // const result = await submitGameResult({ teamName: myTeamName, time: endTime - startTime });
-    // setMyRank(result.rank);
-
-    const myTeamResult = findMyTeamResult();
-    setMyResult(myTeamResult);
-    setMyRank(myTeamResult?.rank || null);
-    setCurrentStep("ranking");
+    fetchRanking();
   };
 
   const handleReceiveCredit = () => {
-    // TODO: API - 크레딧 수령
-    // await receiveCredit({ teamName: myTeamName, rank: myRank });
-
     setCurrentStep("credit");
-  };
-
-  const handleCloseRanking = () => {
-    onClose();
-    resetGame();
-  };
-
-  const handleCloseCreditModal = () => {
-    onClose();
-    resetGame();
   };
 
   const resetGame = () => {
     setCurrentStep("game");
+    setQuestions([]);
+    setGameId(null);
     setCurrentQuestion(0);
     setUserInput("");
     setUserAnswers([]);
-    setStartTime(null);
-    setEndTime(null);
     setMyRank(null);
-    setMyResult(null);
-  };
-
-  const getElapsedTime = () => {
-    if (!startTime || !endTime) return "0.00초";
-    const elapsed = ((endTime - startTime) / 1000).toFixed(2);
-    return `${elapsed}초`;
+    setRankings([]);
+    setMyTeamRankInfo(null);
+    setGameResultTime(0);
   };
 
   const getCreditAmount = () => {
-    // 순위별 크레딧 계산
-    const creditMap = {
-      1: 20000,
-      2: 15000,
-      3: 10000,
-      4: 5000,
-      5: 3000
-    };
+    const creditMap = { 1: 20000, 2: 15000, 3: 10000, 4: 5000, 5: 3000 };
     return creditMap[myRank] || 0;
   };
 
-  const topRankings = DUMMY_RANKINGS.slice(0, 5);
-  const isMyRankInTop = myResult && topRankings.some((item) => item.rank === myResult.rank);
-  const shouldShowMyRank = myResult && !isMyRankInTop;
+  const myTeamDataInWinners = rankings.find(item => item.rank === myRank);
+  const shouldShowMyRankSeparately = myRank && !myTeamDataInWinners;
 
   const isRankingStep = currentStep === "ranking";
 
@@ -428,14 +386,13 @@ export default function TypingModalFlow({ isOpen, onClose, myTeamName = "하람"
       width={isRankingStep ? "671px" : undefined}
       height={isRankingStep ? "570px" : undefined}
     >
-      {/* 1. 타자 게임 입력 모달 */}
-      {currentStep === "game" && (
+      {currentStep === "game" && questions.length > 0 && (
         <ModalContent>
             <ProgressText>
-                <span style={{color:'#F07F23'}}>{currentQuestion + 1}</span> | {DUMMY_QUESTIONS.length}
+                <span style={{color:'#F07F23'}}>{currentQuestion + 1}</span> | {questions.length}
             </ProgressText>
           <QuestionBox>
-            <QuestionText>{DUMMY_QUESTIONS[currentQuestion]}</QuestionText>
+            <QuestionText>{questions[currentQuestion]}</QuestionText>
           </QuestionBox>
           <InputBox
             ref={inputRef}
@@ -446,69 +403,53 @@ export default function TypingModalFlow({ isOpen, onClose, myTeamName = "하람"
             placeholder="Enter키를 눌러 제출할 수 있어요."
             autoFocus
           />
-
         </ModalContent>
       )}
 
-      {/* 2. 게임 종료 모달 */}
       {currentStep === "end" && (
         <ModalContent>
           <Title>끝! 2시간 뒤에 또 만나요</Title>
-
           <ButtonContainer>
-              <Btn
-                  primary onClick={handleShowRanking}
-                  text='게임 순위보기'/>
-            <Btn
-                onClick={handleEndGame}
-                text='게임 끝내기'/>
-
+              <Btn primary onClick={handleShowRanking} text='게임 순위보기'/>
+              <Btn onClick={handleEndGame} text='게임 끝내기'/>
           </ButtonContainer>
         </ModalContent>
       )}
 
-      {/* 3. 타자 게임 순위 모달 */}
       {currentStep === "ranking" && (
         <RankingContent>
             <LankDiv>
                 <LankTitle>타자 게임 순위 보기</LankTitle>
                 <RankingList>
-                    {topRankings.map((item) => {
-                      const isMyTeam = item.teamName.includes(myTeamName);
-                      return (
-                        <RankingItem key={item.rank} isMyTeam={isMyTeam}>
-                          <RankGroup>
-                            <RankBadge rank={item.rank} isMyTeam={isMyTeam}>{item.rank}위</RankBadge>
-                            <TeamInfo>{item.teamName}</TeamInfo>
-                          </RankGroup>
-                          <TeamTime>{item.time}</TeamTime>
-                        </RankingItem>
-                      );
-                    })}
+                    {rankings.map((item) => (
+                      <RankingItem key={item.teamId} isMyTeam={item.rank === myRank}>
+                        <RankGroup>
+                          <RankBadge isMyTeam={item.rank === myRank}>{item.rank}위</RankBadge>
+                          <TeamInfo>{item.teamName}</TeamInfo>
+                        </RankGroup>
+                      </RankingItem>
+                    ))}
                 </RankingList>
-                {shouldShowMyRank && (
+                {shouldShowMyRankSeparately && myTeamRankInfo && (
                   <MyRankWrapper>
                     <MyRankingItem>
                       <RankGroup>
-                        <RankBadge isMyTeam>{myResult.rank}위</RankBadge>
-                        <TeamInfo>{myResult.teamName}</TeamInfo>
+                        <RankBadge isMyTeam>{myTeamRankInfo.rank}위</RankBadge>
+                        <TeamInfo>{myTeamName}</TeamInfo>
                       </RankGroup>
-                      <TeamTime>{myResult.time}</TeamTime>
+                      {/* 시간 정보가 따로 없으면 표시하지 않음 */}
                     </MyRankingItem>
                   </MyRankWrapper>
                 )}
             </LankDiv>
-                {myRank && myRank <= 5 && (
-                  <RankingButtonContainer>
-                      <Btn primary onClick={handleReceiveCredit} text="크레딧 받기" />
-                  </RankingButtonContainer>
-                )}
-
-
+            {myRank && myRank <= 5 && (
+              <RankingButtonContainer>
+                  <Btn primary onClick={handleReceiveCredit} text="크레딧 받기" />
+              </RankingButtonContainer>
+            )}
         </RankingContent>
       )}
 
-      {/* 4. 크레딧 지급 모달 */}
       {currentStep === "credit" && (
         <ModalContent>
           <CreditIcon src={crownIcon} alt="crown" />
