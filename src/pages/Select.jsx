@@ -63,8 +63,8 @@ export default function Select() {
     { message: "4000 크레딧 당첨!", effect: "add4", addCredit: 4000, credit: 14000 },
     { message: "5000 크레딧 당첨!", effect: "add5", addCredit: 5000, credit: 15000 },
     { message: "크레딧 2배 당첨!!", effect: "double", addCredit: 10000, credit: 20000 },
-    { message: "크레딧 교환하기!! ", effect: "swap" },
-    { message: "전체 탐 크레딧 초기화!!!!", effect: "reset" },
+    { message: "크레딧 교환하기!!", effect: "swap" },
+    { message: "전체 팀 크레딧 초기화!!!!", effect: "reset" },
     { message: "꽝!", effect: "Boom", credit: 10000, addCredit: 0 },
     { message: "크레딧 뻇어오기!!", effect: "steal" },
     { message: "하은이의 분노!!!!!!!!", effect: "anger" },
@@ -78,7 +78,20 @@ export default function Select() {
         if (stored) {
           cards = JSON.parse(stored);
         }
-      } 
+      }
+
+      // 100개 이상이면 자동 리셋
+      if (cards.length >= 100) {
+        console.log(`로드 시 게임판 리셋 (${cards.length}개 -> 0개)`);
+        cards = [];
+        if (window.storage) {
+          await window.storage.set('drawn_cards', JSON.stringify([]), true);
+        }
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem('drawn_cards', JSON.stringify([]));
+        }
+      }
+
       setDrawnCards(cards);
     } catch (error) {
       console.log('뽑힌 카드가 없습니다. 새로 시작합니다.');
@@ -152,6 +165,10 @@ export default function Select() {
     setIsDrawing(true);
     setCardResult(null);
 
+    // 먼저 카드를 뽑힌 상태로 표시 (UI 즉시 반영)
+    const newDrawnCards = [...drawnCards, cardId];
+    setDrawnCards(newDrawnCards);
+
     try {
       await new Promise(resolve => setTimeout(resolve, 500));
       const mockData = mockResponses[Math.floor(Math.random() * mockResponses.length)];
@@ -163,16 +180,20 @@ export default function Select() {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${localStorage.getItem('access_token')}`
         },
-        body: JSON.stringify({ cardId + 1}),
+        body: JSON.stringify({ cardId: cardId + 1 }),
       });
       if (!response.ok) {
         const error = await response.json();
         if (error.error === "PAYMENT_REQUIRED") {
           alert("크레딧이 부족합니다");
+          // 실패 시 카드 복구
+          setDrawnCards(drawnCards);
         } else if (error.error === "ALREADY_PROCESSED") {
           alert("이미 뽑힌 카드입니다");
         } else if (error.error === "INCORRECT_CARD") {
           alert("카드 번호가 잘못되었습니다");
+          // 실패 시 카드 복구
+          setDrawnCards(drawnCards);
         }
         return;
       }
@@ -189,37 +210,50 @@ export default function Select() {
       availableTeams: [{id: 1, name: "하람"}, ...]
       */
 
-      // 카드 뽑는 애니메이션 
+      // 카드 뽑는 애니메이션
 
       const data = { ...mockData, cardId: cardId };
       setCardResult(mockData);
 
-      const newDrawnCards = [...drawnCards, cardId];
-      setDrawnCards(newDrawnCards);
+      // 저장 처리
+      await saveDrawnCards(newDrawnCards);
 
-
+      // 100개 다 뽑으면 리셋
       if (newDrawnCards.length >= 100) {
-        await saveDrawnCards(newDrawnCards);
-        setTimeout(async () => {
+        console.log(`게임판을 리셋합니다. (현재 ${newDrawnCards.length}개)`);
+        setTimeout(() => {
+          console.log('리셋 실행 중...');
+          // 저장소 초기화
           if (window.storage) {
-            await window.storage.set('drawn_cards', JSON.stringify([]), true);
+            window.storage.set('drawn_cards', JSON.stringify([]), true);
           }
-          await loadDrawnCards(false);
-          console.log('게임판이 리셋됩니다.');
+          if (typeof localStorage !== 'undefined') {
+            localStorage.setItem('drawn_cards', JSON.stringify([]));
+          }
+          // 상태 초기화
+          setDrawnCards([]);
+          console.log('리셋 완료!');
         }, 2000);
-      } else {
-        await saveDrawnCards(newDrawnCards);
       }
+
+      console.log('카드 effect:', data.effect);
+      console.log('cardResult 설정됨:', mockData);
 
       if (data.effect === "swap" || data.effect === "steal" || data.effect === "anger") {
         // 팀 선택이 필요한지 판단
+        console.log('팀 선택 모달 열기');
         setIsEffectOpen(true);
+        console.log('isEffectOpen을 true로 설정');
       } else {
+        console.log('일반 결과 모달 열기');
         setIsResultOpen(true);
       }
 
     } catch (error) {
       console.error("카드 뽑기 실패:", error);
+      // 에러 발생 시 카드를 다시 뽑을 수 있도록 복구
+      setDrawnCards(drawnCards);
+      alert("카드 뽑기에 실패했습니다. 다시 시도해주세요.");
     } finally {
       setIsDrawing(false);
     }
@@ -243,7 +277,6 @@ export default function Select() {
         endpoint = "/std/select/pull/anger";
       }
 
-      /* 
       const response = await fetch(endpoint, {
         method: "POST",
         headers: {
@@ -252,7 +285,7 @@ export default function Select() {
         },
         body: JSON.stringify({ targetTeamId: teamId }),
       });
-      
+
       if (!response.ok) {
         const error = await response.json();
         if (error.error === "NON_EXIST_TEAM") {
@@ -262,29 +295,13 @@ export default function Select() {
         }
         return;
       }
-      
+
       const data = await response.json();
-      */
 
-
-      await new Promise(resolve => setTimeout(resolve, 300));
-      const selectedTeam = mockTeams.find(t => t.id === teamId);
-
-      const data = {
-        message: cardResult.effect === "swap"
-          ? `${selectedTeam.name} 팀과 크레딧 교환하기`
-          : cardResult.effect === "steal"
-            ? `${selectedTeam.name} 팀과 크레딧 뺏어오기`
-            : `${selectedTeam.name} 팀 크레딧 초기화하기`,
-        myTeam: { teamId: 1, credit: 15000 },
-        targetTeam: { teamId: teamId, credit: selectedTeam.credit }
-      };
-
-
+      // 백엔드 응답 데이터 사용
       const finalData = {
         ...data,
         effect: cardResult.effect,
-        selectedTeamName: selectedTeam.name
       };
 
       setCardResult(finalData);
@@ -349,7 +366,7 @@ export default function Select() {
         onButtonClick={handleStartGame} // 버튼 클릭 -> 게임 시작
       />
 
-      {/* 카드 결과 모달 */}
+      {/* 카드 결과 모달 - 팀 선택 안내 */}
       {cardResult && (cardResult.effect === "swap" || cardResult.effect === "steal" || cardResult.effect === "anger") && (
         <ModalComponent
           isOpen={isEffectOpen}
@@ -363,7 +380,6 @@ export default function Select() {
           onButtonClick={handleOpenTeamSelect}
           isResult={true}
           effect={cardResult?.effect}
-          dismissKey="guide-modal"
         />
       )}
 
@@ -376,10 +392,10 @@ export default function Select() {
       />
 
 
-      {cardResult && (
+      {cardResult && !(cardResult.effect === "swap" || cardResult.effect === "steal" || cardResult.effect === "anger") && (
         <ModalComponent
           isOpen={isResultOpen}
-          onClose={goHome}
+          onClose={() => setIsResultOpen(false)}
           title={
             cardResult.myTeam
               ? cardResult.message

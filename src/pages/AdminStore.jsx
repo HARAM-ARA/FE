@@ -498,7 +498,7 @@ export default function AdminStore() {
     const handleAddItem = async (newItem) => {
         try {
 
-            const token = localStorage.getItem("token"); // ⭐ 추가된 부분
+            const token = localStorage.getItem("auth_token"); // ⭐ 추가된 부분
 
             if (!token) {
                 alert("토큰이 없습니다. 다시 로그인 해주세요.");
