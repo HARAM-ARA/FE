@@ -94,6 +94,7 @@ const OutlinedButton = styled.button`
 
 export default function CreditCard({ id, name, credit, onAddCredit }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -113,12 +114,15 @@ export default function CreditCard({ id, name, credit, onAddCredit }) {
 
   return (
     <>
-      <CardContainer>
+      <CardContainer
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
         <TeamName>{name}</TeamName>
-        {credit !== null ? (
+        {!isHovered ? (
           <CreditAmount>{credit.toLocaleString()} 크레딧</CreditAmount>
         ) : (
-          <OutlinedButton onClick={handleOpenModal}>크레딧 추가하기</OutlinedButton>
+          <FilledButton onClick={handleOpenModal}>크레딧 추가하기</FilledButton>
         )}
       </CardContainer>
 

@@ -4,6 +4,7 @@ import ModalBase from "./ModalBase.jsx";
 import Btn from './button.jsx';
 import crownIcon from "../assets/crown.svg";
 import { AxiosInstnce } from "../lib/customAxios.js";
+import { useCredit } from "../context/CreditContext.jsx";
 
 // 공통 스타일
 const ModalContent = styled.div`
@@ -239,6 +240,7 @@ const RankingButtonContainer = styled.div`
 
 
 export default function TypingModalFlow({ isOpen, onClose, myTeamName = "하람", teamId }) {
+  const { refreshCredit } = useCredit(); // 크레딧 업데이트용
   const [currentStep, setCurrentStep] = useState("game"); // game, end, ranking, credit
   const [questions, setQuestions] = useState([]);
   const [gameId, setGameId] = useState(null);
@@ -253,24 +255,45 @@ export default function TypingModalFlow({ isOpen, onClose, myTeamName = "하람"
 
   const fetchGame = async () => {
     try {
+      console.log("=== 타자 게임 데이터 요청 시작 ===");
+
       const timeResponse = await AxiosInstnce.get('/std/typing/time');
+      console.log("서버 시간 응답:", timeResponse.data);
       const serverTime = parseInt(timeResponse.data.serverTime, 10);
 
       const response = await AxiosInstnce.get('/std/typing/game');
+      console.log("게임 데이터 응답:", response.data);
       const { gameId, words, startTime, endTime } = response.data;
 
+      console.log("시간 체크:", {
+        serverTime,
+        startTime,
+        endTime,
+        isExpired: serverTime >= endTime
+      });
+
       if (serverTime >= endTime) {
+        console.log("게임 종료됨 (serverTime >= endTime)");
         alert("진행 중인 게임이 없습니다.");
         onClose();
         return;
       }
 
+      console.log("게임 시작 가능:", { gameId, wordCount: words.length });
       setQuestions(words);
       setGameId(gameId);
     } catch (error) {
-      console.error("Error fetching game data:", error);
+      console.error("타자 게임 데이터 요청 실패:", error);
+      console.error("에러 상태:", error.response?.status);
+      console.error("에러 응답:", error.response?.data);
+
       if (error.response && error.response.status === 404) {
+        console.log("404 에러: 진행 중인 게임이 없습니다");
         alert("진행 중인 게임이 없습니다.");
+        onClose();
+      } else {
+        console.log("기타 에러 발생");
+        alert("게임을 불러오는데 실패했습니다.");
         onClose();
       }
     }
@@ -351,8 +374,10 @@ export default function TypingModalFlow({ isOpen, onClose, myTeamName = "하람"
     fetchRanking();
   };
 
-  const handleReceiveCredit = () => {
+  const handleReceiveCredit = async () => {
     setCurrentStep("credit");
+    // 크레딧 받은 후 Context 업데이트
+    await refreshCredit();
   };
 
   const resetGame = () => {

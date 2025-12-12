@@ -2,7 +2,8 @@ import HaramLogo from "../assets/Logo.svg";
 import styled from "@emotion/styled";
 import Logo from "../assets/HaramLogo.svg";
 import { AxiosInstnce, tokenUtils } from "../lib/customAxios";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useCredit } from "../context/CreditContext";
 
 const Headerbox = styled.div`
     width: 1340px;
@@ -133,32 +134,47 @@ const Img = styled.img`
 
 
 export default function Header({ teamName, isTeacher = false, isTeamName = false, isLogin = false, isLogout = false, isCredit = false, Credit }) {
+
+  // Context에서 크레딧 정보 가져오기
+  const { credit, teamName: contextTeamName } = useCredit();
+  const [userProfile, setUserProfile] = useState(null);
+
   const handleGoogleLogin = async () => {
     try {
-      const response = await AxiosInstnce.get('/haram/auth/login');
+      const response = await AxiosInstnce.get('haram/auth/login');
       window.location.href = response.data.authURL;
     } catch (error) {
       console.error('로그인 요청 실패:', error);
     }
   };
+
   const GetProfile = async () => {
     try {
-      const response = await AxiosInstnce.get('/haram/auth/profile');
+      const response = await AxiosInstnce.get('haram/auth/profile');
       return response.data;
     } catch (error) {
-      console.error('로그인 요청 실패:', error);
+      console.error('프로필 조회 실패:', error);
+      return null;
     }
   };
+
   useEffect(() => {
     const fetchProfile = async () => {
-      const profile = await GetProfile();
-      console.log(profile);
+      const token = tokenUtils.getToken();
+      if (token) {
+        const profile = await GetProfile();
+        console.log('사용자 프로필:', profile);
+        if (profile?.data?.user) {
+          setUserProfile(profile.data.user);
+        }
+      }
     };
     fetchProfile();
   }, []);
+
   const handleLogout = async () => {
     try {
-      await AxiosInstnce.post('/haram/auth/logout');
+      await AxiosInstnce.get('haram/auth/logout');
       tokenUtils.removeToken();
       window.location.href = '/';
     } catch (error) {
@@ -168,18 +184,25 @@ export default function Header({ teamName, isTeacher = false, isTeamName = false
     }
   };
 
+  // 크레딧 표시 (Context 값 우선, props로 전달된 값은 fallback)
+  const displayCredit = credit > 0 ? credit.toLocaleString() : Credit;
+
+  // 사용자 이름 표시 (API에서 받아온 값 우선, props는 fallback)
+  const displayTeamName = userProfile?.teamName || contextTeamName || teamName;
+  const displayUserName = userProfile?.name || teamName;
+
   return (
     <>
       <Headerbox>
         <LogoImg src={HaramLogo}></LogoImg>
         <FunctionBox>
-          {isTeamName && <AmountText>TEAM {teamName}</AmountText>}
-          {isTeacher && <><Img src={Logo} /> <AmountText> {teamName} 선생님</AmountText></>}
+          {isTeamName && <AmountText>TEAM {displayTeamName}</AmountText>}
+          {isTeacher && <><Img src={Logo} /> <AmountText> {displayUserName} 선생님</AmountText></>}
 
 
           {isLogin && <LoginBtn type="google" onClick={handleGoogleLogin}>로그인</LoginBtn>}
           {isLogout && <LogoutBtn onClick={handleLogout}>로그아웃</LogoutBtn>}
-          {isCredit && <CreditBtn><CreditColor>{Credit}</CreditColor><Gray>크레딧</Gray></CreditBtn>}
+          {isCredit && <CreditBtn><CreditColor>{displayCredit}</CreditColor><Gray>크레딧</Gray></CreditBtn>}
         </FunctionBox>
       </Headerbox>
     </>

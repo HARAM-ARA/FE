@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
+import axios from "axios";
 import Header from "../components/Header.jsx";
 import TeamCard from "../components/TeamSpaceComponent/TeamCard.jsx";
 import TeamDetailModal from "../components/TeamSpaceComponent/TeamDetailModal.jsx";
 import DeleteConfirmModal from "../components/TeamSpaceComponent/DeleteConfirmModal.jsx";
 import Btn from "../components/button.jsx";
-import SearchBtn from "../assets/searchButton.svg"
+import SearchBtn from "../assets/searchButton.svg";
+import VectorIcon from "../assets/vector.svg";
 
 const Body = styled.div`
     min-height: 575px;
@@ -83,11 +85,11 @@ const SearchBox = styled.input`
     }
 `;
 
-const SearchIcon = styled.div`
+const SearchIcon = styled.img`
     position: absolute;
     right: 20px;
-    font-size: 20px;
-    color: #8B8B8B;
+    width: 24px;
+    height: 24px;
     pointer-events: none;
 `;
 
@@ -156,41 +158,33 @@ export default function TeamSpace() {
     const [selectedTeams, setSelectedTeams] = useState([]);
     const [selectedTeamForDetail, setSelectedTeamForDetail] = useState(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [teams, setTeams] = useState([]);
 
-    // 목업 데이터 - 실제로는 API에서 가져옴
-    const [teams, setTeams] = useState([
-        {
-            id: 1,
-            name: "알파",
-            members: [
-                { id: 101, name: "김철수", gradeClassNum: "1-1-01" },
-                { id: 102, name: "이영희", gradeClassNum: "1-1-02" },
-                { id: 103, name: "박민수", gradeClassNum: "1-1-03" },
-            ]
-        },
-        {
-            id: 2,
-            name: "베타",
-            members: [
-                { id: 201, name: "최지우", gradeClassNum: "1453" },
-                { id: 202, name: "정다은", gradeClassNum: "1453" },
-                { id: 203, name: "최지우", gradeClassNum: "1453" },
-                { id: 204, name: "정다은", gradeClassNum: "1453" },
-            ]
-        },
-        {
-            id: 3,
-            name: "감마",
-            members: [
-                { id: 301, name: "강민호", gradeClassNum: "1111" },
-                { id: 302, name: "윤서연", gradeClassNum: "2222" },
-                { id: 303, name: "조혜인", gradeClassNum: "3333" },
-            ]
-        },
-    ]);
+    // API에서 팀 목록 가져오기
+    useEffect(() => {
+        fetchTeams();
+    }, []);
+
+    const fetchTeams = async () => {
+        try {
+            const token = localStorage.getItem("auth_token");
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}haram/team`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            console.log("팀 목록 응답:", response.data);
+            setTeams(response.data.teams || []);
+        } catch (error) {
+            console.error("팀 목록 조회 실패:", error);
+            console.error("에러 상세:", error.response?.data);
+            alert("팀 목록을 불러오는데 실패했습니다.");
+        }
+    };
 
     const filteredTeams = teams.filter(team =>
-        team.name.toLowerCase().includes(searchQuery.toLowerCase())
+        team.teamName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        team.name?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     const handleTeamSelect = (teamId) => {
@@ -211,29 +205,47 @@ export default function TeamSpace() {
         }
     };
 
-    const confirmDeleteTeams = () => {
-        setTeams(prev => prev.filter(team => !selectedTeams.includes(team.id)));
-        setSelectedTeams([]);
+    const confirmDeleteTeams = async () => {
+        try {
+            await axios.delete("/haram/teams", {
+                data: { teamIds: selectedTeams }
+            });
+            setTeams(prev => prev.filter(team => !selectedTeams.includes(team.id)));
+            setSelectedTeams([]);
+            setShowDeleteConfirm(false);
+        } catch (error) {
+            console.error("팀 삭제 실패:", error);
+            alert("팀 삭제에 실패했습니다.");
+        }
     };
 
-    const handleDeleteStudents = (studentIds) => {
+    const handleDeleteStudents = async (studentIds) => {
         if (!selectedTeamForDetail) return;
 
-        setTeams(prev => prev.map(team => {
-            if (team.id === selectedTeamForDetail.id) {
-                return {
-                    ...team,
-                    members: team.members.filter(m => !studentIds.includes(m.id))
-                };
-            }
-            return team;
-        }));
+        try {
+            await axios.delete(`/haram/teams/${selectedTeamForDetail.id}/members`, {
+                data: { memberIds: studentIds }
+            });
 
-        // 모달 내 데이터도 업데이트
-        setSelectedTeamForDetail(prev => ({
-            ...prev,
-            members: prev.members.filter(m => !studentIds.includes(m.id))
-        }));
+            setTeams(prev => prev.map(team => {
+                if (team.id === selectedTeamForDetail.id) {
+                    return {
+                        ...team,
+                        members: team.members.filter(m => !studentIds.includes(m.id))
+                    };
+                }
+                return team;
+            }));
+
+            // 모달 내 데이터도 업데이트
+            setSelectedTeamForDetail(prev => ({
+                ...prev,
+                members: prev.members.filter(m => !studentIds.includes(m.id))
+            }));
+        } catch (error) {
+            console.error("팀원 삭제 실패:", error);
+            alert("팀원 삭제에 실패했습니다.");
+        }
     };
 
     return (
@@ -262,7 +274,7 @@ export default function TeamSpace() {
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                 />
-                                <SearchIcon>dd</SearchIcon>
+                                <SearchIcon src={VectorIcon} alt="검색" />
                             </SearchWrapper>
                         )}
                     </RightSection>
