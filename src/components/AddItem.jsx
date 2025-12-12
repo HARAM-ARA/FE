@@ -146,7 +146,7 @@ const CustomButton = styled.button`
     font-size: 20px;
     font-weight: 500;
     cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
-    margin-top: 24px;
+    margin-top: 15px;
 
     &:hover {
         background-color: ${props => props.disabled ? '#E0E0E0' : '#E07010'};
@@ -214,7 +214,7 @@ export default function AddItem({ onAddItem, onClose }) {
                         />
                     </InputGroup>
 
-                    {/* 가격 입력 */}
+
                     <InputGroup>
                         <Label>가격을 입력하세요</Label>
                         <Input
@@ -239,7 +239,7 @@ export default function AddItem({ onAddItem, onClose }) {
                         </QuantityBox>
                     </InputGroup>
 
-                    {/* 상품 추가 버튼 */}
+
                     <CustomButton onClick={handleSubmit} disabled={!isFormValid}>
                         상품 추가하기
                     </CustomButton>

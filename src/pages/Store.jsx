@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { useCredit } from "../context/CreditContext";
 import Header from "../components/Header";
 import styled from "@emotion/styled";
 import Button from "../components/Button";
@@ -114,28 +116,40 @@ const Items = styled.div`
 
 
 export default function Store() {
-
-  const mockData = [
-    { id: 1, name: "첫 번째", price: 5000, img: Mock, type: 1, stock: 1 },
-    { id: 2, name: "두 번째", price: 7000, img: Mock, type: 1, stock: 1 },
-    { id: 3, name: "세 번째", price: 9000, img: Mock, type: 1, stock: 1 },
-    { id: 4, name: "세 번째", price: 9000, img: Mock, type: 1, stock: 1 },
-    { id: 5, name: "세 번째", price: 9000, img: Mock, type: 1, stock: 0 },
-    { id: 6, name: "세 번째", price: 9000, img: Mock, type: 1, stock: 1 },
-    { id: 7, name: "세 번째", price: 9000, img: Mock, type: 1, stock: 1 }
-  ];
-  const mockData2 = [
-    { id: 8, name: "전체 팀에게 공지 날리기", price: 5000, img: Mock, type: 2, stock: 1 },
-    { id: 9, name: "두 번째", price: 7000, img: Mock, type: 2, stock: 1 },
-    { id: 10, name: "세 번째", price: 9000, img: Mock, type: 2, stock: 1 },
-    { id: 11, name: "세 번째", price: 9000, img: Mock, type: 2, stock: 1 },
-    { id: 12, name: "세 번째", price: 9000, img: Mock, type: 2, stock: 1 },
-    { id: 13, name: "세 번째", price: 9000, img: Mock, type: 2, stock: 1 },
-    { id: 14, name: "세 번째", price: 9000, img: Mock, type: 2, stock: 1 },
-  ];
-
+  const { refreshCredit } = useCredit(); // 크레딧 새로고침 함수
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [checkedCards, setCheckedCards] = useState({});
+  const [filter, setFilter] = useState(true); // true가 간식 (type: 1), false가 쿠폰 (type: 2)
+  const [isOpen, setIsOpen] = useState(false); // 모달용
 
+  // 페이지 로드 시 전체 물품 조회
+  useEffect(() => {
+    fetchAllItems();
+  }, []);
+
+  // 전체 물품 조회
+  const fetchAllItems = async () => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}haram/store`);
+
+      // 응답 데이터 형식: [{ itemId: 1, itemName: "상품명", price: 5000, stock: 10, type: 1, image: "url" }, ...]
+      setItems(response.data.items.map(item => ({
+        id: item.itemId,
+        name: item.itemName,
+        price: item.price,
+        stock: item.quantity,
+        type: item.type,
+        img: item.image || Mock
+      })));
+
+    } catch (error) {
+      console.error("물품 조회 실패:", error);
+      alert("물품 조회에 실패했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleCheck = (id, value) => {
     setCheckedCards(prev => ({ ...prev, [id]: value }));
@@ -143,9 +157,52 @@ export default function Store() {
 
   const anyChecked = Object.values(checkedCards).some(Boolean);
 
-  const [filter, setFilter] = useState(true); // true가 간식
+  // 물품 구매
+  const handlePurchase = async () => {
+    if (!anyChecked) return;
 
-  const [isOpen, setIsOpen] = useState(false); // 모달용
+    try {
+      const token = localStorage.getItem('auth_token');
+      const itemIdsToPurchase = Object.keys(checkedCards).filter(id => checkedCards[id]).map(Number);
+
+      // 각 물품 구매 요청 (quantity 기본 1)
+      for (const itemId of itemIdsToPurchase) {
+        await axios.post(`${import.meta.env.VITE_API_URL}std/store`,
+          { itemId: itemId, quantity: 1 },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+      }
+
+      setCheckedCards({});
+      setIsOpen(true);
+
+      // 구매 후 물품 목록 다시 불러오기
+      await fetchAllItems();
+
+      // 구매 후 크레딧 업데이트
+      await refreshCredit();
+
+    } catch (error) {
+      console.error("물품 구매 실패:", error);
+      if (error.response?.data?.error === "INSUFFICIENT_CREDIT") {
+        alert("크레딧이 부족합니다");
+      } else if (error.response?.data?.error === "OUT_OF_STOCK") {
+        alert("재고가 부족합니다");
+      } else if (error.response?.data?.error === "NON_EXIST_ITEM") {
+        alert("존재하지 않는 상품입니다");
+      } else {
+        alert("물품 구매에 실패했습니다. 다시 시도해주세요.");
+      }
+    }
+  };
+
+  // 현재 필터에 맞는 물품 필터링
+  const filteredItems = items.filter(item => item.type === (filter ? 1 : 2));
 
 
 
@@ -179,7 +236,7 @@ export default function Store() {
             </Filtering>
           </LeftMenu>
           <RightMenu active={anyChecked}
-            onClick={() => anyChecked && setIsOpen(true)}>
+            onClick={handlePurchase}>
             <Cost active={anyChecked}>구매하기</Cost>
           </RightMenu>
 
@@ -189,10 +246,15 @@ export default function Store() {
           </ModalComponent>
         </Menu>
 
-        {filter ?
+        {loading ? (
+          <div style={{ marginTop: '28px', textAlign: 'center' }}>
+            <Description>물품을 불러오는 중...</Description>
+          </div>
+        ) : (
           <Items>
-            {mockData.map(item =>
+            {filteredItems.map(item =>
               <ItemCard
+                isCoupon={item.type === 2 ? "true" : undefined}
                 key={item.id}
                 title={item.name}
                 price={item.price}
@@ -200,25 +262,10 @@ export default function Store() {
                 stock={item.stock}
                 checked={!!checkedCards[item.id]}
                 onChange={(e) => handleCheck(item.id, e.target.checked)}
-              />)}
+              />
+            )}
           </Items>
-
-          :
-
-          <Items>
-            {mockData2.map(item =>
-              <ItemCard
-                isCoupon="true"
-                key={item.id}
-                title={item.name}
-                price={item.price}
-                img={item.img}
-                checked={!!checkedCards[item.id]}
-                onChange={(e) => handleCheck(item.id, e.target.checked)}
-              />)}
-          </Items>
-
-        }
+        )}
 
 
       </Body>

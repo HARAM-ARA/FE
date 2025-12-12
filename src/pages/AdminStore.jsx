@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
 
 // 실제 컴포넌트 import
@@ -327,7 +327,7 @@ const CustomButton = styled.button`
     font-size: 20px;
     font-weight: 500;
     cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
-    margin-top: 70px;
+    margin-top: 24px;
     outline: none; /* 추가: 파란색 포커스 테두리 제거 */
 
     &:hover {
@@ -386,15 +386,37 @@ const SuccessImg = styled.img`
 
 
 // AddItem 컴포넌트 (인라인으로 유지)
+const TypeToggle = styled.div`
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-top: 8px;
+`;
+
+const TypeButton = styled.button`
+    padding: 8px 16px;
+    border-radius: 10px;
+    border: 1px solid ${props => (props.active ? '#F07F23' : '#E5E7EB')};
+    background: ${props => (props.active ? '#FFF2E4' : '#FFFFFF')};
+    color: ${props => (props.active ? '#F07F23' : '#6B7280')};
+    font-size: 16px;
+    cursor: pointer;
+    &:focus { outline: none; }
+`;
+
 const AddItemComponent = ({ onAddItem, onClose }) => {
     const [name, setName] = useState("");
     const [price, setPrice] = useState("");
     const [quantity, setQuantity] = useState(10);
+    const [type, setType] = useState(1); // 1: 간식, 2: 쿠폰
+    const [imageFile, setImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null);
+    const fileInputRef = useRef(null);
 
     const increase = () => setQuantity(prev => prev + 1);
     const decrease = () => setQuantity(prev => (prev > 1 ? prev - 1 : 1));
 
-    const isFormValid = name.trim() !== "" && price.trim() !== "" && parseInt(price) > 0 && quantity >= 1;
+    const isFormValid = name.trim() !== "" && price.trim() !== "" && parseInt(price) > 0 && quantity >= 1 && (type === 1 || type === 2);
 
     const handleSubmit = () => {
         if (!isFormValid) return;
@@ -403,8 +425,24 @@ const AddItemComponent = ({ onAddItem, onClose }) => {
             name,
             price: parseInt(price),
             stock: quantity,
-            img: null
+            type,
+            imageFile,
+            img: imagePreview || null
         });
+    };
+
+    const handleImageClick = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
+        }
+    };
+
+    const handleImageChange = (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (file) {
+            setImageFile(file);
+            setImagePreview(URL.createObjectURL(file));
+        }
     };
 
     return (
@@ -413,8 +451,19 @@ const AddItemComponent = ({ onAddItem, onClose }) => {
                 <CloseButton onClick={onClose}>&times;</CloseButton>
             </ModalHeader>
             <ContentContainer>
-                <ImageContainer>
-                    <img src={storeImg} alt="사진 첨부" style={{width: '40px', height: '40px'}} />
+                <ImageContainer onClick={handleImageClick}>
+                    {imagePreview ? (
+                        <img src={imagePreview} alt="미리보기" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                    ) : (
+                        <img src={storeImg} alt="사진 첨부" style={{width: '40px', height: '40px'}} />
+                    )}
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        onChange={handleImageChange}
+                    />
                 </ImageContainer>
                 <FormDiv>
                     <InputGroup>
@@ -435,7 +484,6 @@ const AddItemComponent = ({ onAddItem, onClose }) => {
                             placeholder=""
                         />
                     </InputGroup>
-
                     <QuantityControlGroup>
                         <Label>수량</Label>
                         <QuantityBox>
@@ -448,6 +496,10 @@ const AddItemComponent = ({ onAddItem, onClose }) => {
                             </QuantityBtn>
                         </QuantityBox>
                     </QuantityControlGroup>
+                    <TypeToggle>
+                        <TypeButton type="button" active={type === 1} onClick={() => setType(1)}>간식</TypeButton>
+                        <TypeButton type="button" active={type === 2} onClick={() => setType(2)}>쿠폰</TypeButton>
+                    </TypeToggle>
 
                     <CustomButton onClick={handleSubmit} disabled={!isFormValid}>
                         상품 추가하기
@@ -461,28 +513,46 @@ const AddItemComponent = ({ onAddItem, onClose }) => {
 
 // --- AdminStore Component ---
 export default function AdminStore() {
-    // Mock Data (생략)
-    const mockData = [
-        { id: 1, name: "첫 번째", price: 5000, img: Mock, type: 1, stock: 10 },
-        { id: 2, name: "두 번째", price: 7000, img: Mock, type: 1, stock: 5 },
-        { id: 3, name: "세 번째", price: 9000, img: Mock, type: 1, stock: 0 },
-        { id: 4, name: "네 번째", price: 6000, img: Mock, type: 1, stock: 12 },
-        { id: 5, name: "다섯 번째", price: 4500, img: Mock, type: 1, stock: 3 },
-        { id: 6, name: "여섯 번째", price: 8000, img: Mock, type: 1, stock: 7 },
-        { id: 7, name: "일곱 번째", price: 1000, img: Mock, type: 1, stock: 9 },
-    ];
-
-    const mockData2 = [
-        { id: 8, name: "전체 팀에게 공지 날리기", price: 5000, img: Mock, type: 2, stock: 100 },
-        { id: 9, name: "점심 함께 먹기", price: 7000, img: Mock, type: 2, stock: 50 },
-        { id: 10, name: "커피 심부름 쿠폰", price: 9000, img: Mock, type: 2, stock: 20 },
-    ];
-
+    const [items, setItems] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [checkedCards, setCheckedCards] = useState({});
-    const [filter, setFilter] = useState(true);
+    const [filter, setFilter] = useState(true); // true: 간식 (type: 1), false: 쿠폰 (type: 2)
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
+
+    // 페이지 로드 시 전체 물품 조회
+    useEffect(() => {
+        fetchAllItems();
+    }, []);
+
+    // 전체 물품 조회
+    const fetchAllItems = async () => {
+        try {
+            const token = localStorage.getItem("auth_token");
+
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}tch/store`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            const stores = response.data?.data?.stores || [];
+            setItems(stores.map(item => ({
+                id: item.id,
+                name: item.name,
+                price: item.price,
+                stock: item.quantity,
+                type: item.type,
+                img: item.image_url || Mock
+            })));
+
+        } catch (error) {
+            console.error("물품 조회 실패:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleCheck = (id, value) => {
         setCheckedCards(prev => ({ ...prev, [id]: value }));
@@ -498,24 +568,55 @@ export default function AdminStore() {
     const handleAddItem = async (newItem) => {
         try {
 
-            const token = localStorage.getItem("auth_token"); // ⭐ 추가된 부분
+            const token = localStorage.getItem("auth_token");
 
             if (!token) {
                 alert("토큰이 없습니다. 다시 로그인 해주세요.");
                 return;
             }
 
+            let imageUrl = newItem.image || null;
+
+            if (newItem.imageFile) {
+                try {
+                    const formData = new FormData();
+                    formData.append("image", newItem.imageFile);
+                    const uploadRes = await axios.post(
+                        `${import.meta.env.VITE_API_URL}tch/store/upload`,
+                        formData,
+                        {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                                "Content-Type": "multipart/form-data",
+                            },
+                            withCredentials: true,
+                        }
+                    );
+                    imageUrl = uploadRes.data?.imageUrl || imageUrl;
+                } catch (uploadErr) {
+                    const code = uploadErr.response?.data?.code;
+                    if (code === "IMAGE_SIZE_ERROR") {
+                        alert("이미지 크기(128~512px) 제한을 확인해주세요.");
+                    } else if (code === "INVALID_IMAGE") {
+                        alert("PNG/JPG 이미지를 선택해주세요. (5MB 이하)");
+                    } else {
+                        alert("이미지 업로드에 실패했습니다. 다시 시도해주세요.");
+                    }
+                    return;
+                }
+            }
+
             const body = {
                 itemName: newItem.name,
                 description: newItem.description || "설명 없음",
-                image: newItem.image || "https://",
+                image: imageUrl,
                 price: newItem.price,
                 quantity: newItem.stock,
-                type: 1
+                type: newItem.type || 1
             };
 
             const response = await axios.post(
-                "/tch/store",
+                `${import.meta.env.VITE_API_URL}tch/store`,
                 body,
                 {
                     headers: {
@@ -525,30 +626,58 @@ export default function AdminStore() {
                 }
             );
 
-            alert("상품이 추가되었습니다!");
-
-            setItems((prev) => [
-                ...prev,
-                {
-                    id: response.data.itemId,
-                    name: newItem.name,
-                    price: newItem.price,
-                    stock: newItem.stock
-                }
-            ]);
-
             setIsFormModalOpen(false);
+            setSuccessMessage("상품 추가 완료!");
+            setIsSuccessModalOpen(true);
+
+            // 물품 목록 다시 불러오기
+            await fetchAllItems();
 
         } catch (error) {
             console.error("물품 추가 실패:", error);
-            alert("물품 추가 실패: " + error.message);
+            const code = error.response?.data?.code;
+            if (code === "DUPLICATE_ITEM") {
+                alert("이미 존재하는 이름의 아이템입니다.");
+            } else if (code === "INVALID_IMAGE" || code === "IMAGE_SIZE_ERROR") {
+                alert("이미지 규격을 확인해주세요. (PNG/JPG, 128~512px, 5MB 이하)");
+            } else {
+                alert("물품 추가 실패: " + (error.response?.data?.message || error.message));
+            }
         }
     };
-    const handleDeleteItems = () => {
+    const handleDeleteItems = async () => {
         if (!anyChecked) return;
-        setCheckedCards({});
-        setSuccessMessage("상품 삭제 완료!");
-        setIsSuccessModalOpen(true);
+
+        try {
+            const token = localStorage.getItem("auth_token");
+            if (!token) {
+                alert("토큰이 없습니다. 다시 로그인 해주세요.");
+                return;
+            }
+
+            // 체크된 상품 ID들 추출
+            const itemIdsToDelete = Object.keys(checkedCards).filter(id => checkedCards[id]);
+
+            // 각 상품 삭제 요청
+            for (const itemId of itemIdsToDelete) {
+                await axios.delete(`${import.meta.env.VITE_API_URL}tch/store/${itemId}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+            }
+
+            setCheckedCards({});
+            setSuccessMessage("상품 삭제 완료!");
+            setIsSuccessModalOpen(true);
+
+            // 상품 목록 다시 불러오기
+            await fetchAllItems();
+
+        } catch (error) {
+            console.error("상품 삭제 실패:", error);
+            alert("상품 삭제 실패: " + error.message);
+        }
     }
 
     const handleRightMenuClick = () => {
@@ -611,26 +740,15 @@ export default function AdminStore() {
                     )}
                 </Menu>
 
-                {filter ? (
-                    <Items>
-                        {mockData.map(item =>
-                            <ItemCard
-                                key={item.id}
-                                title={item.name}
-                                price={item.price}
-                                img={item.img}
-                                isAdmin={true}
-                                stock={item.stock}
-                                checked={!!checkedCards[item.id]}
-                                onChange={(e) => handleCheck(item.id, e.target.checked)}
-                            />
-                        )}
-                    </Items>
+                {loading ? (
+                    <div style={{ marginTop: '190px', textAlign: 'center', width: '100%' }}>
+                        <Description>물품을 불러오는 중...</Description>
+                    </div>
                 ) : (
                     <Items>
-                        {mockData2.map(item =>
+                        {items.filter(item => item.type === (filter ? 1 : 2)).map(item =>
                             <ItemCard
-                                isCoupon="true"
+                                isCoupon={item.type === 2 ? "true" : undefined}
                                 key={item.id}
                                 title={item.name}
                                 price={item.price}

@@ -8,6 +8,7 @@ export default function AuthCallback() {
 
   useEffect(() => {
     const handleAuth = async () => {
+      let redirected = false;
       const searchParams = new URLSearchParams(location.search);
       const code = searchParams.get("code");
 
@@ -17,17 +18,37 @@ export default function AuthCallback() {
       }
 
       try {
-        const response = await AxiosInstnce.get("/haram/auth", {
+        const response = await AxiosInstnce.get("haram/auth", {
           params: { code },
         });
 
         if (response.data && response.data.token) {
           tokenUtils.setToken(response.data.token);
+
+          // 토큰 저장 후 프로필 요청으로 역할 확인
+          try {
+            const profileRes = await AxiosInstnce.get("haram/auth/profile");
+            const role = profileRes.data?.data?.user?.role;
+
+            if (role === "teacher") {
+              navigate("/tch", { replace: true });
+              redirected = true;
+              return;
+            } else if (role === "student") {
+              navigate("/std", { replace: true });
+              redirected = true;
+              return;
+            }
+          } catch (profileErr) {
+            console.error("프로필 조회 실패:", profileErr);
+          }
         }
       } catch (error) {
         console.error("OAuth 콜백 처리 실패:", error);
       } finally {
-        navigate("/", { replace: true });
+        if (!redirected) {
+          navigate("/", { replace: true });
+        }
       }
     };
 
@@ -40,4 +61,3 @@ export default function AuthCallback() {
     </div>
   );
 }
-

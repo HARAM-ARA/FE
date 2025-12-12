@@ -5,6 +5,7 @@ import Star from "../assets/Star.svg";
 import ModalComponent from "../components/ModalComponent";
 import TeamSelectModal from "../components/TeamSelectModal";
 import { useNavigate } from "react-router-dom";
+import { useCredit } from "../context/CreditContext";
 import add1 from "../assets/add1.svg";
 import add2 from "../assets/add2.svg";
 import add3 from "../assets/add3.svg";
@@ -37,6 +38,7 @@ export function SelectCard({ cardId, onCardClick, isDrawing, isDrawn }) {
 }
 
 export default function Select() {
+  const { refreshCredit } = useCredit(); // 크레딧 새로고침 함수
   const [cardResult, setCardResult] = useState(null); // 카드 결과
   const [isDrawing, setIsDrawing] = useState(false); // 카드 뽑기 진행 상태
   const [isGuideOpen, setIsGuideOpen] = useState(true); // 게임 시작 안내 모달
@@ -66,7 +68,7 @@ export default function Select() {
     { message: "크레딧 교환하기!!", effect: "swap" },
     { message: "전체 팀 크레딧 초기화!!!!", effect: "reset" },
     { message: "꽝!", effect: "Boom", credit: 10000, addCredit: 0 },
-    { message: "크레딧 뻇어오기!!", effect: "steal" },
+    { message: "크레딧 뺏어오기!!", effect: "steal" },
     { message: "하은이의 분노!!!!!!!!", effect: "anger" },
   ];
 
@@ -133,6 +135,7 @@ export default function Select() {
 
   const getEffectImage = (effect) => {
     switch (effect) {
+      case "add": return add1;
       case "add1": return add1;
       case "add2": return add2;
       case "add3": return add3;
@@ -146,6 +149,18 @@ export default function Select() {
       case "Boom": return boom;
       default: return Star;
     }
+  };
+
+  const getEffectKeyForDisplay = (result) => {
+    if (!result) return undefined;
+    if (result.effect === "add" && typeof result.addCredit === "number") {
+      if (result.addCredit >= 5000) return "add5";
+      if (result.addCredit >= 4000) return "add4";
+      if (result.addCredit >= 3000) return "add3";
+      if (result.addCredit >= 2000) return "add2";
+      if (result.addCredit >= 1000) return "add1";
+    }
+    return result.effect;
   };
 
   const getEffectButtonText = (effect) => { // 버튼 텍스트 판단
@@ -170,29 +185,28 @@ export default function Select() {
     setDrawnCards(newDrawnCards);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      const mockData = mockResponses[Math.floor(Math.random() * mockResponses.length)];
-
-      /*
-      const response = await fetch("/api/draw", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}std/select/pull`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+          "Authorization": `Bearer ${localStorage.getItem('auth_token')}`
         },
-        body: JSON.stringify({ cardId: cardId + 1 }),
+        body: JSON.stringify({ card: cardId + 1 }),
       });
       if (!response.ok) {
         const error = await response.json();
-        if (error.error === "PAYMENT_REQUIRED") {
-          alert("크레딧이 부족합니다");
-          // 실패 시 카드 복구
+        // 서버는 code 대신 message만 내려주므로 status로 분기
+        if (response.status === 403) {
+          alert(error.error || "크레딧이 부족합니다");
           setDrawnCards(drawnCards);
-        } else if (error.error === "ALREADY_PROCESSED") {
-          alert("이미 뽑힌 카드입니다");
-        } else if (error.error === "INCORRECT_CARD") {
-          alert("카드 번호가 잘못되었습니다");
-          // 실패 시 카드 복구
+        } else if (response.status === 409) {
+          alert(error.error || "이미 뽑힌 카드입니다");
+          setDrawnCards(drawnCards);
+        } else if (response.status === 400) {
+          alert(error.error || "카드 번호가 잘못되었습니다");
+          setDrawnCards(drawnCards);
+        } else {
+          alert(error.error || "카드 뽑기에 실패했습니다");
           setDrawnCards(drawnCards);
         }
         return;
@@ -200,20 +214,9 @@ export default function Select() {
 
       const data = await response.json();
 
-
-      백엔드 데이터 예시
-      effect: "add" | "double" | "swap" | "reset" | "boom" | "steal"
-      message : "전달할 메세지"
-      "addCredit": 0 추가될 크레딧
-      "credit": 10000, // 추가된 크레딧
-      requiresTeamSelect: true/false
-      availableTeams: [{id: 1, name: "하람"}, ...]
-      */
-
       // 카드 뽑는 애니메이션
 
-      const data = { ...mockData, cardId: cardId };
-      setCardResult(mockData);
+      setCardResult(data);
 
       // 저장 처리
       await saveDrawnCards(newDrawnCards);
@@ -232,20 +235,19 @@ export default function Select() {
           }
           // 상태 초기화
           setDrawnCards([]);
-          console.log('리셋 완료!');
         }, 2000);
       }
 
       console.log('카드 effect:', data.effect);
-      console.log('cardResult 설정됨:', mockData);
+
+      if (!(data.effect === "swap" || data.effect === "steal" || data.effect === "anger")) {
+        await refreshCredit();
+      }
 
       if (data.effect === "swap" || data.effect === "steal" || data.effect === "anger") {
         // 팀 선택이 필요한지 판단
-        console.log('팀 선택 모달 열기');
         setIsEffectOpen(true);
-        console.log('isEffectOpen을 true로 설정');
       } else {
-        console.log('일반 결과 모달 열기');
         setIsResultOpen(true);
       }
 
@@ -267,21 +269,20 @@ export default function Select() {
 
   const handleTeamSelect = async (teamId) => {
     try {
-      // effect에 따라 API 호출
       let endpoint = "";
       if (cardResult.effect === "swap") {
-        endpoint = "/std/select/pull/shuffle";
+        endpoint = `${import.meta.env.VITE_API_URL}std/select/pull/shuffle`;
       } else if (cardResult.effect === "steal") {
-        endpoint = "/std/select/pull/steal";
+        endpoint = `${import.meta.env.VITE_API_URL}std/select/pull/steal`;
       } else if (cardResult.effect === "anger") {
-        endpoint = "/std/select/pull/anger";
+        endpoint = `${import.meta.env.VITE_API_URL}std/select/pull/anger`;
       }
 
       const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+          "Authorization": `Bearer ${localStorage.getItem('auth_token')}`
         },
         body: JSON.stringify({ targetTeamId: teamId }),
       });
@@ -298,7 +299,6 @@ export default function Select() {
 
       const data = await response.json();
 
-      // 백엔드 응답 데이터 사용
       const finalData = {
         ...data,
         effect: cardResult.effect,
@@ -307,6 +307,8 @@ export default function Select() {
       setCardResult(finalData);
       setIsTeamSelectOpen(false);
       setIsResultOpen(true);
+
+      await refreshCredit();
 
     } catch (error) {
       console.error("팀 선택 처리 실패:", error);
@@ -372,14 +374,14 @@ export default function Select() {
           isOpen={isEffectOpen}
           onClose={closeEffectModal}
           title={cardResult.message}
-          img={getEffectImage(cardResult?.effect)}
+          img={getEffectImage(getEffectKeyForDisplay(cardResult))}
           isSelectTeam={true}
           description=""
           catchphrase="팀을 선택해주세요"
           btnText="팀 선택하기"
           onButtonClick={handleOpenTeamSelect}
           isResult={true}
-          effect={cardResult?.effect}
+          effect={getEffectKeyForDisplay(cardResult)}
         />
       )}
 
@@ -401,9 +403,9 @@ export default function Select() {
               ? cardResult.message
               : cardResult.message
           }
-          img={getEffectImage(cardResult?.effect)}
+          img={getEffectImage(getEffectKeyForDisplay(cardResult))}
           isResult={true}
-          effect={cardResult?.effect}
+          effect={getEffectKeyForDisplay(cardResult)}
 
         />
       )}
