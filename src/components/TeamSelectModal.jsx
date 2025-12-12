@@ -143,8 +143,8 @@ export default function TeamSelectModal({
                 </TeamInfo>
                 <Btn
                   onClick={() => selectTeam(item.id)}
-                  text={effect == "anger" ? "초기화하기" : (effect == "shuffle" ? "교환하기" : "10% 뺏기")}
-                  isSelect = {true}
+                  text={effect === "anger" ? "초기화하기" : effect === "swap" ? "교환하기" : "뺏기"}
+                  isSelect={true}
                 />
               </TeamItem>
             ))}

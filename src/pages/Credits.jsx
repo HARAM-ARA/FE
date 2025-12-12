@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
+import axios from "axios";
 import Header from "../components/Header.jsx";
 import CreditCard from "../components/CreditCard.jsx";
 import { dummyCredits } from "../data/dummyCredits.js";
@@ -49,39 +50,60 @@ const GridContainer = styled.div`
 `;
 
 export default function Credits() {
-  const [credits, setCredits] = useState(dummyCredits);
+  const [credits, setCredits] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // 크레딧 추가 핸들러 (백엔드 API 호출)
-  const handleAddCredit = async (teamId, amount) => {
+  // 전체 팀 크레딧 조회
+  useEffect(() => {
+    fetchAllCredits();
+  }, []);
+
+  const fetchAllCredits = async () => {
     try {
-      /* ===== 백엔드 API 호출 코드 =====
-      const token = localStorage.getItem('access_token');
+      const token = localStorage.getItem('auth_token');
 
-      const response = await fetch('/api/teacher/credits/add', {
-        method: 'POST',
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}tch/account`, {
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          teamId: teamId,
-          amount: amount
-        })
+          Authorization: `Bearer ${token}`
+        }
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        if (error.error === "UNAUTHORIZED") {
-          alert("권한이 없습니다");
-        } else if (error.error === "NON_EXIST_TEAM") {
-          alert("존재하지 않는 팀입니다");
-        } else if (error.error === "INVALID_AMOUNT") {
-          alert("올바르지 않은 금액입니다");
-        }
-        return;
-      }
+      // 응답 데이터 형식: [{ teamId: 1, teamName: "하람", credit: 10000 }, ...]
+      setCredits(response.data.map(team => ({
+        id: team.teamId,
+        name: team.teamName,
+        credit: team.credit
+      })));
 
-      const data = await response.json();
+    } catch (error) {
+      console.error("크레딧 조회 실패:", error);
+      alert("크레딧 조회에 실패했습니다.");
+      // 에러 시 더미 데이터 사용
+      setCredits(dummyCredits);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 크레딧 추가 핸들러
+  const handleAddCredit = async (teamId, amount) => {
+    try {
+      const token = localStorage.getItem('auth_token');
+
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}tch/account`,
+        {
+          teamId: teamId,
+          amount: amount
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+
+      const data = response.data;
       // data 예시: { teamId: 1, teamName: "TEAM 하람", credit: 1500, addedAmount: 500 }
 
       // 서버에서 받은 최신 크레딧 정보로 상태 업데이트
@@ -94,27 +116,34 @@ export default function Credits() {
       );
 
       alert(`${data.teamName}에 ${amount.toLocaleString()} 크레딧이 추가되었습니다!`);
-      ================================= */
-
-      // 임시 로컬 처리 (백엔드 연동 전)
-      await new Promise(resolve => setTimeout(resolve, 300));
-
-      setCredits(prevCredits =>
-        prevCredits.map(team =>
-          team.id === teamId
-            ? { ...team, credit: (team.credit || 0) + amount }
-            : team
-        )
-      );
-
-      const teamName = credits.find(t => t.id === teamId)?.name;
-      alert(`${teamName}에 ${amount.toLocaleString()} 크레딧이 추가되었습니다!`);
 
     } catch (error) {
       console.error("크레딧 추가 실패:", error);
-      alert("크레딧 추가에 실패했습니다. 다시 시도해주세요.");
+      if (error.response?.data?.error === "UNAUTHORIZED") {
+        alert("권한이 없습니다");
+      } else if (error.response?.data?.error === "NON_EXIST_TEAM") {
+        alert("존재하지 않는 팀입니다");
+      } else if (error.response?.data?.error === "INVALID_AMOUNT") {
+        alert("올바르지 않은 금액입니다");
+      } else {
+        alert("크레딧 추가에 실패했습니다. 다시 시도해주세요.");
+      }
     }
   };
+
+  if (loading) {
+    return (
+      <Container>
+        <Header teamName="최병준" isTeacher={true}/>
+        <Body>
+          <TitleSection>
+            <Title>전체 팀 크레딧 조회</Title>
+            <Description>데이터를 불러오는 중...</Description>
+          </TitleSection>
+        </Body>
+      </Container>
+    );
+  }
 
   return (
     <Container>

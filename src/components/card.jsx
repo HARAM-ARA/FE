@@ -2,14 +2,19 @@ import { useState, useEffect } from "react";
 import Countdown from "react-countdown";
 import styled from '@emotion/styled';
 import Button from './Button.jsx';
+import { useCredit } from "../context/CreditContext";
 
 
 
 export default function Card({ width, height, title, description, buttonText, onClick, showButton = true, isTimer = false, isCredit = false, credit, isOrange = false, isTeacher = false, isTypingGame = false, onTypingGameStart, testMode = false }) {
 
+  const { credit: contextCredit } = useCredit();
+
   const [key, setKey] = useState(0);
   const [isTimerComplete, setIsTimerComplete] = useState(false);
   const [nextEventTime, setNextEventTime] = useState(null);
+
+  const displayCredit = contextCredit > 0 ? contextCredit.toLocaleString() : credit;
 
   // 타자 게임용: 서버 시간 기반으로 다음 이벤트 시간 계산
   useEffect(() => {
@@ -27,13 +32,13 @@ export default function Card({ width, height, title, description, buttonText, on
     const now = new Date();
 
     if (testMode) {
-      // 테스트 모드: 10초 후로 설정
+
       const next = new Date(now.getTime() + 10 * 1000);
       setNextEventTime(next);
       setIsTimerComplete(false);
       console.log('[테스트 모드] 타이머 10초 후 활성화:', next);
     } else {
-      // 실제 운영: 로컬 시간 기반 2시간 주기
+
       const currentHour = now.getHours();
       const nextEventHour = Math.ceil(currentHour / 2) * 2;
 
@@ -70,8 +75,8 @@ export default function Card({ width, height, title, description, buttonText, on
 
       <Box width={width} height={height} onClick={onClick} isOrange={isOrange} isTeacher={isTeacher} >
         {/* 크레딧 띄우는 카드를 isCredit으로 판단해서 보여줌 */}
-        {isCredit && credit && <Gray> 우리 팀 크레딧 </Gray>}
-        {isCredit && credit && <Credit> {credit} 크레딧 </Credit>}
+        {isCredit && displayCredit && <Gray> 우리 팀 크레딧 </Gray>}
+        {isCredit && displayCredit && <Credit> {displayCredit} 크레딧 </Credit>}
 
         <InBox isTeacher={isTeacher}>
           {/* 기본작인 타이틀과 설명 */}
