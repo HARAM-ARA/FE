@@ -1,0 +1,70 @@
+language: "ko"
+
+reviews:
+  auto_review: true
+  auto_summarize: true
+  enable_fix_suggestions: true
+  request_changes_on_lint_errors: false
+
+assistant:
+  preferred_language: "ko"
+  notify_on_review: true
+
+style:
+  language: "ko"
+  line_length: 120  # 한 줄 길이 체크 기준
+
+rules:
+
+  # -----------------------------
+  # 1) px 사용 여부 자동 감지
+  # -----------------------------
+  pixel_unit_check:
+    description: "CSS에서 px 단위 사용 여부를 확인합니다."
+    triggers:
+      - pull_request
+    paths:
+      - "**/*.css"
+      - "**/*.scss"
+      - "**/*.tsx"
+      - "**/*.jsx"
+      - "**/*.js"
+    patterns:
+      - "\\b\\d+px\\b"
+    on_match: "comment"
+    message: |
+      px 단위를 사용했습니다. 디자인 시스템 기준에 따라 rem 단위를 사용하는 것이 권장되는 경우가 많습니다. 필요 시 단위 변경을 고려해주세요.
+
+  # -----------------------------
+  # 2) 파일 세분화(컴포넌트 크기 / 파일 길이) 확인
+  # -----------------------------
+  file_size_check:
+    description: "파일 길이가 너무 긴 경우 분리 필요성을 안내합니다."
+    triggers:
+      - pull_request
+    paths:
+      - "**/*.tsx"
+      - "**/*.jsx"
+      - "**/*.js"
+    max_lines: 300
+    on_exceed: "comment"
+    message: |
+      이 파일은 300줄을 초과합니다. 컴포넌트 또는 로직을 분리하여 유지보수성을 높이는 것을 권장합니다.
+
+  # -----------------------------
+  # 3) 코드 블록(함수) 길이 점검
+  # -----------------------------
+  function_length_check:
+    description: "함수 길이가 너무 긴 경우 분리 권장"
+    triggers:
+      - pull_request
+    paths:
+      - "**/*.tsx"
+      - "**/*.jsx"
+      - "**/*.js"
+    patterns:
+      - "function\\s+.*?\\{([\\s\\S]*?)\\}"
+    max_lines: 50
+    on_exceed: "comment"
+    message: |
+      함수(또는 메서드)가 50줄을 초과합니다. 역할별로 분리하거나 로직을 간소화하여 가독성을 개선하는 것을 추천합니다.
