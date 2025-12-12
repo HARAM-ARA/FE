@@ -18,33 +18,37 @@ export default function AuthCallback() {
       }
 
       try {
-        const response = await AxiosInstnce.get("haram/auth", {
-          params: { code },
+        console.log("인증 코드:", code);
+
+        // POST /haram/auth/login 사용 (백엔드 authController.js의 login 함수)
+        const response = await AxiosInstnce.post("haram/auth/login", {
+          code: code,
         });
 
-        if (response.data && response.data.token) {
-          tokenUtils.setToken(response.data.token);
+        console.log("로그인 응답:", response.data);
 
-          // 토큰 저장 후 프로필 요청으로 역할 확인
-          try {
-            const profileRes = await AxiosInstnce.get("haram/auth/profile");
-            const role = profileRes.data?.data?.user?.role;
+        if (response.data?.data?.token) {
+          tokenUtils.setToken(response.data.data.token);
 
-            if (role === "teacher") {
-              navigate("/tch", { replace: true });
-              redirected = true;
-              return;
-            } else if (role === "student") {
-              navigate("/std", { replace: true });
-              redirected = true;
-              return;
-            }
-          } catch (profileErr) {
-            console.error("프로필 조회 실패:", profileErr);
+          // 응답에 이미 user 정보가 포함되어 있음
+          const role = response.data?.data?.user?.role;
+          console.log("사용자 역할:", role);
+
+          if (role === "teacher") {
+            navigate("/tch", { replace: true });
+            redirected = true;
+            return;
+          } else if (role === "student") {
+            navigate("/std", { replace: true });
+            redirected = true;
+            return;
           }
         }
       } catch (error) {
         console.error("OAuth 콜백 처리 실패:", error);
+        console.error("에러 응답:", error.response?.data);
+        console.error("에러 상태:", error.response?.status);
+        alert(`로그인에 실패했습니다: ${error.response?.data?.message || error.message}`);
       } finally {
         if (!redirected) {
           navigate("/", { replace: true });

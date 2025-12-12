@@ -68,16 +68,20 @@ export default function Credits() {
         }
       });
 
-      // 응답 데이터 형식: [{ teamId: 1, teamName: "하람", credit: 10000 }, ...]
-      setCredits(response.data.map(team => ({
+      console.log("크레딧 조회 응답:", response.data);
+
+      // 응답 데이터에서 teams 배열 추출
+      const teamsData = response.data.teams || [];
+
+      setCredits(teamsData.map(team => ({
         id: team.teamId,
         name: team.teamName,
-        credit: team.credit
+        credit: team.teamCredit  // 백엔드는 teamCredit으로 응답
       })));
 
     } catch (error) {
       console.error("크레딧 조회 실패:", error);
-      alert("크레딧 조회에 실패했습니다.");
+      console.error("에러 응답:", error.response?.data);
       // 에러 시 더미 데이터 사용
       setCredits(dummyCredits);
     } finally {
@@ -90,10 +94,12 @@ export default function Credits() {
     try {
       const token = localStorage.getItem('auth_token');
 
+      console.log("크레딧 추가 요청:", { teamId, amount, token: token ? "있음" : "없음" });
+
       const response = await axios.post(`${import.meta.env.VITE_API_URL}tch/account`,
         {
           teamId: teamId,
-          amount: amount
+          addCredit: amount
         },
         {
           headers: {
@@ -103,6 +109,7 @@ export default function Credits() {
         }
       );
 
+      console.log("크레딧 추가 응답:", response.data);
       const data = response.data;
       // data 예시: { teamId: 1, teamName: "TEAM 하람", credit: 1500, addedAmount: 500 }
 
@@ -119,14 +126,17 @@ export default function Credits() {
 
     } catch (error) {
       console.error("크레딧 추가 실패:", error);
-      if (error.response?.data?.error === "UNAUTHORIZED") {
-        alert("권한이 없습니다");
+      console.error("에러 응답:", error.response?.data);
+      console.error("에러 상태:", error.response?.status);
+
+      if (error.response?.status === 403) {
+        alert("권한이 없습니다. 선생님 계정으로 로그인해주세요.");
       } else if (error.response?.data?.error === "NON_EXIST_TEAM") {
         alert("존재하지 않는 팀입니다");
       } else if (error.response?.data?.error === "INVALID_AMOUNT") {
         alert("올바르지 않은 금액입니다");
       } else {
-        alert("크레딧 추가에 실패했습니다. 다시 시도해주세요.");
+        alert(`크레딧 추가에 실패했습니다: ${error.response?.data?.error || error.message}`);
       }
     }
   };

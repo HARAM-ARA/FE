@@ -6,7 +6,8 @@ import TeamCard from "../components/TeamSpaceComponent/TeamCard.jsx";
 import TeamDetailModal from "../components/TeamSpaceComponent/TeamDetailModal.jsx";
 import DeleteConfirmModal from "../components/TeamSpaceComponent/DeleteConfirmModal.jsx";
 import Btn from "../components/button.jsx";
-import SearchBtn from "../assets/searchButton.svg"
+import SearchBtn from "../assets/searchButton.svg";
+import VectorIcon from "../assets/vector.svg";
 
 const Body = styled.div`
     min-height: 575px;
@@ -84,11 +85,11 @@ const SearchBox = styled.input`
     }
 `;
 
-const SearchIcon = styled.div`
+const SearchIcon = styled.img`
     position: absolute;
     right: 20px;
-    font-size: 20px;
-    color: #8B8B8B;
+    width: 24px;
+    height: 24px;
     pointer-events: none;
 `;
 
@@ -166,21 +167,24 @@ export default function TeamSpace() {
 
     const fetchTeams = async () => {
         try {
-            const token = localStorage.getItem("token");
-            const response = await axios.get("/haram/team", {
+            const token = localStorage.getItem("auth_token");
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}haram/team`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             });
+            console.log("팀 목록 응답:", response.data);
             setTeams(response.data.teams || []);
         } catch (error) {
             console.error("팀 목록 조회 실패:", error);
+            console.error("에러 상세:", error.response?.data);
             alert("팀 목록을 불러오는데 실패했습니다.");
         }
     };
 
     const filteredTeams = teams.filter(team =>
-        team.name.toLowerCase().includes(searchQuery.toLowerCase())
+        team.teamName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        team.name?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     const handleTeamSelect = (teamId) => {
@@ -270,7 +274,7 @@ export default function TeamSpace() {
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                 />
-                                <SearchIcon>dd</SearchIcon>
+                                <SearchIcon src={VectorIcon} alt="검색" />
                             </SearchWrapper>
                         )}
                     </RightSection>

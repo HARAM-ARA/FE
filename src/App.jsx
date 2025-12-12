@@ -21,6 +21,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/haram/auth" element={<AuthCallback />} />
+            <Route path="/haram/auth/callback" element={<AuthCallback />} />
             <Route path="/std" element={<Student/>}/>
             <Route path="/store" element={<Store />} />
             <Route path="/select" element={<Select />} />
@@ -35,4 +36,3 @@ export default function App() {
     </>
   )
 }
-

@@ -48,15 +48,7 @@ export default function Select() {
   const navigate = useNavigate();
   const [isEffectOpen, setIsEffectOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-
-
-  const mockTeams = [
-    { id: 1, name: "하람", credit: 20000 },
-    { id: 2, name: "아라", credit: 50000 },
-    { id: 3, name: "스파이더맨", credit: 30000 },
-    { id: 4, name: "슈퍼맨", credit: 1000 },
-    { id: 5, name: "베트맨", credit: 3000 },
-  ];
+  const [teams, setTeams] = useState([]);
 
   const mockResponses = [
     { message: "1000 크레딧 당첨!", effect: "add1", addCredit: 1000, credit: 11000 },
@@ -119,7 +111,27 @@ export default function Select() {
   //뽑힌 카드 목록
   useEffect(() => {
     loadDrawnCards();
+    fetchTeams();
   }, []);
+
+  // 팀 목록 불러오기
+  const fetchTeams = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}haram/team`, {
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem('auth_token')}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setTeams(data.teams || []);
+      }
+    } catch (error) {
+      console.error("팀 목록 조회 실패:", error);
+      // 에러 시 빈 배열 유지
+    }
+  };
 
 
   // 가이드 모달 버튼 클릭 -> 게임 시작
@@ -388,7 +400,7 @@ export default function Select() {
       <TeamSelectModal
         isOpen={isTeamSelectOpen}
         onClose={() => setIsTeamSelectOpen(false)}
-        teams={mockTeams}
+        teams={teams}
         selectTeam={handleTeamSelect}
         effect={cardResult?.effect}
       />

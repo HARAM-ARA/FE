@@ -103,7 +103,7 @@ export default function Enforce() {
     }
     setIsEnhancing(true);
     try {
-      const response = await customAxios.post('/std/enforce');
+      const response = await customAxios.post('std/enforce');
       const { success, message, tier, problems } = response.data;
       setResultMessage(message);
       if (success) {
@@ -129,7 +129,7 @@ export default function Enforce() {
       const response = await customAxios.delete('/std/enforce');
       const { message, totalProblem } = response.data;
       setSolvedProblems(totalProblem);
-      setLeakResultMessage(message);
+      setLeakResultMessage('코드 유출 완료!');
       setIsLeakResultModalOpen(true);
       // Reset tier after leaking
       setCurrentTierIndex(0);
@@ -177,7 +177,7 @@ export default function Enforce() {
       return;
     }
     try {
-      const response = await customAxios.post('/std/enforce/credit');
+      const response = await customAxios.post('std/enforce/credit');
       const { message, totalProblem } = response.data;
       setSolvedProblems(totalProblem);
       // Assuming the credit amount is in the message, e.g., "+20000크레딧"
