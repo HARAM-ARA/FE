@@ -11,7 +11,7 @@ import Enforce from "./pages/Enforce.jsx";
 import TeamSpace from "./pages/TeamSpace.jsx";
 import AdminStore from "./pages/AdminStore.jsx";
 import AuthCallback from "./pages/AuthCallback.jsx";
-
+import DinoGame from "./pages/Dino.jsx";
 
 export default function App() {
   return (
@@ -30,6 +30,7 @@ export default function App() {
             <Route path="/enforce" element={<Enforce />}/>
             <Route path="/teams" element={<TeamSpace />}/>
             <Route path="/adminstore" element={<AdminStore />}/>
+            <Route path="/dino" element={<DinoGame />}/>
           </Routes>
         </CreditProvider>
       </BrowserRouter>

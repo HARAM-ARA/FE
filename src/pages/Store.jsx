@@ -189,7 +189,7 @@ export default function Store() {
 
     } catch (error) {
       console.error("물품 구매 실패:", error);
-      if (error.response?.data?.error === "INSUFFICIENT_CREDIT") {
+      if (error.response?.data?.error === "PAYMENT_REQUIRED") {
         alert("크레딧이 부족합니다");
       } else if (error.response?.data?.error === "OUT_OF_STOCK") {
         alert("재고가 부족합니다");
