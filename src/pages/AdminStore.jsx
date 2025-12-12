@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styled from "@emotion/styled";
 
 // 실제 컴포넌트 import
@@ -10,7 +10,68 @@ import storeImg from "../assets/store.svg";
 import xImg from "../assets/Frame.svg";
 import axios from "axios";
 
+// ===== API 함수: 형식별 물품 전체 조회 =====
+const getItemsByType = async (type) => {
+    try {
+        const response = await axios.get(`/haram/store/${type}`);
 
+        // API 응답 데이터를 기존 mockData 구조에 맞게 매핑
+        const mappedItems = response.data.items.map(item => ({
+            id: item.itemId,
+            name: item.itemName,
+            price: item.price,
+            img: item.image || Mock,
+            type: item.type,
+            stock: item.quantity
+        }));
+
+        return mappedItems;
+    } catch (error) {
+        if (error.response) {
+            const status = error.response.status;
+            if (status === 404) {
+                console.error("아무런 물품이 존재하지 않습니다.");
+                return [];
+            } else if (status === 400) {
+                console.error("타입이 잘못 입력되었습니다.");
+                return [];
+            }
+        }
+        console.error("물품 조회 실패:", error);
+        return [];
+    }
+};
+
+// ===== API 함수: 물품 삭제 =====
+const deleteItem = async (id) => {
+    try {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            throw new Error("토큰이 없습니다. 다시 로그인 해주세요.");
+        }
+
+        const response = await axios.delete(`/tch/store/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        });
+
+        return response.data;
+    } catch (error) {
+        if (error.response) {
+            const status = error.response.status;
+            if (status === 404) {
+                throw new Error("존재하는 물품이 아닙니다.");
+            } else if (status === 400) {
+                throw new Error("물품 ID가 잘못되었습니다.");
+            } else if (status === 403) {
+                throw new Error("교사용 계정이 아닙니다.");
+            }
+        }
+        throw new Error(error.message || "물품 삭제에 실패했습니다.");
+    }
+};
 
 // --- 스타일 정의: AdminStore 기본 스타일 ---
 const Body = styled.div`
@@ -461,28 +522,38 @@ const AddItemComponent = ({ onAddItem, onClose }) => {
 
 // --- AdminStore Component ---
 export default function AdminStore() {
-    // Mock Data (생략)
-    const mockData = [
-        { id: 1, name: "첫 번째", price: 5000, img: Mock, type: 1, stock: 10 },
-        { id: 2, name: "두 번째", price: 7000, img: Mock, type: 1, stock: 5 },
-        { id: 3, name: "세 번째", price: 9000, img: Mock, type: 1, stock: 0 },
-        { id: 4, name: "네 번째", price: 6000, img: Mock, type: 1, stock: 12 },
-        { id: 5, name: "다섯 번째", price: 4500, img: Mock, type: 1, stock: 3 },
-        { id: 6, name: "여섯 번째", price: 8000, img: Mock, type: 1, stock: 7 },
-        { id: 7, name: "일곱 번째", price: 1000, img: Mock, type: 1, stock: 9 },
-    ];
-
-    const mockData2 = [
-        { id: 8, name: "전체 팀에게 공지 날리기", price: 5000, img: Mock, type: 2, stock: 100 },
-        { id: 9, name: "점심 함께 먹기", price: 7000, img: Mock, type: 2, stock: 50 },
-        { id: 10, name: "커피 심부름 쿠폰", price: 9000, img: Mock, type: 2, stock: 20 },
-    ];
-
+    // 상태 관리
+    const [couponItems, setCouponItems] = useState([]); // type=1 쿠폰
+    const [snackItems, setSnackItems] = useState([]); // type=2 간식
     const [checkedCards, setCheckedCards] = useState({});
-    const [filter, setFilter] = useState(true);
+    const [filter, setFilter] = useState(true); // true=간식, false=쿠폰
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
+    const [loading, setLoading] = useState(true);
+
+    // 컴포넌트 마운트 시 데이터 로드
+    useEffect(() => {
+        const fetchItems = async () => {
+            setLoading(true);
+            try {
+                // 쿠폰(type=1)과 간식(type=2) 데이터를 동시에 불러옴
+                const [coupons, snacks] = await Promise.all([
+                    getItemsByType(1), // 쿠폰
+                    getItemsByType(2)  // 간식
+                ]);
+
+                setCouponItems(coupons);
+                setSnackItems(snacks);
+            } catch (error) {
+                console.error("데이터 로드 실패:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchItems();
+    }, []);
 
     const handleCheck = (id, value) => {
         setCheckedCards(prev => ({ ...prev, [id]: value }));
@@ -525,17 +596,27 @@ export default function AdminStore() {
                 }
             );
 
-            alert("상품이 추가되었습니다!");
+            // 성공 모달 오픈
+            setSuccessMessage("상품이 추가되었습니다!");
+            setIsSuccessModalOpen(true);
 
-            setItems((prev) => [
-                ...prev,
-                {
-                    id: response.data.itemId,
-                    name: newItem.name,
-                    price: newItem.price,
-                    stock: newItem.stock
-                }
-            ]);
+            // 새로 추가된 아이템을 리스트에 추가
+            const newItemData = {
+                id: response.data.itemId,
+                name: newItem.name,
+                price: newItem.price,
+                img: Mock,
+                type: filter ? 2 : 1, // filter가 true면 간식(2), false면 쿠폰(1)
+                stock: newItem.stock
+            };
+
+            if (filter) {
+                // 간식 탭
+                setSnackItems(prev => [...prev, newItemData]);
+            } else {
+                // 쿠폰 탭
+                setCouponItems(prev => [...prev, newItemData]);
+            }
 
             setIsFormModalOpen(false);
 
@@ -544,12 +625,48 @@ export default function AdminStore() {
             alert("물품 추가 실패: " + error.message);
         }
     };
-    const handleDeleteItems = () => {
-        if (!anyChecked) return;
-        setCheckedCards({});
-        setSuccessMessage("상품 삭제 완료!");
-        setIsSuccessModalOpen(true);
-    }
+
+    // 물품 삭제 핸들러 (DELETE API 사용)
+    const handleDeleteItems = async () => {
+        const selectedIds = Object.keys(checkedCards).filter(id => checkedCards[id]);
+
+        if (selectedIds.length === 0) {
+            alert("삭제할 상품을 선택해주세요.");
+            return;
+        }
+
+        try {
+            // 선택된 모든 아이템 삭제 (Promise.all 사용)
+            await Promise.all(
+                selectedIds.map(async (id) => {
+                    try {
+                        await deleteItem(id);
+                    } catch (error) {
+                        alert(error.message);
+                    }
+                })
+            );
+
+            // 삭제 성공 모달 오픈
+            setSuccessMessage("선택한 상품이 삭제되었습니다!");
+            setIsSuccessModalOpen(true);
+
+            // 체크 해제 + 프론트 리스트에서 제거
+            setCheckedCards({});
+
+            if (filter) {
+                // 간식 탭에서 삭제
+                setSnackItems(prev => prev.filter((item) => !selectedIds.includes(String(item.id))));
+            } else {
+                // 쿠폰 탭에서 삭제
+                setCouponItems(prev => prev.filter((item) => !selectedIds.includes(String(item.id))));
+            }
+
+        } catch (err) {
+            console.error(err);
+            alert("삭제 중 오류가 발생했습니다.");
+        }
+    };
 
     const handleRightMenuClick = () => {
         if (anyChecked) {
@@ -611,35 +728,47 @@ export default function AdminStore() {
                     )}
                 </Menu>
 
-                {filter ? (
+                {loading ? (
                     <Items>
-                        {mockData.map(item =>
-                            <ItemCard
-                                key={item.id}
-                                title={item.name}
-                                price={item.price}
-                                img={item.img}
-                                isAdmin={true}
-                                stock={item.stock}
-                                checked={!!checkedCards[item.id]}
-                                onChange={(e) => handleCheck(item.id, e.target.checked)}
-                            />
+                        <p style={{color: '#B2B2B2', fontSize: '20px'}}>데이터를 불러오는 중...</p>
+                    </Items>
+                ) : filter ? (
+                    <Items>
+                        {snackItems.length > 0 ? (
+                            snackItems.map(item =>
+                                <ItemCard
+                                    key={item.id}
+                                    title={item.name}
+                                    price={item.price}
+                                    img={item.img}
+                                    isAdmin={true}
+                                    stock={item.stock}
+                                    checked={!!checkedCards[item.id]}
+                                    onChange={(e) => handleCheck(item.id, e.target.checked)}
+                                />
+                            )
+                        ) : (
+                            <p style={{color: '#B2B2B2', fontSize: '20px'}}>등록된 간식이 없습니다.</p>
                         )}
                     </Items>
                 ) : (
                     <Items>
-                        {mockData2.map(item =>
-                            <ItemCard
-                                isCoupon="true"
-                                key={item.id}
-                                title={item.name}
-                                price={item.price}
-                                img={item.img}
-                                isAdmin={true}
-                                stock={item.stock}
-                                checked={!!checkedCards[item.id]}
-                                onChange={(e) => handleCheck(item.id, e.target.checked)}
-                            />
+                        {couponItems.length > 0 ? (
+                            couponItems.map(item =>
+                                <ItemCard
+                                    isCoupon="true"
+                                    key={item.id}
+                                    title={item.name}
+                                    price={item.price}
+                                    img={item.img}
+                                    isAdmin={true}
+                                    stock={item.stock}
+                                    checked={!!checkedCards[item.id]}
+                                    onChange={(e) => handleCheck(item.id, e.target.checked)}
+                                />
+                            )
+                        ) : (
+                            <p style={{color: '#B2B2B2', fontSize: '20px'}}>등록된 쿠폰이 없습니다.</p>
                         )}
                     </Items>
                 )}

@@ -175,6 +175,7 @@ export default function Student() {
               title="공룡 게임"
               description="부소마고 선생님들 버전 공룡 게임!?"
               buttonText="시작하기"
+              onClick={() => navigate("/dino")}
             />
           </MinigameBox>
         </RightBox>
