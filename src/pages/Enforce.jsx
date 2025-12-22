@@ -38,7 +38,7 @@ const TIERS = [
 ];
 
 export default function Enforce() {
-  const TEAM_NAME = '하람';
+
   const [isGuideOpen, setIsGuideOpen] = useState(() => localStorage.getItem('modal:dismiss:guide-modal') !== 'true');
   const [currentTierIndex, setCurrentTierIndex] = useState(0);
   const [currentLevel, setCurrentLevel] = useState(5);
@@ -54,7 +54,6 @@ export default function Enforce() {
   const [buyTierResultMessage, setBuyTierResultMessage] = useState('');
   const [solvedProblems, setSolvedProblems] = useState(0);
   const [remainingProblems, setRemainingProblems] = useState(10000); // This might need to come from an API
-  const [credit, setCredit] = useState(0); // Assuming this also comes from an API, maybe user profile
 
   const [isLeakCodeModalOpen, setIsLeakCodeModalOpen] = useState(false);
   const [isBuyTierModalOpen, setIsBuyTierModalOpen] = useState(false);
@@ -180,9 +179,6 @@ export default function Enforce() {
       const response = await customAxios.post('std/enforce/credit');
       const { message, totalProblem } = response.data;
       setSolvedProblems(totalProblem);
-      // Assuming the credit amount is in the message, e.g., "+20000크레딧"
-      const creditGained = parseInt(message.match(/\+([0-9,]+)/)[1].replace(/,/g, ''));
-      setCredit(prev => prev + creditGained);
       setExchangeResultMessage(message);
       setIsExchangeResultModalOpen(true);
     } catch (error) {
@@ -210,7 +206,7 @@ export default function Enforce() {
 
   return (
     <>
-      <Header teamName={TEAM_NAME} isTeamName={true} isCredit={true} Credit={credit.toLocaleString()} />
+      <Header isTeamName={true} isCredit={true} />
       <Body>
         <FunctionMenu handleLeakCodeClick={handleLeakCodeClick} handleBuyTierClick={handleBuyTierClick} handleExchangeCreditClick={handleExchangeCreditClick} />
         <TierDisplay currentTier={currentTier} currentLevel={currentLevel} currentTierIndex={currentTierIndex} getCurrentTierNumber={getCurrentTierNumber} successRate={successRate} tiersLength={TIERS.length} />
