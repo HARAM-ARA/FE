@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header.jsx";
 import TeamCard from "../components/TeamSpaceComponent/TeamCard.jsx";
 import TeamDetailModal from "../components/TeamSpaceComponent/TeamDetailModal.jsx";
@@ -154,6 +155,7 @@ const BtnText = styled.p`
 `;
 
 export default function TeamSpace() {
+    const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedTeams, setSelectedTeams] = useState([]);
     const [selectedTeamForDetail, setSelectedTeamForDetail] = useState(null);
@@ -174,7 +176,13 @@ export default function TeamSpace() {
                 }
             });
             console.log("팀 목록 응답:", response.data);
-            setTeams(response.data.teams || []);
+            const teamsList = response.data.teams || [];
+            setTeams(teamsList);
+
+            // 팀이 없으면 랜덤 생성 페이지로 이동
+            if (teamsList.length === 0) {
+                navigate('/teams/random');
+            }
         } catch (error) {
             console.error("팀 목록 조회 실패:", error);
             console.error("에러 상세:", error.response?.data);

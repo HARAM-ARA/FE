@@ -12,6 +12,7 @@ import TeamSpace from "./pages/TeamSpace.jsx";
 import AdminStore from "./pages/AdminStore.jsx";
 import AuthCallback from "./pages/AuthCallback.jsx";
 import DinoGame from "./pages/Dino.jsx";
+import RandomTeamGenerator from "./pages/RandomTeamGenerator.jsx";
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
             <Route path="/credits" element={<Credits />}/>
             <Route path="/enforce" element={<Enforce />}/>
             <Route path="/teams" element={<TeamSpace />}/>
+            <Route path="/teams/random" element={<RandomTeamGenerator />}/>
             <Route path="/adminstore" element={<AdminStore />}/>
             <Route path="/dino" element={<DinoGame />}/>
           </Routes>
