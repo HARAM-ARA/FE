@@ -117,7 +117,7 @@ const Divider = styled.div`
   margin: 8px 0;
 `;
 
-export default function TeamRanking() {
+export default function TeamRanking({ isBeforeLogin = false }) {
   const [rankings, setRankings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [myTeamId, setMyTeamId] = useState(null);
@@ -130,10 +130,12 @@ export default function TeamRanking() {
     try {
       setLoading(true);
 
-      // 내 팀 정보 가져오기
-      const accountResponse = await AxiosInstnce.get('std/account');
-      const myTeam = accountResponse.data.teamId;
-      setMyTeamId(myTeam);
+      // 로그인 전이 아닌 경우에만 내 팀 정보 가져오기
+      if (!isBeforeLogin) {
+        const accountResponse = await AxiosInstnce.get('std/account');
+        const myTeam = accountResponse.data.teamId;
+        setMyTeamId(myTeam);
+      }
 
       // 전체 팀 크레딧 정보 가져오기
       const allTeamsResponse = await AxiosInstnce.get('haram/account');

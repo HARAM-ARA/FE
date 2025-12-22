@@ -1,22 +1,25 @@
 import React from "react";
 import styled from "@emotion/styled";
-import Card from "../components/card.jsx";
+import Card from "../components/newCard.jsx";
 import Timer from "../components/Timer.jsx";
 import Header from "../components/Header.jsx";
+import TeamRanking from "../components/TeamRanking.jsx";
+import StoreImg from "../assets/store.svg";
+import Button from "../components/button.jsx";
 
 
 const Body = styled.div`
-    width: 100%;
-    height: 100%;
+    width: 100vh;
+    height: 575px;
     display: flex;
     align-items: flex-end;
+    gap: 55px;
     margin: 0px 50px 95px 50px;
     background: #fff;
-    gap:50px;
   `;
 
 const LeftBox = styled.div`
-    width: 609px;
+
     height: 575px;
     display: flex;
     flex-direction: column;
@@ -26,25 +29,38 @@ const LeftBox = styled.div`
   `;
 
 const RightBox = styled.div`
-    width: 677px;
+    flex: 1;
     height: 575px;
     display: flex;
-    flex-direction: column;
     align-items: flex-start;
     gap: 32px;
     margin: 0px 0px 0px 0px;
   `;
 
-
-const TextBox = styled.div`
-    width: 240px;
-    height: 80px;
-    margin: 0px 0px 0px 0px;
+const GameSection = styled.div`
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 2px;
-    
+    gap: 32px;
+  `;
+
+const RankingSection = styled.div`
+    width: 340px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  `;
+
+const TextBox = styled.div`
+
+    margin: 0px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+
   `;
 
 const TitleText = styled.p`
@@ -58,14 +74,13 @@ const TitleText = styled.p`
   `;
 
 const Text = styled.p`
-    color: #B2B2B2;
-    margin:0px 0px 0px 0px;
-    align-self: stretch;
+    color: #000;
+    font-feature-settings: 'liga' off, 'clig' off;
     font-family: Pretendard;
-    font-size: 20px;
+    font-size: 24px;
     font-style: normal;
-    font-weight: 400;
-    line-height: 160%; /* 32px */
+    font-weight: 500;
+    line-height: normal;
   `;
 
 const TimerBox = styled.div`
@@ -80,11 +95,10 @@ const TimerBox = styled.div`
 
 
 const MinigameBox = styled.div`
-    width: 680px;
-    height:464px;
     display: flex;
     align-items: flex-start;
     align-content: flex-start;
+    margin-top:0px;
     gap: 24px;
     flex-shrink: 0;
     align-self: stretch;
@@ -93,13 +107,39 @@ const MinigameBox = styled.div`
 
 const ButtonRow = styled.div`
     margin:0px 0px 0px 0px;
-    width:610px;
-    height:151px;
     display: flex;
     align-items: center;
     gap: 24px;
     align-self: stretch;
   `;
+
+const StoreCard = styled.div`
+    display: flex;
+    padding: 30px 47px 31px 47px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 12px;
+    border: 1px solid #8B8B8B;
+`;
+
+const Storediv = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 18px;
+`;
+
+const Storeleft = styled.div`
+    display: flex;
+    width: 390px;
+    align-items: center;
+    gap: 18px;
+`;
+
+const StoreImgDiv = styled.img`
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
+`;
 
 
 
@@ -117,60 +157,43 @@ export default function BeforeHome() {
           <TimerBox>
             <TextBox>
               <TitleText>타이머</TitleText>
-              <Text>타이머로 남은 시간을 확인해요</Text>
             </TextBox>
             <Timer />
           </TimerBox>
 
+          <TitleText>상점</TitleText>
           <ButtonRow>
-            <Card
-              width="217px"
-              height="56px"
-              title="크레딧 조회"
-              description="클릭하여 우리 팀 잔액을 확인해요"
-            />
-            <Card
-              width="217px"
-              height="56px"
-              title="상점"
-              description="상정에서 원하는 상품을 구매해요"
-            />
+            <StoreCard>
+              <Storediv>
+                <Storeleft>
+                  <StoreImgDiv src={StoreImg} />
+                  <Text>상품 구매</Text>
+                </Storeleft>
+                <Button text="들어가기"></Button>
+              </Storediv>
+            </StoreCard>
           </ButtonRow>
-
         </LeftBox>
 
         <RightBox>
+          <GameSection>
+            <TextBox>
+              <TitleText>미니게임</TitleText>
+            </TextBox>
 
-          <TextBox style={{ width: '390px' }}>
-            <TitleText >미니게임</TitleText>
-            <Text>미니게임으로 크레딧을 벌어 상점에서 사용해요</Text>
-          </TextBox>
+            <MinigameBox>
+              <Card title="추억의 뽑기" />
+              <Card title={"타자게임"} />
+              <Card title={"강화하기"} />
+              <Card title={"테트리스"} />
+              <Card title={"공룡게임"} />
+            </MinigameBox>
+          </GameSection>
 
-          <MinigameBox>
-            <Card
-              width="246px"
-              height="106px"
-              title="추억의 뽑기 게임"
-              description="뽑기 버튼 한 번으로 운을 시험해보세요!"
-              buttonText="시작하기"
-
-            />
-            <Card
-              title="타자게임"
-              description="2시간에 한번, 타자 게임에 도전하세요!"
-              isTimer="true"
-            />
-            <Card
-              title="강화하기 게임"
-              description="백준 루비를 향한 여정을 시작하세요!"
-              buttonText="시작하기"
-            />
-            <Card
-              title="공룡 게임"
-              description="부소마고 선생님들 버전 공룡 게임!?"
-              buttonText="시작하기"
-            />
-          </MinigameBox>
+          <RankingSection>
+            <TitleText>팀 순위</TitleText>
+            <TeamRanking isBeforeLogin={true} />
+          </RankingSection>
         </RightBox>
 
       </Body >
