@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import { useCredit } from "../context/CreditContext";
 
 const Headerbox = styled.div`
-    width: 1340px;
     height: 90px;
     margin:26px 50px 47px 50px;
     display:flex;
@@ -133,10 +132,10 @@ const Img = styled.img`
 
 
 
-export default function Header({ teamName, isTeacher = false, isTeamName = false, isLogin = false, isLogout = false, isCredit = false, Credit }) {
+export default function Header({ teamName: propTeamName, isTeacher = false, isTeamName = false, isLogin = false, isLogout = false, isCredit = false, Credit: propCredit }) {
 
   // Context에서 크레딧 정보 가져오기
-  const { credit, teamName: contextTeamName } = useCredit();
+  const { credit, teamName: contextTeamName, teamId } = useCredit();
   const [userProfile, setUserProfile] = useState(null);
 
   const handleGoogleLogin = async () => {
@@ -185,11 +184,13 @@ export default function Header({ teamName, isTeacher = false, isTeamName = false
   };
 
   // 크레딧 표시 (Context 값 우선, props로 전달된 값은 fallback)
-  const displayCredit = credit > 0 ? credit.toLocaleString() : Credit;
+  const displayCredit = credit > 0 ? credit.toLocaleString() : (propCredit || '0');
+
+  // 팀 이름 표시 (teamId 우선, Context teamName, props 순서)
+  const displayTeamName = teamId || contextTeamName || propTeamName || '팀';
 
   // 사용자 이름 표시 (API에서 받아온 값 우선, props는 fallback)
-  const displayTeamName = userProfile?.teamName || contextTeamName || teamName;
-  const displayUserName = userProfile?.name || teamName;
+  const displayUserName = userProfile?.name || propTeamName;
 
   return (
     <>
