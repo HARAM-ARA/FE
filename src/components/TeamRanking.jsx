@@ -124,32 +124,64 @@ export default function TeamRanking({ isBeforeLogin = false }) {
 
   useEffect(() => {
     fetchRankings();
+
+    // 10분(600000ms)마다 순위 자동 갱신
+    const interval = setInterval(() => {
+      fetchRankings();
+    }, 600000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const fetchRankings = async () => {
     try {
       setLoading(true);
 
-      // 로그인 전이 아닌 경우에만 내 팀 정보 가져오기
       if (!isBeforeLogin) {
         const accountResponse = await AxiosInstnce.get('std/account');
         const myTeam = accountResponse.data.teamId;
         setMyTeamId(myTeam);
       }
 
-      // 전체 팀 크레딧 정보 가져오기
       const allTeamsResponse = await AxiosInstnce.get('haram/account');
-      const teams = allTeamsResponse.data || [];
+      let raw = allTeamsResponse.data;
 
-      // 크레딧 기준으로 내림차순 정렬하고 순위 부여
+        console.log("API 응답 전체:", raw);
+
+        // API 응답이 배열이 아닐 수도 있으므로 안전 처리
+        let teams = [];
+
+        if (Array.isArray(raw)) {
+            teams = raw;
+        } else if (Array.isArray(raw?.teams)) {
+            teams = raw.teams;
+        } else if (Array.isArray(raw?.data)) {
+            teams = raw.data;
+        } else if (raw && typeof raw === "object") {
+            // 객체 형태면 values를 배열로 변환
+            teams = Object.values(raw);
+        } else {
+            teams = [];
+        }
+
+        console.log("추출된 teams 배열:", teams);
+
+
+
       const sortedTeams = teams
-        .sort((a, b) => b.credit - a.credit)
+         .sort((a, b) => {
+           const creditA = Number(a.teamCredit) || 0;
+           const creditB = Number(b.teamCredit) || 0;
+           return creditB - creditA; // 내림차순: 크레딧이 큰 팀이 앞으로
+         })
         .map((team, index) => ({
           teamId: team.teamId,
           teamName: team.teamName,
-          credit: team.credit,
+          credit: Number(team.teamCredit) || 0,
           rank: index + 1
         }));
+
+      console.log("정렬된 팀 순위:", sortedTeams.map(t => `${t.rank}위: TEAM ${t.teamId} - ${t.credit}원`));
 
       setRankings(sortedTeams);
 
@@ -157,7 +189,6 @@ export default function TeamRanking({ isBeforeLogin = false }) {
       console.error("팀 순위 조회 실패:", error);
 
       setRankings([
-
         { teamId: 2, credit: 45000, rank: 1 },
         { teamId: 3, credit: 40000, rank: 2 },
         { teamId: 4, credit: 35000, rank: 3 },
@@ -201,7 +232,7 @@ export default function TeamRanking({ isBeforeLogin = false }) {
                     {team.rank}위
                   </Rank>
                   <TeamName isMyTeam={team.teamId === myTeamId}>
-                    TEAM {team.teamName || team.teamId}
+                    TEAM {team.teamId}
                   </TeamName>
                 </RankingLeft>
               </RankingItem>
@@ -220,7 +251,7 @@ export default function TeamRanking({ isBeforeLogin = false }) {
                       {myTeam.rank}위
                     </Rank>
                     <TeamName isMyTeam={true}>
-                      TEAM {myTeam.teamName || myTeam.teamId}
+                      TEAM {myTeam.teamId}
                     </TeamName>
                   </RankingLeft>
                 </RankingItem>

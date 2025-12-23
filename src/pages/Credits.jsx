@@ -139,7 +139,7 @@ export default function Credits() {
 
       console.log("크레딧 추가 요청:", { teamId, amount, token: token ? "있음" : "없음" });
 
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}haram/account`,
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}tch/account`,
         {
           teamId: teamId,
           addCredit: amount

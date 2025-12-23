@@ -284,6 +284,44 @@ export default function TeamSpace() {
         }
     };
 
+    const handleAddStudent = async (teamId, studentId) => {
+        try {
+            const token = localStorage.getItem("auth_token");
+            const response = await axios.post(
+                `${import.meta.env.VITE_API_URL}tch/team/student`,
+                {
+                    teamId: teamId,
+                    userId: studentId
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            // 성공 시 팀 상세 정보 다시 불러오기
+            const team = teams.find(t => t.teamId === teamId);
+            if (team) {
+                await handleTeamClick(team);
+            }
+
+            alert("학생이 팀에 추가되었습니다.");
+        } catch (error) {
+            console.error("학생 추가 실패:", error);
+            console.error("에러 상세:", error.response?.data);
+
+            if (error.response?.data?.error === "NON_EXIST_USER") {
+                alert("존재하지 않는 학생 ID입니다.");
+            } else if (error.response?.data?.error === "ALREADY_IN_TEAM") {
+                alert("이미 다른 팀에 소속된 학생입니다.");
+            } else {
+                alert("학생 추가에 실패했습니다.");
+            }
+        }
+    };
+
     return (
         <>
             <Header teamName="최병준" isTeacher={true} />
@@ -335,6 +373,7 @@ export default function TeamSpace() {
                 onClose={() => setSelectedTeamForDetail(null)}
                 team={selectedTeamForDetail}
                 onDeleteStudents={handleDeleteStudents}
+                onAddStudent={handleAddStudent}
             />
 
             <DeleteConfirmModal

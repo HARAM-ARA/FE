@@ -7,6 +7,7 @@ import Button from "../components/Button";
 import ItemCard from "../components/ItemCard";
 import Mock from "../assets/Mock.png";
 import ModalComponent from "../components/ModalComponent";
+import AnnouncementModal from "../components/AnnouncementModal";
 import storeImg from "../assets/store.svg";
 
 
@@ -121,7 +122,8 @@ export default function Store() {
   const [loading, setLoading] = useState(true);
   const [checkedCards, setCheckedCards] = useState({});
   const [filter, setFilter] = useState(true); // true가 간식 (type: 1), false가 쿠폰 (type: 2)
-  const [isOpen, setIsOpen] = useState(false); // 모달용
+  const [isOpen, setIsOpen] = useState(false); // 일반 구매 완료 모달용
+  const [isAnnouncementModalOpen, setIsAnnouncementModalOpen] = useState(false); // 전체 공지 모달용
 
   // 페이지 로드 시 전체 물품 조회
   useEffect(() => {
@@ -165,6 +167,10 @@ export default function Store() {
       const token = localStorage.getItem('auth_token');
       const itemIdsToPurchase = Object.keys(checkedCards).filter(id => checkedCards[id]).map(Number);
 
+      const hasAnnouncementCoupon = itemIdsToPurchase.some(itemId => {
+        const item = items.find(i => i.id === itemId);
+        return item && item.name === "전체 공지하기";
+      });
 
       for (const itemId of itemIdsToPurchase) {
         await axios.post(`${import.meta.env.VITE_API_URL}std/store`,
@@ -179,11 +185,15 @@ export default function Store() {
       }
 
       setCheckedCards({});
-      setIsOpen(true);
+
+      if (hasAnnouncementCoupon) {
+        setIsAnnouncementModalOpen(true);
+      } else {
+        setIsOpen(true);
+      }
 
       await fetchAllItems();
 
-      // 구매 후 크레딧 업데이트
       await refreshCredit();
 
     } catch (error) {
@@ -200,8 +210,28 @@ export default function Store() {
     }
   };
 
-  // 현재 필터에 맞는 물품 필터링
+
   const filteredItems = items.filter(item => item.type === (filter ? 1 : 2));
+
+
+  const handleAnnouncementSubmit = async (message) => {
+    try {
+
+      const announcementData = {
+        message: message,
+        timestamp: Date.now()
+      };
+
+      localStorage.setItem('announcement', JSON.stringify(announcementData));
+
+      window.dispatchEvent(new Event('announcement-update'));
+
+      console.log("전체 공지 메시지 전송 완료:", message);
+    } catch (error) {
+      console.error("전체 공지 전송 실패:", error);
+      alert("전체 공지 전송에 실패했습니다.");
+    }
+  };
 
 
 
@@ -243,6 +273,12 @@ export default function Store() {
             title="구매완료! 상품을 가져가세요!"
             img={storeImg} >
           </ModalComponent>
+
+          <AnnouncementModal
+            isOpen={isAnnouncementModalOpen}
+            onClose={() => setIsAnnouncementModalOpen(false)}
+            onSubmit={handleAnnouncementSubmit}
+          />
         </Menu>
 
         {loading ? (
