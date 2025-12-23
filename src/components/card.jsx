@@ -147,7 +147,7 @@ const Title = styled.p`
   font-size: 24px;
   font-weight: 500;
   margin:0px 0px 0px 0px;
-  cursor: "pointer";
+  cursor: pointer;
   text-align: ${props => props.isTeacher ? "center" : "left"};
 `;
 
@@ -156,8 +156,8 @@ const Description = styled.p`
   font-family: Pretendard;
   font-size: 16px;
   font-weight: 400;
-  margin:0px 0px 0px 0px;
-  cursor: "pointer";
+  margin:0px 0px 7px 0px;
+  cursor: pointer;
   text-align: ${props => props.isTeacher ? "center" : "left"};
 `;
 
@@ -174,6 +174,7 @@ const Box = styled.div`
     border: 1px solid #8B8B8B;
     background-color: white;
     cursor: pointer;
+    
     &:hover{
       background-color:  ${(props) => (props.isOrange ? "#FFF2E4" : "white")};
     }
@@ -184,7 +185,6 @@ const InBox = styled.div`
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;
     align-self: stretch;
     cursor: pointer;
     

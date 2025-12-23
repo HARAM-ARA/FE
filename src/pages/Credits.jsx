@@ -4,6 +4,7 @@ import axios from "axios";
 import Header from "../components/Header.jsx";
 import CreditCard from "../components/CreditCard.jsx";
 import { dummyCredits } from "../data/dummyCredits.js";
+import eyes from "../assets/eyes.svg";
 
 const Container = styled.div`
   width: 100%;
@@ -49,6 +50,43 @@ const GridContainer = styled.div`
   width: 100%;
 `;
 
+const Eyes = styled.p`
+    color: #000;
+    text-align: center;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: Pretendard;
+    font-size: 60px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    margin-bottom: 0;
+    opacity: 50%;
+`;
+
+const EmptyMessage = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+    opacity: 30%;
+  margin: 0;
+    color: #000;
+    text-align: center;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: Pretendard;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+`;
+
+const NoneDiv= styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    align-self: stretch;
+`;
+
 export default function Credits() {
   const [credits, setCredits] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -62,7 +100,7 @@ export default function Credits() {
     try {
       const token = localStorage.getItem('auth_token');
 
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}tch/account`, {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}haram/account`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -82,8 +120,13 @@ export default function Credits() {
     } catch (error) {
       console.error("크레딧 조회 실패:", error);
       console.error("에러 응답:", error.response?.data);
-      // 에러 시 더미 데이터 사용
-      setCredits(dummyCredits);
+      // 404 에러 (팀이 없음)일 경우 빈 배열로 설정
+      if (error.response?.status === 404) {
+        setCredits([]);
+      } else {
+        // 다른 에러는 더미 데이터 사용
+        setCredits(dummyCredits);
+      }
     } finally {
       setLoading(false);
     }
@@ -96,7 +139,7 @@ export default function Credits() {
 
       console.log("크레딧 추가 요청:", { teamId, amount, token: token ? "있음" : "없음" });
 
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}tch/account`,
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}haram/account`,
         {
           teamId: teamId,
           addCredit: amount
@@ -164,18 +207,26 @@ export default function Credits() {
           <Description>모든 팀의 크레딧을 한 눈에 확인하고</Description>
           <Description>팀별로 크레딧을 추가할 수 있어요</Description>
         </TitleSection>
-        <GridContainer>
-          {credits.map((team) => (
+        {credits.length === 0 ? (
+            <NoneDiv>
+                <Eyes>👀</Eyes>
+                <EmptyMessage>현재 등록된 팀이 없어요</EmptyMessage>
+            </NoneDiv>
+            ) : (
+            <GridContainer>
+        {credits.map((team) => (
             <CreditCard
-              key={team.id}
-              id={team.id}
-              name={team.name}
-              credit={team.credit}
-              onAddCredit={handleAddCredit}
-            />
-          ))}
-        </GridContainer>
-      </Body>
-    </Container>
+            key={team.id}
+          id={team.id}
+          name={team.name}
+          credit={team.credit}
+          onAddCredit={handleAddCredit}
+      />
+        ))}
+    </GridContainer>
+  )
+}
+</Body>
+</Container>
   );
 }

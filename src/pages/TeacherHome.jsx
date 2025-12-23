@@ -4,41 +4,31 @@ import Card from "../components/card.jsx";
 import Timer from "../components/Timer.jsx";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header.jsx";
+import NewCard from "../components/newCard.jsx";
 
 const Body = styled.div`
     display: flex;
-    width: 1440px;
     padding: 26px 51px 162px 50px;
-    flex-direction: row;
-    align-items: flex-start;
+    
     gap: 50px;
+    flex-direction: column;
+    align-items: center;
     background: #fff;
 `;
 
-const LeftBox = styled.div`
-    width: 837px;
-    height: 572px;
+const MainDiv = styled.div`
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: flex-start;
-    gap: 27px;
-    margin: 0px 0px 0px 0px;
+    gap:40px;
 `;
 
-const RightBox = styled.div`
-    width: 469px;
-    height: 572px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 32px;
-    margin: 0px 0px 0px 0px;
-`;
 
 const TextBox = styled.div`
     width: 300px;
     height: 80px;
-    margin: 0px 0px 0px 0px;
+    margin: 0px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -47,7 +37,7 @@ const TextBox = styled.div`
 
 const TitleText = styled.p`
     color: #1D1D1D;
-    margin: 0px 0px 0px 0px;
+    margin: 0px;
     font-family: Pretendard;
     font-size: 28px;
     font-style: normal;
@@ -55,30 +45,8 @@ const TitleText = styled.p`
     line-height: 160%;
 `;
 
-const Text = styled.p`
-    color: #B2B2B2;
-    margin: 0px 0px 0px 0px;
-    align-self: stretch;
-    font-family: Pretendard;
-    font-size: 20px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 160%;
-`;
-
-const TimerBox = styled.div`
-    display: flex;
-    height: 550px;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 32px;
-    flex-shrink: 0;
-    align-self: stretch;
-`;
 
 const FunctionBox = styled.div`
-    width: 469px;
-    height: 572px;
     display: flex;
     align-items: flex-start;
     align-content: flex-start;
@@ -86,6 +54,13 @@ const FunctionBox = styled.div`
     flex-shrink: 0;
     align-self: stretch;
     flex-wrap: wrap;
+    margin: 0px;
+`;
+
+const Div = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 `;
 
 export default function TeacherHome() {
@@ -99,52 +74,45 @@ export default function TeacherHome() {
             />
 
             <Body>
-                <LeftBox>
-                    <TimerBox>
+                <MainDiv>
+                   <Div>
+                       <TextBox>
+                           <TitleText>선생님 기능</TitleText>
+                       </TextBox>
+
+                       <FunctionBox>
+                           <Card
+                               title="팀 랜덤 생성 및 조회"
+                               description="팀을 랜덤하게 생성하고 조회해요"
+                               buttonText="시작하기"
+                               onClick={() => navigate("/teams")}
+                           />
+                           <Card
+                               title="팀 크레딧 추가"
+                               description="모든 팀 크레딧을 조회하고 추가해요"
+                               buttonText="시작하기"
+                               onClick={() => navigate("/credits")}
+                           />
+                           <Card
+                               title="상점 관리"
+                               description="상점에 상품을 등록하고 수정해요"
+                               buttonText="시작하기"
+                               onClick={() => navigate("/adminstore")}
+                           />
+                       </FunctionBox>
+                   </Div>
+
+                    <Div>
                         <TextBox>
-                            <TitleText>타이머</TitleText>
-                            <Text>타이머로 남은 해커톤 시간을 확인해요</Text>
+                            <TitleText> 미니게임 관리 </TitleText>
                         </TextBox>
-                        <Timer height="79px" isTeacher= "true"/>
-                    </TimerBox>
-                </LeftBox>
 
-                <RightBox>
-                    <TextBox style={{ width: '450px' }}>
-                        <TitleText>선생님 기능</TitleText>
-                        <Text>선생님만 다룰 수 있는 기능이에요</Text>
-                    </TextBox>
-
-                    <FunctionBox>
-                        <Card
-                            width="450px"
-                            height="65px"
-                            isTeacher={true}
-                            isOrange={true}
-                            title="팀스페이스 조회"
-                            description="모든 팀과 학생들을 조회해요"
-                            onClick={() => navigate("/teams")}
-                        />
-                        <Card
-                            width="450px"
-                            height="65px"
-                            isTeacher={true}
-                            isOrange={true}
-                            title="전체 팀 크레딧 조회"
-                            description="모든 팀 크레딧을 조회하고 추가해요"
-                            onClick={() => navigate("/credits")}
-                        />
-                        <Card
-                            width="450px"
-                            height="65px"
-                            isTeacher={true}
-                            isOrange={true}
-                            title="상점"
-                            description="상점에 상품을 등록하고 수정해요"
-                            onClick={() => navigate("/adminstore")}
-                        />
-                    </FunctionBox>
-                </RightBox>
+                        <FunctionBox>
+                            <NewCard title="타자게임" />
+                            <NewCard title="테트리스" onClick={()=>window.location.href="https://tetr.io/"}/>
+                        </FunctionBox>
+                    </Div>
+                </MainDiv>
             </Body>
         </>
     );
