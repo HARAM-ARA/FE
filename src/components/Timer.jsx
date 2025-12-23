@@ -8,13 +8,15 @@ const TimerCard = styled.div`
     display: flex;
     flex-direction: column;
     background-color:white;
-    height: ${(props)=> (props.isTeacher ? "700px" : "270px" )};
+    height: ${(props)=> (props.isTeacher ? "470px" : "270px" )};
+    width: ${(props)=> (props.isTeacher ? "1100px" : "400px" )};
     border-radius: 12px;
     border: 1px solid #8B8B8B;
-    padding:${(props)=> (props.isTeacher ? "150px 126px 150px 126px;" : " 64px 87px 65px 87px" )};
+    padding: ${(props)=> (props.isTeacher ? "64px 87px 65px 87px" : " 64px 87px 65px 87px" )};
     justify-content: center;
     align-items: center;
     align-self: stretch;
+    margin: auto;
   `;
 
 const Text = styled.p`
@@ -36,12 +38,13 @@ const DdayBox = styled.div`
   `;
 
 const TimeText = styled.div`
+
     align-self: stretch;
     color: #5A5A5A;
     text-align: center;
     font-feature-settings: 'liga' off, 'clig' off;
     font-family: Pretendard;
-    font-size: ${(props)=> (props.isTeacher ? "106px" : "70px" )};
+    font-size: ${(props)=> (props.isTeacher ? "140px" : "70px" )};
     font-style: normal;
     font-weight: 700;
     line-height: normal;
@@ -50,29 +53,29 @@ const TimeText = styled.div`
   `;
 
 const TimeBox = styled.div`
-  width: ${(props)=> (props.isTeacher ? "585px" : "422px" )};
+  width: ${(props)=> (props.isTeacher ? "800px" : "422px" )};
   display: flex;
-  align-items: center;  
+  align-items: center;
   justify-content: center;
-  gap: 16px;   
+  gap: ${(props)=> (props.isTeacher ? "24px" : "16px" )};
 `;
 
 const Num = styled.div`
   display: flex;
-  flex-direction: column; 
-  align-items: top;   
-  magin:0; 
+  flex-direction: column;
+  align-items: top;
+  magin:0;
 `;
 
 const NumberRow = styled.div`
   align-items: center;
-  gap: 5px; 
+  gap: 5px;
 `;
 
 const Colon = styled.div`
   color: #5A5A5A;
   font-family: Pretendard;
-  font-size: ${(props)=> (props.isTeacher ? "106px" : "70px" )};
+  font-size: ${(props)=> (props.isTeacher ? "140px" : "70px" )};
   font-weight: 700;
   line-height: normal;
   align-items: center;
@@ -85,7 +88,7 @@ const Label = styled.div`
   text-align: center;
   font-feature-settings: 'liga' off, 'clig' off;
   font-family: Pretendard;
-  font-size: ${(props)=> (props.isTeacher ? "24px" : "18px" )};
+  font-size: ${(props)=> (props.isTeacher ? "28px" : "18px" )};
   font-style: normal;
   font-weight: 400;
   line-height: normal;

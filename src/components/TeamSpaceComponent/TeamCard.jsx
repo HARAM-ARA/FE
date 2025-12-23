@@ -57,7 +57,7 @@ export default function TeamCard({ team, selected, onSelect, onClick }) {
           onChange={handleCheckboxChange}
         />
       </CheckboxWrapper>
-      <TeamName>TEAM {team.name}</TeamName>
+      <TeamName>{team.teamName}</TeamName>
     </Card>
   );
 }

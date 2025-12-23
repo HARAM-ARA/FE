@@ -190,8 +190,8 @@ export default function Student() {
               <Card title="추억의 뽑기" onClick={()=>navigate('/select')}/>
               <Card title={"타자게임"}  onClick={()=>navigate('/typing')}/>
               <Card title={"강화하기"}  onClick={()=>navigate('/enforce')}/>
-              <Card title={"테트리스"}  onClick={()=>navigate('/select')}/>
-              <Card title={"공룡게임"}  onClick={()=>navigate('/select')}/>
+              <Card title={"테트리스"}  onClick={()=>window.location.href="https://tetr.io/"}/>
+              <Card title={"공룡게임"}  onClick={()=>navigate('/dino')}/>
             </MinigameBox>
           </GameSection>
 

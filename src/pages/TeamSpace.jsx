@@ -203,8 +203,36 @@ export default function TeamSpace() {
         );
     };
 
-    const handleTeamClick = (team) => {
-        setSelectedTeamForDetail(team);
+    const handleTeamClick = async (team) => {
+        try {
+            const token = localStorage.getItem("auth_token");
+            const response = await axios.get(
+                `${import.meta.env.VITE_API_URL}tch/team/student/${team.teamId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+            console.log("팀 상세 조회 응답:", response.data);
+
+            // 백엔드 응답을 모달이 기대하는 형식으로 변환
+            const teamDetail = {
+                teamId: team.teamId,
+                name: team.teamName,
+                members: response.data.student.map(student => ({
+                    id: student.userId,
+                    name: student.name,
+                    gradeClassNum: student.userId // 학번을 gradeClassNum으로 사용
+                }))
+            };
+
+            setSelectedTeamForDetail(teamDetail);
+        } catch (error) {
+            console.error("팀 상세 조회 실패:", error);
+            console.error("에러 상세:", error.response?.data);
+            alert("팀 상세 정보를 불러오는데 실패했습니다.");
+        }
     };
 
     const handleDeleteTeams = () => {
@@ -291,16 +319,14 @@ export default function TeamSpace() {
                 <TeamGrid>
                     {filteredTeams.map(team => (
                         <TeamCard
-                            key={team.id}
+                            key={team.teamId}
                             team={team}
-                            selected={selectedTeams.includes(team.id)}
-                            onSelect={() => handleTeamSelect(team.id)}
+                            selected={selectedTeams.includes(team.teamId)}
+                            onSelect={() => handleTeamSelect(team.teamId)}
                             onClick={() => handleTeamClick(team)}
                         />
                     ))}
-                    <AddTeamCard>
-                        <AddTeamText>팀 추가하기</AddTeamText>
-                    </AddTeamCard>
+
                 </TeamGrid>
             </Body>
 

@@ -133,7 +133,7 @@ export default function Store() {
     try {
       const response = await axios.get(`${import.meta.env.VITE_API_URL}haram/store`);
 
-      // 응답 데이터 형식: [{ itemId: 1, itemName: "상품명", price: 5000, stock: 10, type: 1, image: "url" }, ...]
+
       setItems(response.data.items.map(item => ({
         id: item.itemId,
         name: item.itemName,
@@ -165,7 +165,7 @@ export default function Store() {
       const token = localStorage.getItem('auth_token');
       const itemIdsToPurchase = Object.keys(checkedCards).filter(id => checkedCards[id]).map(Number);
 
-      // 각 물품 구매 요청 (quantity 기본 1)
+
       for (const itemId of itemIdsToPurchase) {
         await axios.post(`${import.meta.env.VITE_API_URL}std/store`,
           { itemId: itemId, quantity: 1 },
@@ -181,7 +181,6 @@ export default function Store() {
       setCheckedCards({});
       setIsOpen(true);
 
-      // 구매 후 물품 목록 다시 불러오기
       await fetchAllItems();
 
       // 구매 후 크레딧 업데이트

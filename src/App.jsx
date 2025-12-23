@@ -13,6 +13,7 @@ import AdminStore from "./pages/AdminStore.jsx";
 import AuthCallback from "./pages/AuthCallback.jsx";
 import DinoGame from "./pages/Dino.jsx";
 import RandomTeamGenerator from "./pages/RandomTeamGenerator.jsx";
+import TimerHome from "./pages/TimerHome.jsx";
 
 export default function App() {
   return (
@@ -33,6 +34,7 @@ export default function App() {
             <Route path="/teams/random" element={<RandomTeamGenerator />}/>
             <Route path="/adminstore" element={<AdminStore />}/>
             <Route path="/dino" element={<DinoGame />}/>
+            <Route path="/timer" element={<TimerHome />}/>
           </Routes>
         </CreditProvider>
       </BrowserRouter>
