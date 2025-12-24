@@ -146,7 +146,6 @@ export default function TeamRanking({ isBeforeLogin = false }) {
       const allTeamsResponse = await AxiosInstnce.get('haram/account');
       let raw = allTeamsResponse.data;
 
-        console.log("API 응답 전체:", raw);
 
         // API 응답이 배열이 아닐 수도 있으므로 안전 처리
         let teams = [];
@@ -164,7 +163,7 @@ export default function TeamRanking({ isBeforeLogin = false }) {
             teams = [];
         }
 
-        console.log("추출된 teams 배열:", teams);
+
 
 
 
@@ -181,7 +180,7 @@ export default function TeamRanking({ isBeforeLogin = false }) {
           rank: index + 1
         }));
 
-      console.log("정렬된 팀 순위:", sortedTeams.map(t => `${t.rank}위: TEAM ${t.teamId} - ${t.credit}원`));
+
 
       setRankings(sortedTeams);
 

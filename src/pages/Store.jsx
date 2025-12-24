@@ -216,15 +216,17 @@ export default function Store() {
 
   const handleAnnouncementSubmit = async (message) => {
     try {
+      const token = localStorage.getItem('auth_token');
 
-      const announcementData = {
-        message: message,
-        timestamp: Date.now()
-      };
-
-      localStorage.setItem('announcement', JSON.stringify(announcementData));
-
-      window.dispatchEvent(new Event('announcement-update'));
+      await axios.post(`${import.meta.env.VITE_API_URL}haram/notice`,
+        { content: message },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
 
       console.log("전체 공지 메시지 전송 완료:", message);
     } catch (error) {
