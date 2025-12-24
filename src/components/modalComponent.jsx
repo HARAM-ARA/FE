@@ -50,8 +50,8 @@ const guideModalStyles = { // 가이드 모달 전용 스타일
     left: "0",
   },
   content: {
-    width: "877px",
-    height: "543px",
+    width: "730px",
+    height: "550px",
     flexShrink: "0",
     top: "50%",
     left: "50%",
@@ -62,13 +62,14 @@ const guideModalStyles = { // 가이드 모달 전용 스타일
     alignItems: "center",
     display: "flex",
     justifyContent: "center",
-    flexDirection: "column"
+    flexDirection: "column",
+    padding: "60px 80px"
   },
 };
 
 const Div = styled.div`
   display: flex;
-  margin-right:  ${props => props.isGuide ? '70px' : '0px'};
+  width: 100%;
   flex-direction: column;
   align-items: ${props => props.isGuide ? 'flex-start' : 'center'};
   gap: 4px;
@@ -337,7 +338,7 @@ export default function ModalComponent({
           <Title>{title}</Title>
           <Description isGuide={isGuide}>{description}</Description>
           <Catchphrase isGuide={isGuide}>{catchphrase}</Catchphrase>
-          <div style={{ width: "100%", display: "flex", justifyContent: "flex-end", marginLeft: "70px" }}>
+          <div style={{ width: "100%", display: "flex", justifyContent: "flex-end" }}>
             <ActionRow>
               {showDismissCheckbox && (
                 <Checkbox
