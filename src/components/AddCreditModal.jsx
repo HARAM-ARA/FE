@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import Modal from "react-modal";
 import styled from "@emotion/styled";
@@ -134,7 +135,6 @@ export default function AddCreditModal({ isOpen, onClose, teamName, onAdd }) {
 
   const handleInputChange = (e) => {
     const value = e.target.value;
-    // 숫자만 입력 가능하도록
     if (value === "" || /^\d+$/.test(value)) {
       setCreditValue(value);
     }

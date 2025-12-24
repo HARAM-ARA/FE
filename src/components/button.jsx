@@ -27,7 +27,9 @@ export default function Button({ path, onClick, text, active, isModal, isSelect 
         }
 
         /* focus 전부 제거 */
-        &:focus,
+        &:focus{
+            border: 1px solid #B2B2B2;
+        }
         &:focus-visible,
         &:active {
             outline: none !important;

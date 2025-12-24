@@ -191,9 +191,10 @@ const BtnText = styled.p`
     line-height: normal;
 `;
 
-export default function TeamDetailModal({ isOpen, onClose, team, onDeleteStudents }) {
+export default function TeamDetailModal({ isOpen, onClose, team, onDeleteStudents, onAddStudent }) {
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
+  const [newStudentId, setNewStudentId] = useState("");
 
   if (!team) return null;
 
@@ -233,7 +234,24 @@ export default function TeamDetailModal({ isOpen, onClose, team, onDeleteStudent
   const handleClose = () => {
     setSelectedStudents([]);
     setSelectAll(false);
+    setNewStudentId("");
     onClose();
+  };
+
+  const handleAddStudent = async () => {
+    if (!newStudentId.trim()) {
+      alert("학생 ID를 입력해주세요.");
+      return;
+    }
+
+    await onAddStudent?.(team.teamId, newStudentId.trim());
+    setNewStudentId("");
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleAddStudent();
+    }
   };
 
   return (
@@ -286,7 +304,15 @@ export default function TeamDetailModal({ isOpen, onClose, team, onDeleteStudent
       </StudentList>
 
       <BottomSection>
-        <AddStudentBox placeholder="학생 추가하기" />
+        <AddStudentBox
+          placeholder="학생 ID를 입력하세요 (예: 1234)"
+          value={newStudentId}
+          onChange={(e) => setNewStudentId(e.target.value)}
+          onKeyPress={handleKeyPress}
+        />
+        <DeleteBtn onClick={handleAddStudent}>
+          <BtnText>추가하기</BtnText>
+        </DeleteBtn>
       </BottomSection>
     </Modal>
   );

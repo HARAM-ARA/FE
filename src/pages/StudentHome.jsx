@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "@emotion/styled";
+import axios from "axios";
 import Card from "../components/newCard.jsx";
 import Timer from "../components/Timer.jsx";
 import TypingGameCard from "../components/TypingGameCard.jsx";
@@ -149,6 +150,33 @@ export default function Student() {
   const navigate = useNavigate();
   const { credit } = useCredit();
 
+  const handleTypingGameClick = async () => {
+    try {
+      const token = localStorage.getItem('auth_token');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}std/typing/game`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      console.log("타자게임 참가 가능 여부:", response.data);
+
+      if (response.data?.canJoin === true) {
+        window.location.href = "https://flipgame.hancomtaja.com/";
+      } else {
+        alert("현재 타자게임에 참가할 수 없습니다.");
+      }
+    } catch (error) {
+      console.error("타자게임 참가 확인 실패:", error);
+      if (error.response?.status === 403) {
+        alert("타자게임에 참가할 권한이 없습니다.");
+      } else if (error.response?.status === 404) {
+        alert("진행 중인 타자게임이 없습니다.");
+      } else {
+        alert("타자게임 참가 확인에 실패했습니다. 다시 시도해주세요.");
+      }
+    }
+  };
 
   return (
     <>
@@ -188,7 +216,7 @@ export default function Student() {
 
             <MinigameBox>
               <Card title="추억의 뽑기" onClick={()=>navigate('/select')}/>
-              <Card title={"타자게임"}  onClick={()=>navigate('/typing')}/>
+              <Card title={"타자게임"}  onClick={handleTypingGameClick}/>
               <Card title={"강화하기"}  onClick={()=>navigate('/enforce')}/>
               <Card title={"테트리스"}  onClick={()=>window.location.href="https://tetr.io/"}/>
               <Card title={"공룡게임"}  onClick={()=>navigate('/dino')}/>

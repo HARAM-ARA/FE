@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "@emotion/styled";
 import Countdown from "react-countdown";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 
 const TimerCard = styled.div`
@@ -99,7 +99,98 @@ const ColonNum = styled.div`
   gap:5px
 `;
 
-export default function Timer({height, isTeacher = false}) {
+const AnnouncementBanner = styled.div`
+  width: 100%;
+  overflow: hidden;
+  margin-bottom: 24px;
+    position: absolute;
+`;
+
+const AnnouncementText = styled.div`
+  color: #F07F23;
+  font-family: Pretendard;
+  font-size: ${(props)=> (props.isTeacher ? "50px" : "20px" )};
+  font-weight: 900;
+  white-space: nowrap;
+  animation: scroll-left 15s linear infinite;
+   position: ${(props)=> (props.isTeacher ? "relative" : "none" )};
+  @keyframes scroll-left {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+`;
+
+export default function Timer({height, isTeacher = false, showAnnouncement = false}) {
+  const [announcement, setAnnouncement] = useState(null);
+  const [hasSpoken, setHasSpoken] = useState(false);
+
+
+  useEffect(() => {
+    if (!showAnnouncement) return; // showAnnouncement가 false면 공지 기능 비활성화
+
+    const checkAnnouncement = () => {
+      try {
+        const announcementData = localStorage.getItem('announcement');
+        if (announcementData) {
+          const data = JSON.parse(announcementData);
+          setAnnouncement(data.message);
+          setHasSpoken(false);
+        }
+      } catch (error) {
+        console.error("공지사항 확인 실패:", error);
+      }
+    };
+
+
+    checkAnnouncement();
+
+
+    window.addEventListener('announcement-update', checkAnnouncement);
+
+    return () => {
+      window.removeEventListener('announcement-update', checkAnnouncement);
+    };
+  }, [showAnnouncement]);
+
+
+  useEffect(() => {
+    if (!showAnnouncement || !announcement || hasSpoken) return; // showAnnouncement가 false면 TTS 비활성화
+
+    const speak = () => {
+      try {
+        const utterance = new SpeechSynthesisUtterance(announcement);
+        utterance.lang = 'ko-KR';
+        utterance.rate = 0.9;
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
+
+        window.speechSynthesis.cancel();
+
+        window.speechSynthesis.speak(utterance);
+        setHasSpoken(true);
+
+        console.log("TTS 재생:", announcement);
+      } catch (error) {
+        console.error("TTS 재생 실패:", error);
+      }
+    };
+
+    // 바로 실행
+    speak();
+
+    // 10초 후에 공지 사라지게
+    const timer = setTimeout(() => {
+      setAnnouncement(null);
+      setHasSpoken(false);
+      localStorage.removeItem('announcement');
+    }, 10000);
+
+    return () => clearTimeout(timer);
+  }, [showAnnouncement, announcement, hasSpoken]);
 
   const renderer = ({ seconds, minutes, hours, completed }) => {
     if (completed) {
@@ -141,13 +232,20 @@ export default function Timer({height, isTeacher = false}) {
     }
   };
 
- 
+
   return (
     <>
       <TimerCard height={height} isTeacher={isTeacher} >
-        <Countdown 
-          date={new Date("2025-12-30T00:00:00").getTime()} 
-          renderer={renderer} 
+        {announcement && (
+          <AnnouncementBanner>
+            <AnnouncementText isTeacher={isTeacher}>
+                {announcement}
+            </AnnouncementText>
+          </AnnouncementBanner>
+        )}
+        <Countdown
+          date={new Date("2025-12-30T00:00:00").getTime()}
+          renderer={renderer}
         />
       </TimerCard>
     </>
