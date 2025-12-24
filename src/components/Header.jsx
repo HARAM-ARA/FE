@@ -162,7 +162,6 @@ export default function Header({ teamName: propTeamName, isTeacher = false, isTe
       const token = tokenUtils.getToken();
       if (token) {
         const profile = await GetProfile();
-        console.log('사용자 프로필:', profile);
         if (profile?.data?.user) {
           setUserProfile(profile.data.user);
         }
