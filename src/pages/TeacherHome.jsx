@@ -108,7 +108,7 @@ export default function TeacherHome() {
                         </TextBox>
 
                         <FunctionBox>
-                            <NewCard title="타자게임" />
+                            <NewCard title="타자게임" onClick={()=>window.location.href="https://flipgame.hancomtaja.com/"}/>
                             <NewCard title="테트리스" onClick={()=>window.location.href="https://tetr.io/"}/>
                         </FunctionBox>
                     </Div>

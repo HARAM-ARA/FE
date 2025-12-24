@@ -162,7 +162,7 @@ export default function Student() {
       console.log("타자게임 참가 가능 여부:", response.data);
 
       if (response.data?.canJoin === true) {
-        navigate('/typing');
+        window.location.href = "https://flipgame.hancomtaja.com/";
       } else {
         alert("현재 타자게임에 참가할 수 없습니다.");
       }
