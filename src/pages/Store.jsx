@@ -241,10 +241,8 @@ export default function Store() {
   return (
     <>
       <Header
-        teamName="하람"
-        isTeamName="true"
-        isCredit="true"
-        Credit="20,000"
+        isTeamName={true}
+        isCredit={true}
       />
       <Body>
         <Menu>
