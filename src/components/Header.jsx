@@ -4,6 +4,8 @@ import Logo from "../assets/HaramLogo.svg";
 import { AxiosInstnce, tokenUtils } from "../lib/customAxios";
 import { useEffect, useState } from "react";
 import { useCredit } from "../context/CreditContext";
+import { useNavigate } from "react-router-dom";
+import { useAuth, useTeam } from "../hooks/useAuth";
 
 const Headerbox = styled.div`
     height: 90px;
@@ -132,12 +134,17 @@ const Img = styled.img`
 
 
 
-export default function Header({ teamName: propTeamName, isTeacher = false, isTeamName = false, isLogin = false, isLogout = false, isCredit = false, Credit: propCredit }) {
+export default function Header({ teamName: propTeamName, isTeacher = false, isTeamName = false, isLogout = false, isCredit = false, Credit: propCredit }) {
 
-  // Context에서 크레딧 정보 가져오기
+  // 전역 인증 상태 사용
+  const { user, isLogin, login, logout: authLogout } = useAuth();
+  // 전역 팀 정보 사용
+  const { teamName: globalTeamName, teamId: globalTeamId, credit: globalCredit, setTeamInfo } = useTeam();
+  
+  // Context에서 크레딧 정보 가져오기 (기존 호환성 유지)
   const { credit, teamName: contextTeamName, teamId } = useCredit();
   const [userProfile, setUserProfile] = useState(null);
-
+  const nav = useNavigate();
   const handleGoogleLogin = async () => {
     try {
       const response = await AxiosInstnce.get('haram/auth/login');
@@ -164,44 +171,59 @@ export default function Header({ teamName: propTeamName, isTeacher = false, isTe
         const profile = await GetProfile();
         if (profile?.data?.user) {
           setUserProfile(profile.data.user);
+          // 전역 상태에 사용자 정보 저장
+          login(profile.data.user);
+          
+          // 팀 정보도 함께 저장 (API에서 팀 정보를 받아온다면)
+          if (profile.data.team) {
+            setTeamInfo({
+              teamName: profile.data.team.name,
+              teamId: profile.data.team.id,
+              credit: profile.data.team.credit
+            });
+          }
         }
       }
     };
     fetchProfile();
-  }, []);
+  }, [login, setTeamInfo]);
 
   const handleLogout = async () => {
     try {
       await AxiosInstnce.get('haram/auth/logout');
       tokenUtils.removeToken();
+      // 전역 상태에서 로그아웃
+      authLogout();
       window.location.href = '/';
     } catch (error) {
       console.error('로그아웃 요청 실패:', error);
       tokenUtils.removeToken();
+      authLogout();
       window.location.href = '/';
     }
   };
 
-  // 크레딧 표시 (Context 값 우선, props로 전달된 값은 fallback)
-  const displayCredit = credit > 0 ? credit.toLocaleString() : (propCredit || '0');
+  // 크레딧 표시 (전역 상태 우선, Context 값, props 순서)
+  const displayCredit = globalCredit > 0 ? globalCredit.toLocaleString() : 
+                       (credit > 0 ? credit.toLocaleString() : (propCredit || '0'));
 
-  // 팀 이름 표시 (teamId 우선, Context teamName, props 순서)
-  const displayTeamName = teamId || contextTeamName || propTeamName || '팀';
+  // 팀 이름 표시 (전역 상태 우선, Context 값, props 순서)
+  const displayTeamName = globalTeamId || globalTeamName || teamId || contextTeamName || propTeamName || '팀';
 
-  // 사용자 이름 표시 (API에서 받아온 값 우선, props는 fallback)
-  const displayUserName = userProfile?.name || propTeamName;
+  // 사용자 이름 표시 (전역 상태 우선, API에서 받아온 값, props 순서)
+  const displayUserName = user?.name || userProfile?.name || propTeamName;
 
   return (
     <>
       <Headerbox>
-        <LogoImg src={HaramLogo}></LogoImg>
+        <LogoImg src={HaramLogo} onClick={() => nav("/std")}/>
         <FunctionBox>
           {isTeamName && <AmountText>TEAM {displayTeamName}</AmountText>}
           {isTeacher && <><Img src={Logo} /> <AmountText> {displayUserName} 선생님</AmountText></>}
 
 
-          {isLogin && <LoginBtn type="google" onClick={handleGoogleLogin}>로그인</LoginBtn>}
-          {isLogout && <LogoutBtn onClick={handleLogout}>로그아웃</LogoutBtn>}
+          {!isLogin && <LoginBtn type="google" onClick={handleGoogleLogin}>로그인</LoginBtn>}
+          {(isLogin || isLogout) && <LogoutBtn onClick={handleLogout}>로그아웃</LogoutBtn>}
           {isCredit && <CreditBtn><CreditColor>{displayCredit}</CreditColor><Gray>크레딧</Gray></CreditBtn>}
         </FunctionBox>
       </Headerbox>

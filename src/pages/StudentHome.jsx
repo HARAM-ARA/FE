@@ -178,8 +178,8 @@ export default function Student() {
   return (
     <>
       <Header
-        isTeamName="true"
-        isCredit="true"
+        isTeamName={true}
+        isCredit={true}
       />
 
       <Body>

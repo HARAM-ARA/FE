@@ -337,10 +337,8 @@ export default function Select() {
   return (
     <>
       <Header
-        teamName="하람"
-        isTeamName="true"
-        isCredit="true"
-        Credit="20,000"
+        isTeamName={true}
+        isCredit={true}
       />
 
       {isLoading ? (
