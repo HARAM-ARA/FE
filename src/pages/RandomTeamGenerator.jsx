@@ -481,7 +481,7 @@ export default function RandomTeamGenerator() {
 
   return (
     <>
-      <Header isTeacher={true} />
+      <Header teamName="최병준" isTeacher={true} />
       <Body>
         <Container>
           <TitleSection>
