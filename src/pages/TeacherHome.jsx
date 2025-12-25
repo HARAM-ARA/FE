@@ -69,6 +69,7 @@ export default function TeacherHome() {
     return (
         <>
             <Header
+                teamName="최병준"
                 isTeacher={true}
             />
 
