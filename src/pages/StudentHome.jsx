@@ -59,13 +59,10 @@ const RankingSection = styled.div`
 
 
 const TextBox = styled.div`
-    
     margin: 0px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-   
-    
   `;
 
 const TitleText = styled.p`
@@ -187,7 +184,7 @@ export default function Student() {
 
       <Body>
         <LeftBox>
-          <TimerBox>
+          <TimerBox onClick={() => navigate("/timer")}>
             <TextBox>
               <TitleText>타이머</TitleText>
             </TextBox>
