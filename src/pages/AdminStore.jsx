@@ -690,7 +690,7 @@ export default function AdminStore() {
 
     return (
         <>
-            <Header isTeacher={true} />
+            <Header isTeacher = { true }/>
             <Body>
                 <Menu>
                     <LeftMenu>

@@ -148,7 +148,9 @@ export default function BeforeHome() {
 
   return (
     <>
-      <Header />
+      <Header
+        isLogin="true"
+      />
 
       <Body>
         <LeftBox>
