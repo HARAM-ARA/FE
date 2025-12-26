@@ -38,7 +38,7 @@ export function SelectCard({ cardId, onCardClick, isDrawing, isDrawn }) {
 }
 
 export default function Select() {
-  const { refreshCredit } = useCredit(); // 크레딧 새로고침 함수
+  const { credit, refreshCredit } = useCredit(); // 크레딧 값과 새로고침 함수
   const [cardResult, setCardResult] = useState(null); // 카드 결과
   const [isDrawing, setIsDrawing] = useState(false); // 카드 뽑기 진행 상태
   const [isGuideOpen, setIsGuideOpen] = useState(true); // 게임 시작 안내 모달
@@ -125,7 +125,10 @@ export default function Select() {
 
       if (response.ok) {
         const data = await response.json();
+        console.log("팀 목록 API 응답:", data);
         setTeams(data.teams || []);
+      } else {
+        console.error("팀 목록 조회 실패 - 상태 코드:", response.status);
       }
     } catch (error) {
       console.error("팀 목록 조회 실패:", error);
@@ -188,6 +191,12 @@ export default function Select() {
   // 카드 뽑기
   const handleDraw = async (cardId) => {
     if (isDrawing || drawnCards.includes(cardId)) return;
+
+    // 크레딧이 1000 미만이면 뽑기 불가
+    if (credit < 1000) {
+      alert("크레딧이 부족합니다. 최소 1000 크레딧이 필요합니다.");
+      return;
+    }
 
     setIsDrawing(true);
     setCardResult(null);
@@ -273,9 +282,11 @@ export default function Select() {
     }
   };
 
-  const handleOpenTeamSelect = () => { // 팀선택 모달
+  const handleOpenTeamSelect = async () => { // 팀선택 모달
     setIsEffectOpen(false);
     setIsTeamSelectOpen(true);
+    // 팀 선택 모달이 열릴 때 최신 팀 목록을 다시 가져옵니다
+    await fetchTeams();
   };
 
 
@@ -337,10 +348,8 @@ export default function Select() {
   return (
     <>
       <Header
-        teamName="하람"
         isTeamName="true"
         isCredit="true"
-        Credit="20,000"
       />
 
       {isLoading ? (
@@ -370,17 +379,17 @@ export default function Select() {
         title="추억의 뽑기 게임"
         dismissKey="select-guide"
         description="추억의 문방구 뽑기 게임을 아시나요?
-        뽑기 1회 당 500 크레딧을 지불하여 진행해요!
+        뽑기 1회당 1000 크레딧이 차감됩니다!
         뽑기 판 안에는 1000 크레딧부터 5000 크레딧까지 일반적인 보상과
         상대 팀에서 크레딧 뺏아오기, 크레딧 2배 불리기, 상대 팀과 크레딧 바꾸기,
         전체 팀 크레딧 초기화 등 다양한 이벤트도 있어요"
         catchphrase="뽑기 버튼 한 번으로 여러분의 운을 시험 해 보세요!"
         isGuide={true}
-        btnText="500크레딧으로 게임 시작하기"
+        btnText="1000크레딧으로 게임 시작하기"
         onButtonClick={handleStartGame} // 버튼 클릭 -> 게임 시작
       />
 
-      {/* 카드 결과 모달 - 팀 선택 안내 */}
+
       {cardResult && (cardResult.effect === "swap" || cardResult.effect === "steal" || cardResult.effect === "anger") && (
         <ModalComponent
           isOpen={isEffectOpen}

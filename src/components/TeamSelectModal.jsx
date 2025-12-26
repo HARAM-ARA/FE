@@ -1,4 +1,4 @@
-import { useState } from "react";
+
 import Modal from "react-modal";
 import styled from "@emotion/styled";
 import xImg from "../assets/Frame.svg";
@@ -113,13 +113,24 @@ const CloseButton = styled.img`
   cursor: pointer;
 `;
 
+const EmptyMessage = styled.div`
+  color: #B2B2B2;
+  text-align: center;
+  font-family: Pretendard;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  padding: 40px 20px;
+`;
+
 export default function TeamSelectModal({
   isOpen,
   onClose,
   teams = [],
   selectTeam,
   effect,
-  
+
 }) {
   return (
     <Modal
@@ -130,24 +141,28 @@ export default function TeamSelectModal({
     >
       <CloseButton src={xImg} onClick={onClose} />
       <Div>
-        
+
 
         <SelectTap>
           <Title>전체 팀 목록</Title>
           <TeamList>
-            {teams.map((item) => (
-              <TeamItem key={item.id}>
-                <TeamInfo>
-                  <TeamName>TEAM  {item.name}</TeamName>
-                  <TeamCredit>{item.credit?.toLocaleString()} 크레딧</TeamCredit>
-                </TeamInfo>
-                <Btn
-                  onClick={() => selectTeam(item.id)}
-                  text={effect === "anger" ? "초기화하기" : effect === "swap" ? "교환하기" : "뺏기"}
-                  isSelect={true}
-                />
-              </TeamItem>
-            ))}
+            {teams.length === 0 ? (
+              <EmptyMessage>팀 목록을 불러오는 중입니다...</EmptyMessage>
+            ) : (
+              teams.map((item) => (
+                <TeamItem key={item.teamId}>
+                  <TeamInfo>
+                    <TeamName>TEAM {item.teamName}</TeamName>
+                    <TeamCredit>{item.teamCredit?.toLocaleString()} 크레딧</TeamCredit>
+                  </TeamInfo>
+                  <Btn
+                    onClick={() => selectTeam(item.teamId)}
+                    text={effect === "anger" ? "초기화하기" : effect === "swap" ? "교환하기" : "뺏기"}
+                    isSelect={true}
+                  />
+                </TeamItem>
+              ))
+            )}
           </TeamList>
         </SelectTap>
       </Div>
