@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import styled from "@emotion/styled";
 import axios from "axios";
 import Card from "../components/newCard.jsx";
@@ -10,6 +10,7 @@ import { useCredit } from "../context/CreditContext.jsx";
 import StoreImg from "../assets/store.svg";
 import Button from "../components/button.jsx";
 import TeamRanking from "../components/TeamRanking.jsx";
+import AnnouncementModal from "../components/AnnouncementModal.jsx";
 
 
 const Body = styled.div`
@@ -55,14 +56,18 @@ const RankingSection = styled.div`
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
+    margin-left: 25px;
   `;
 
 
 const TextBox = styled.div`
+    
     margin: 0px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+   
+    
   `;
 
 const TitleText = styled.p`
@@ -73,6 +78,7 @@ const TitleText = styled.p`
     font-style: normal;
     font-weight: 700;
     line-height: 160%; /* 44.8px */
+    margin: 0;
   `;
 
 const Text = styled.p`
@@ -84,6 +90,16 @@ const Text = styled.p`
     font-weight: 500;
     line-height: normal;
   `;
+const DescriptionText = styled.p`
+    color: #8B8B8B;
+    font-family: Pretendard;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 160%; /* 22.4px */
+    letter-spacing: -0.168px;
+    margin: 0;
+`;
 
 const TimerBox = styled.div`
     display: flex;
@@ -144,36 +160,32 @@ const StoreImgDiv = styled.img`
 
 
 export default function Student() {
+  const [isAnnouncementModalOpen, setIsAnnouncementModalOpen] = useState(false); // 전체 공지 모달용
   const navigate = useNavigate();
   const { credit } = useCredit();
 
-  const handleTypingGameClick = async () => {
-    try {
-      const token = localStorage.getItem('auth_token');
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}std/typing/game`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
+
+  const handleAnnouncementSubmit = async (message) => {
+        try {
+            const token = localStorage.getItem('auth_token');
+
+            await axios.post(`${import.meta.env.VITE_API_URL}haram/notice`,
+                { content: message },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            console.log("전체 공지 메시지 전송 완료:", message);
+        } catch (error) {
+            console.error("전체 공지 전송 실패:", error);
+            alert("전체 공지 전송에 실패했습니다.");
         }
-      });
+    };
 
-      console.log("타자게임 참가 가능 여부:", response.data);
-
-      if (response.data?.canJoin === true) {
-        window.location.href = "https://flipgame.hancomtaja.com/";
-      } else {
-        alert("현재 타자게임에 참가할 수 없습니다.");
-      }
-    } catch (error) {
-      console.error("타자게임 참가 확인 실패:", error);
-      if (error.response?.status === 403) {
-        alert("타자게임에 참가할 권한이 없습니다.");
-      } else if (error.response?.status === 404) {
-        alert("진행 중인 타자게임이 없습니다.");
-      } else {
-        alert("타자게임 참가 확인에 실패했습니다. 다시 시도해주세요.");
-      }
-    }
-  };
 
   return (
     <>
@@ -184,7 +196,7 @@ export default function Student() {
 
       <Body>
         <LeftBox>
-          <TimerBox onClick={() => navigate("/timer")}>
+          <TimerBox>
             <TextBox>
               <TitleText>타이머</TitleText>
             </TextBox>
@@ -213,20 +225,27 @@ export default function Student() {
 
             <MinigameBox>
               <Card title="추억의 뽑기" onClick={()=>navigate('/select')}/>
-              <Card title={"타자게임"}  onClick={handleTypingGameClick}/>
-              <Card title={"강화하기"}  onClick={()=>navigate('/enforce')}/>
-              <Card title={"테트리스"}  onClick={()=>window.location.href="https://tetr.io/"}/>
-              <Card title={"공룡게임"}  onClick={()=>navigate('/dino')}/>
+              <Card title="강화하기"  onClick={()=>navigate('/enforce')}/>
+              <Card title="공룡게임" onClick={()=>navigate('/dino')}/>
+              <Card title="TTS 메세지" isItem={true} onClick={()=>setIsAnnouncementModalOpen(true)}/>
+              <Card title="음악 신청" isItem={true}/>
             </MinigameBox>
           </GameSection>
 
           <RankingSection>
             <TitleText>팀 순위</TitleText>
+              <DescriptionText>* 해커톤 순위와는 별개로 1~5위까지 상품을 드립니다! </DescriptionText>
             <TeamRanking />
           </RankingSection>
         </RightBox>
 
       </Body >
+
+        <AnnouncementModal
+            isOpen={isAnnouncementModalOpen}
+            onClose={() => setIsAnnouncementModalOpen(false)}
+            onSubmit={handleAnnouncementSubmit}
+        />
     </>
   )
 }

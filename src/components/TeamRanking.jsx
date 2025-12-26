@@ -44,7 +44,7 @@ const RankingList = styled.div`
 
 const RankingItem = styled.div`
     display: flex;
-    padding: 22px 40px;
+    padding: 22px 30px 22px 50px;
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
@@ -62,7 +62,7 @@ const RankingItem = styled.div`
 const RankingLeft = styled.div`
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 0px;
 `;
 
 const Rank = styled.div`
@@ -85,11 +85,14 @@ const TeamName = styled.div`
 `;
 
 const Credit = styled.div`
-  color: #1D1D1D;
-  font-family: Pretendard;
-  font-size: 20px;
-  font-weight: 500;
-  margin-left: auto;
+    color: #F07F23;
+    font-family: Pretendard;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 800;
+    line-height: normal;
+    margin-left: 40px;
+    margin-right: 0;
 `;
 
 const LoadingText = styled.div`
@@ -125,7 +128,6 @@ export default function TeamRanking({ isBeforeLogin = false }) {
   useEffect(() => {
     fetchRankings();
 
-    // 10분(600000ms)마다 순위 자동 갱신
     const interval = setInterval(() => {
       fetchRankings();
     }, 600000);
@@ -212,8 +214,7 @@ export default function TeamRanking({ isBeforeLogin = false }) {
   const myTeam = showMyTeamSeparately ? rankings.find(team => team.teamId === myTeamId) : null;
 
   return (
-
-      <RankingCard>
+      <>
         {loading ? (
           <LoadingText>순위를 불러오는 중...</LoadingText>
         ) : rankings.length === 0 ? (
@@ -233,6 +234,10 @@ export default function TeamRanking({ isBeforeLogin = false }) {
                   <TeamName isMyTeam={team.teamId === myTeamId}>
                     TEAM {team.teamId}
                   </TeamName>
+                    <Credit >
+                        {team.credit}
+                    </Credit>
+
                 </RankingLeft>
               </RankingItem>
             ))}
@@ -252,13 +257,16 @@ export default function TeamRanking({ isBeforeLogin = false }) {
                     <TeamName isMyTeam={true}>
                       TEAM {myTeam.teamId}
                     </TeamName>
+                      <Credit >
+                          {myTeam.credit}
+                      </Credit>
                   </RankingLeft>
                 </RankingItem>
               </>
             )}
           </RankingList>
         )}
-      </RankingCard>
+      </>
 
   );
 }
