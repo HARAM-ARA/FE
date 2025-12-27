@@ -83,7 +83,7 @@ export default function TeacherHome() {
                                title="팀 랜덤 생성"
                                description="팀을 랜덤으로 생성해요"
                                buttonText="시작하기"
-                               onClick={() => navigate("/random")}
+                               onClick={() => navigate("/teams/random")}
                            />
                            <Card
                                title="팀 조회 및 팀 크레딧 추가"
