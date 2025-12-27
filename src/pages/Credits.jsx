@@ -98,13 +98,7 @@ export default function Credits() {
 
   const fetchAllCredits = async () => {
     try {
-      const token = localStorage.getItem('auth_token');
-
-      const response = await customaxios.get(`${import.meta.env.VITE_API_URL}haram/account`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      const response = await customaxios.get('haram/account');
 
       console.log("크레딧 조회 응답:", response.data);
 
@@ -135,20 +129,12 @@ export default function Credits() {
   // 크레딧 추가 핸들러
   const handleAddCredit = async (teamId, amount) => {
     try {
-      const token = localStorage.getItem('auth_token');
+      console.log("크레딧 추가 요청:", { teamId, amount });
 
-      console.log("크레딧 추가 요청:", { teamId, amount, token: token ? "있음" : "없음" });
-
-      const response = await customaxios.post(`${import.meta.env.VITE_API_URL}tch/account`,
+      const response = await customaxios.post('tch/account',
         {
           teamId: teamId,
           addCredit: amount
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
         }
       );
 
