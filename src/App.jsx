@@ -35,6 +35,7 @@ export default function App() {
             <Route path="/adminstore" element={<AdminStore />}/>
             <Route path="/dino" element={<DinoGame />}/>
             <Route path="/timer" element={<TimerHome />}/>
+            <Route path="/random" element={<RandomTeamGenerator />}/>
           </Routes>
         </CreditProvider>
       </BrowserRouter>
