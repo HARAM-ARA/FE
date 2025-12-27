@@ -6,6 +6,7 @@ import Header from "../components/Header.jsx";
 import TeamCard from "../components/TeamSpaceComponent/TeamCard.jsx";
 import TeamDetailModal from "../components/TeamSpaceComponent/TeamDetailModal.jsx";
 import DeleteConfirmModal from "../components/TeamSpaceComponent/DeleteConfirmModal.jsx";
+import AddCreditModal from "../components/AddCreditModal.jsx";
 import Btn from "../components/button.jsx";
 import SearchBtn from "../assets/searchButton.svg";
 import VectorIcon from "../assets/vector.svg";
@@ -161,6 +162,7 @@ export default function TeamSpace() {
     const [selectedTeamForDetail, setSelectedTeamForDetail] = useState(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [teams, setTeams] = useState([]);
+    const [selectedTeamForCredit, setSelectedTeamForCredit] = useState(null);
 
     // API에서 팀 목록 가져오기
     useEffect(() => {
@@ -322,6 +324,55 @@ export default function TeamSpace() {
         }
     };
 
+    // 크레딧 버튼 클릭 핸들러
+    const handleCreditClick = (team) => {
+        setSelectedTeamForCredit(team);
+    };
+
+    // 크레딧 추가 핸들러
+    const handleAddCredit = async (amount) => {
+        if (!selectedTeamForCredit) return;
+
+        try {
+            const token = localStorage.getItem('auth_token');
+            const response = await axios.post(
+                `${import.meta.env.VITE_API_URL}tch/account`,
+                {
+                    teamId: selectedTeamForCredit.teamId,
+                    addCredit: amount
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            console.log("크레딧 추가 응답:", response.data);
+
+            // 팀 목록 다시 가져오기
+            await fetchTeams();
+
+            alert(`${selectedTeamForCredit.teamName}에 ${amount.toLocaleString()} 크레딧이 추가되었습니다!`);
+            setSelectedTeamForCredit(null);
+
+        } catch (error) {
+            console.error("크레딧 추가 실패:", error);
+            console.error("에러 응답:", error.response?.data);
+
+            if (error.response?.status === 403) {
+                alert("권한이 없습니다. 선생님 계정으로 로그인해주세요.");
+            } else if (error.response?.data?.error === "NON_EXIST_TEAM") {
+                alert("존재하지 않는 팀입니다");
+            } else if (error.response?.data?.error === "INVALID_AMOUNT") {
+                alert("올바르지 않은 금액입니다");
+            } else {
+                alert(`크레딧 추가에 실패했습니다: ${error.response?.data?.error || error.message}`);
+            }
+        }
+    };
+
     return (
         <>
             <Header isTeacher={true} />
@@ -362,6 +413,7 @@ export default function TeamSpace() {
                             selected={selectedTeams.includes(team.teamId)}
                             onSelect={() => handleTeamSelect(team.teamId)}
                             onClick={() => handleTeamClick(team)}
+                            onCreditClick={handleCreditClick}
                         />
                     ))}
 
@@ -381,6 +433,13 @@ export default function TeamSpace() {
                 onClose={() => setShowDeleteConfirm(false)}
                 onConfirm={confirmDeleteTeams}
                 message="정말 팀을 삭제하시겠어요?"
+            />
+
+            <AddCreditModal
+                isOpen={!!selectedTeamForCredit}
+                onClose={() => setSelectedTeamForCredit(null)}
+                teamName={selectedTeamForCredit?.teamName || ""}
+                onAdd={handleAddCredit}
             />
         </>
     );
