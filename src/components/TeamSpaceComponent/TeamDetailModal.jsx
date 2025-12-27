@@ -266,7 +266,7 @@ export default function TeamDetailModal({ isOpen, onClose, team, onDeleteStudent
 
         <TitleRow>
             <img src={Logo}/>
-          <TeamTitle>TEAM {team.name}</TeamTitle>
+          <TeamTitle>{team.name}</TeamTitle>
         </TitleRow>
         {selectedStudents.length > 0 && (
           <HeaderActions>
