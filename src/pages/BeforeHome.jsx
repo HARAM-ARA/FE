@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "@emotion/styled";
 import Card from "../components/newCard.jsx";
@@ -84,6 +84,16 @@ const Text = styled.p`
     font-weight: 500;
     line-height: normal;
   `;
+const DescriptionText = styled.p`
+    color: #8B8B8B;
+    font-family: Pretendard;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 160%; /* 22.4px */
+    letter-spacing: -0.168px;
+    margin: 0;
+`;
 
 const TimerBox = styled.div`
     display: flex;
@@ -202,13 +212,16 @@ export default function BeforeHome() {
               <Card title="추억의 뽑기" />
               <Card title={"강화하기"} />
               <Card title={"공룡게임"} />
+              <Card title="TTS 메세지" isItem={true} />
+              <Card title="음악 신청" isItem={true}/>
             </MinigameBox>
           </GameSection>
 
-          <RankingSection>
-            <TitleText>팀 순위 </TitleText>
-            <TeamRanking isBeforeLogin={true} />
-          </RankingSection>
+            <RankingSection>
+                <TitleText>팀 순위</TitleText>
+                <DescriptionText>* 해커톤 순위와는 별개로 1~5위까지 상품을 드립니다! </DescriptionText>
+                <TeamRanking isBeforeLogin={true} />
+            </RankingSection>
         </RightBox>
 
       </Body >
