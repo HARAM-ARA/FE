@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Header from "../components/Header";
 import styled from "@emotion/styled";
 import Star from "../assets/Star.svg";
-import ModalComponent from "../components/ModalComponent";
+import ModalComponent from "../components/modalComponent";
 import TeamSelectModal from "../components/TeamSelectModal";
 import { useNavigate } from "react-router-dom";
 import { useCredit } from "../context/CreditContext";
