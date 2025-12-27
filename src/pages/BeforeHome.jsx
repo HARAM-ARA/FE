@@ -1,4 +1,5 @@
-import React from "react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "@emotion/styled";
 import Card from "../components/newCard.jsx";
 import Timer from "../components/Timer.jsx";
@@ -6,6 +7,7 @@ import Header from "../components/Header.jsx";
 import TeamRanking from "../components/TeamRanking.jsx";
 import StoreImg from "../assets/store.svg";
 import Button from "../components/button.jsx";
+import { getUserRoleCached } from "../lib/auth.js";
 
 
 const Body = styled.div`
@@ -141,10 +143,25 @@ const StoreImgDiv = styled.img`
     flex-shrink: 0;
 `;
 
-
-
 export default function BeforeHome() {
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    const checkUserRole = async () => {
+      try {
+        const role = await getUserRoleCached();
+        if (role === 'student') {
+          navigate('/std', { replace: true });
+        } else if (role === 'teacher') {
+          navigate('/tch', { replace: true });
+        }
+      } catch (error) {
+        console.error('Failed to check user role:', error);
+      }
+    };
+
+    checkUserRole();
+  }, [navigate]);
 
   return (
     <>
@@ -183,9 +200,7 @@ export default function BeforeHome() {
 
             <MinigameBox>
               <Card title="추억의 뽑기" />
-              <Card title={"타자게임"} />
               <Card title={"강화하기"} />
-              <Card title={"테트리스"} />
               <Card title={"공룡게임"} />
             </MinigameBox>
           </GameSection>

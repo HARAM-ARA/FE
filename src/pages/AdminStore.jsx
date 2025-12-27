@@ -2,13 +2,13 @@ import { useState, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
 
 // 실제 컴포넌트 import
-import Header from "../components/Header";
+import Header from "../components/Header.jsx";
 import Button from "../components/button.jsx";
-import ItemCard from "../components/ItemCard";
+import ItemCard from "../components/ItemCard.jsx";
 import Mock from "../assets/Mock.png";
 import storeImg from "../assets/store.svg";
 import xImg from "../assets/Frame.svg";
-import axios from "axios";
+import { AxiosInstnce as customaxios } from "../lib/customAxios.js";
 
 
 
@@ -531,7 +531,7 @@ export default function AdminStore() {
         try {
             const token = localStorage.getItem("auth_token");
 
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}tch/store`, {
+            const response = await customaxios.get(`${import.meta.env.VITE_API_URL}tch/store`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -581,7 +581,7 @@ export default function AdminStore() {
                 try {
                     const formData = new FormData();
                     formData.append("image", newItem.imageFile);
-                    const uploadRes = await axios.post(
+                    const uploadRes = await customaxios.post(
                         `${import.meta.env.VITE_API_URL}tch/store/upload`,
                         formData,
                         {
@@ -615,7 +615,7 @@ export default function AdminStore() {
                 type: newItem.type || 1
             };
 
-            const response = await axios.post(
+            const response = await customaxios.post(
                 `${import.meta.env.VITE_API_URL}tch/store`,
                 body,
                 {
@@ -660,7 +660,7 @@ export default function AdminStore() {
 
             // 각 상품 삭제 요청
             for (const itemId of itemIdsToDelete) {
-                await axios.delete(`${import.meta.env.VITE_API_URL}tch/store/${itemId}`, {
+                await customaxios.delete(`${import.meta.env.VITE_API_URL}tch/store/${itemId}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },

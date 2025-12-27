@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
-import axios from "axios";
+import { AxiosInstnce as customaxios } from "../lib/customAxios.js";
 import Header from "../components/Header.jsx";
 import CreditCard from "../components/CreditCard.jsx";
 import { dummyCredits } from "../data/dummyCredits.js";
@@ -100,7 +100,7 @@ export default function Credits() {
     try {
       const token = localStorage.getItem('auth_token');
 
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}haram/account`, {
+      const response = await customaxios.get(`${import.meta.env.VITE_API_URL}haram/account`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -139,7 +139,7 @@ export default function Credits() {
 
       console.log("크레딧 추가 요청:", { teamId, amount, token: token ? "있음" : "없음" });
 
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}tch/account`,
+      const response = await customaxios.post(`${import.meta.env.VITE_API_URL}tch/account`,
         {
           teamId: teamId,
           addCredit: amount

@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "@emotion/styled";
-import axios from "axios";
+import { AxiosInstnce as customaxios } from "../lib/customAxios.js";
 import Card from "../components/newCard.jsx";
 import Timer from "../components/Timer.jsx";
 import TypingGameCard from "../components/TypingGameCard.jsx";
@@ -150,7 +150,7 @@ export default function Student() {
   const handleTypingGameClick = async () => {
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}std/typing/game`, {
+      const response = await customaxios.get(`${import.meta.env.VITE_API_URL}std/typing/game`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -213,15 +213,16 @@ export default function Student() {
 
             <MinigameBox>
               <Card title="추억의 뽑기" onClick={()=>navigate('/select')}/>
-              <Card title={"타자게임"}  onClick={handleTypingGameClick}/>
               <Card title={"강화하기"}  onClick={()=>navigate('/enforce')}/>
-              <Card title={"테트리스"}  onClick={()=>window.location.href="https://tetr.io/"}/>
               <Card title={"공룡게임"}  onClick={()=>navigate('/dino')}/>
             </MinigameBox>
           </GameSection>
 
           <RankingSection>
-            <TitleText>팀 순위</TitleText>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+              <TitleText>팀 순위</TitleText>
+              <Button text="내 팀 보기" onClick={() => navigate('/std/team')} />
+            </div>
             <TeamRanking />
           </RankingSection>
         </RightBox>
