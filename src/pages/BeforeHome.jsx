@@ -206,7 +206,7 @@ export default function BeforeHome() {
           </GameSection>
 
           <RankingSection>
-            <TitleText>팀 순위</TitleText>
+            <TitleText>팀 순위 </TitleText>
             <TeamRanking isBeforeLogin={true} />
           </RankingSection>
         </RightBox>
