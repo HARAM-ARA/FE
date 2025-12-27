@@ -454,7 +454,7 @@ export default function RandomTeamGenerator() {
       setIsSaving(true);
       const token = localStorage.getItem("auth_token");
 
-      // 팀 데이터를 백엔드 형식으로 변환
+
       const teamsObject = allTeams.reduce((acc, team, index) => {
         acc[index + 1] = team.members.map(member => parseInt(member.id));
         return acc;
@@ -540,9 +540,11 @@ export default function RandomTeamGenerator() {
                     <TeamItem key={idx}>
                       <TeamName>{team.name}</TeamName>
                       <MemberList>
-                        {team.members.map((member, mIdx) => (
-                          member && <Member key={mIdx}>{member.name} ({member.id})</Member>
-                        ))}
+                        {team.members
+                          .sort((a, b) => a.id.localeCompare(b.id))
+                          .map((member, mIdx) => (
+                            member && <Member key={mIdx}>{member.name} ({member.id})</Member>
+                          ))}
                       </MemberList>
                     </TeamItem>
                   ))}
@@ -565,9 +567,11 @@ export default function RandomTeamGenerator() {
                     <TeamItem key={idx}>
                       <TeamName>{team.name}</TeamName>
                       <MemberList>
-                        {team.members.map((member, mIdx) => (
-                          member && <Member key={mIdx}>{member.name} ({member.id})</Member>
-                        ))}
+                        {team.members
+                          .sort((a, b) => a.id.localeCompare(b.id))
+                          .map((member, mIdx) => (
+                            member && <Member key={mIdx}>{member.name} ({member.id})</Member>
+                          ))}
                       </MemberList>
                     </TeamItem>
                   ))}

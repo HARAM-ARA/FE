@@ -205,8 +205,7 @@ export default function TeamRanking({ isBeforeLogin = false }) {
   const myTeam = showMyTeamSeparately ? rankings.find(team => team.teamId === myTeamId) : null;
 
   return (
-
-      <RankingCard>
+      <>
         {loading ? (
           <LoadingText>순위를 불러오는 중...</LoadingText>
         ) : rankings.length === 0 ? (
@@ -226,6 +225,10 @@ export default function TeamRanking({ isBeforeLogin = false }) {
                   <TeamName isMyTeam={team.teamId === myTeamId}>
                     {team.teamName || `TEAM ${team.teamId}`}
                   </TeamName>
+                    <Credit >
+                        {team.credit}
+                    </Credit>
+
                 </RankingLeft>
                 <Credit>{team.credit.toLocaleString()}원</Credit>
               </RankingItem>
@@ -246,6 +249,9 @@ export default function TeamRanking({ isBeforeLogin = false }) {
                     <TeamName isMyTeam={true}>
                       {myTeam.teamName || `TEAM ${myTeam.teamId}`}
                     </TeamName>
+                      <Credit >
+                          {myTeam.credit}
+                      </Credit>
                   </RankingLeft>
                   <Credit>{myTeam.credit.toLocaleString()}원</Credit>
                 </RankingItem>
@@ -253,7 +259,7 @@ export default function TeamRanking({ isBeforeLogin = false }) {
             )}
           </RankingList>
         )}
-      </RankingCard>
+      </>
 
   );
 }

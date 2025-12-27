@@ -690,7 +690,7 @@ export default function AdminStore() {
 
     return (
         <>
-            <Header teamName="최병준 선생님" />
+            <Header isTeacher = { true }/>
             <Body>
                 <Menu>
                     <LeftMenu>

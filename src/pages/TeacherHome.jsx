@@ -1,14 +1,13 @@
 import React from "react";
 import styled from "@emotion/styled";
 import Card from "../components/card.jsx";
-import Timer from "../components/Timer.jsx";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header.jsx";
-import NewCard from "../components/newCard.jsx";
+
 
 const Body = styled.div`
     display: flex;
-    padding: 26px 51px 162px 50px;
+    padding: 110px 51px 162px 50px;
     
     gap: 50px;
     flex-direction: column;
@@ -81,36 +80,25 @@ export default function TeacherHome() {
 
                        <FunctionBox>
                            <Card
-                               title="팀 랜덤 생성 및 조회"
-                               description="팀을 랜덤하게 생성하고 조회해요"
+                               title="팀 랜덤 생성"
+                               description="팀을 랜덤으로 생성해요"
+                               buttonText="시작하기"
+                               onClick={() => navigate("/random")}
+                           />
+                           <Card
+                               title="팀 조회 및 팀 크레딧 추가"
+                               description="팀을 조회하고 크레딧을 추가해요"
                                buttonText="시작하기"
                                onClick={() => navigate("/teams")}
                            />
                            <Card
-                               title="팀 크레딧 추가"
-                               description="모든 팀 크레딧을 조회하고 추가해요"
-                               buttonText="시작하기"
-                               onClick={() => navigate("/credits")}
-                           />
-                           <Card
                                title="상점 관리"
-                               description="상점에 상품을 등록하고 수정해요"
+                               description="상점에 상품을 등록하고 삭제해요"
                                buttonText="시작하기"
                                onClick={() => navigate("/adminstore")}
                            />
                        </FunctionBox>
                    </Div>
-
-                    <Div>
-                        <TextBox>
-                            <TitleText> 미니게임 관리 </TitleText>
-                        </TextBox>
-
-                        <FunctionBox>
-                            <NewCard title="타자게임" onClick={()=>window.location.href="https://flipgame.hancomtaja.com/"}/>
-                            <NewCard title="테트리스" onClick={()=>window.location.href="https://tetr.io/"}/>
-                        </FunctionBox>
-                    </Div>
                 </MainDiv>
             </Body>
         </>

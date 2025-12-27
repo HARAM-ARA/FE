@@ -18,7 +18,7 @@ const customModalStyles = {
     },
     content: {
         width: "648px",
-        height: "445px",
+        height: "407px",
         flexShrink: "0",
         top: "50%",
         left: "50%",

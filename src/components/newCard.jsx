@@ -46,7 +46,10 @@ export default function newCard (props) {
                 <Boxdiv>
                     <Text> {props.title} </Text>
                     <BtnDiv>
-                        <Btn text="시작하기" onClick={props.onClick}></Btn>
+                        {props.isItem ?
+                        <Btn text="구매하기" onClick={props.onClick}></Btn>
+                        :
+                        <Btn text="시작하기" onClick={props.onClick}></Btn>}
                     </BtnDiv>
                 </Boxdiv>
             </Box>

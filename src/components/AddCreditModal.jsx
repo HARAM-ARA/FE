@@ -135,21 +135,23 @@ export default function AddCreditModal({ isOpen, onClose, teamName, onAdd }) {
 
   const handleInputChange = (e) => {
     const value = e.target.value;
-    if (value === "" || /^\d+$/.test(value)) {
+    if (value === "" || value === "-" || /^-?\d+$/.test(value)) {
       setCreditValue(value);
     }
   };
 
   const handleAdd = () => {
-    if (creditValue && parseInt(creditValue) > 0) {
-      onAdd(parseInt(creditValue));
+    const numValue = parseInt(creditValue);
+    if (creditValue && !isNaN(numValue) && numValue !== 0) {
+      onAdd(numValue);
       setCreditValue("");
       onClose();
     }
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === "Enter" && creditValue && parseInt(creditValue) > 0) {
+    const numValue = parseInt(creditValue);
+    if (e.key === "Enter" && creditValue && !isNaN(numValue) && numValue !== 0) {
       handleAdd();
     }
   };
@@ -178,7 +180,7 @@ export default function AddCreditModal({ isOpen, onClose, teamName, onAdd }) {
             onKeyPress={handleKeyPress}
           />
           <AddButton
-            disabled={!creditValue || parseInt(creditValue) <= 0}
+            disabled={!creditValue || creditValue === "-" || parseInt(creditValue) === 0}
             onClick={handleAdd}
           >
             추가하기

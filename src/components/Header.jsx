@@ -4,7 +4,9 @@ import Logo from "../assets/HaramLogo.svg";
 import { AxiosInstnce as customaxios, tokenUtils } from "../lib/customAxios";
 import { useEffect, useState } from "react";
 import { useCredit } from "../context/CreditContext";
+
 import { useNavigate } from "react-router-dom";
+
 
 const Headerbox = styled.div`
     height: 90px;
@@ -68,25 +70,32 @@ const LoginBtn = styled.button`
   `;
 
 const LogoutBtn = styled.button`
-    height:48px;
+    display: flex;
     padding: 12px 20px;
-    border-radius: var(--XS, 8px);
-    background: #6B7280;
-    color: var(--white, #FFF);
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-radius: 8px;
+    background:  #FFF2E4;
+    &:hover {
+        outline: none;
+        border: none;
+    }
+    &:focus {
+        outline: none;
+    }
+`;
+
+const LogoutText = styled.p`
+    color: #F07F23;
     text-align: center;
+    font-family: Pretendard;
     font-size: 20px;
-    font-family: 'Pretendard', sans-serif;
     font-style: normal;
     font-weight: 500;
     line-height: normal;
-    &:focus {
-      outline: none;
-    }
-    &:hover {
-      background: #4B5563;
-    }
-    border:none;
-  `;
+    margin: 0;
+`;
 
 const CreditBtn = styled.button`
     display: flex;
@@ -134,7 +143,9 @@ const Img = styled.img`
 
 
 export default function Header({ teamName: propTeamName, isTeacher = false, isTeamName = false, isLogin = false, isLogout = false, isCredit = false, Credit: propCredit }) {
+
   const nav = useNavigate();
+
   // Context에서 크레딧 정보 가져오기
   const { credit, teamName: contextTeamName, teamId } = useCredit();
   const [userProfile, setUserProfile] = useState(null);
@@ -202,8 +213,9 @@ export default function Header({ teamName: propTeamName, isTeacher = false, isTe
 
 
           {isLogin && <LoginBtn type="google" onClick={handleGoogleLogin}>로그인</LoginBtn>}
-          {!isLogin && <LogoutBtn onClick={handleLogout}>로그아웃</LogoutBtn>}
+
           {isCredit && <CreditBtn><CreditColor>{displayCredit}</CreditColor><Gray>크레딧</Gray></CreditBtn>}
+          {!isLogin && <LogoutBtn onClick={handleLogout}><LogoutText>로그아웃</LogoutText></LogoutBtn>}
         </FunctionBox>
       </Headerbox>
     </>

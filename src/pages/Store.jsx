@@ -153,7 +153,6 @@ export default function Store() {
   const [quantities, setQuantities] = useState({}); // 수량 상태 추가
   const [filter, setFilter] = useState(true); // true가 간식 (type: 1), false가 쿠폰 (type: 2)
   const [isOpen, setIsOpen] = useState(false); // 일반 구매 완료 모달용
-  const [isAnnouncementModalOpen, setIsAnnouncementModalOpen] = useState(false); // 전체 공지 모달용
 
   // 페이지 로드 시 전체 물품 조회
   useEffect(() => {
@@ -224,10 +223,6 @@ export default function Store() {
       const token = localStorage.getItem('auth_token');
       const itemIdsToPurchase = Object.keys(checkedCards).filter(id => checkedCards[id]).map(Number);
 
-      const hasAnnouncementCoupon = itemIdsToPurchase.some(itemId => {
-        const item = items.find(i => i.id === itemId);
-        return item && item.name === "전체 공지하기";
-      });
 
       for (const itemId of itemIdsToPurchase) {
         const quantity = quantities[itemId] || 1;
@@ -245,11 +240,7 @@ export default function Store() {
       setCheckedCards({});
       setQuantities({}); // 수량도 초기화
 
-      if (hasAnnouncementCoupon) {
-        setIsAnnouncementModalOpen(true);
-      } else {
-        setIsOpen(true);
-      }
+
 
       await fetchAllItems();
 
@@ -281,6 +272,7 @@ export default function Store() {
   });
 
 
+
   const handleAnnouncementSubmit = async (message) => {
     try {
       const token = localStorage.getItem('auth_token');
@@ -308,10 +300,8 @@ export default function Store() {
   return (
     <>
       <Header
-        teamName="하람"
         isTeamName="true"
         isCredit="true"
-        Credit="20,000"
       />
       <Body>
         <Menu>
@@ -350,11 +340,6 @@ export default function Store() {
             img={storeImg} >
           </ModalComponent>
 
-          <AnnouncementModal
-            isOpen={isAnnouncementModalOpen}
-            onClose={() => setIsAnnouncementModalOpen(false)}
-            onSubmit={handleAnnouncementSubmit}
-          />
         </Menu>
 
         {loading ? (

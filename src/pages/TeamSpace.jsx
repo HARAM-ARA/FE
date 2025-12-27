@@ -1,476 +1,643 @@
 import { useState, useEffect } from "react";
 import styled from "@emotion/styled";
-import { AxiosInstnce as customaxios } from "../lib/customAxios.js";
-import { useNavigate } from "react-router-dom";
 import Header from "../components/Header.jsx";
-import TeamCard from "../components/TeamSpaceComponent/TeamCard.jsx";
-import TeamDetailModal from "../components/TeamSpaceComponent/TeamDetailModal.jsx";
-import DeleteConfirmModal from "../components/TeamSpaceComponent/DeleteConfirmModal.jsx";
+import { AxiosInstnce as customaxios } from "../lib/customAxios.js";
+import CreditCard from "../components/CreditCard.jsx";
 import SeatingChart from "../components/SeatingChart.jsx";
-import VectorIcon from "../assets/vector.svg";
 
-const Body = styled.div`
-    min-height: 575px;
-    margin: 0px 50px 95px 50px;
-    background: #fff;
+const Container = styled.div`
+  width: 100%;
+  min-height: 100vh;
+  background-color: #fff;
 `;
 
-const TopDiv = styled.div`
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 32px;
+const Body = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 50px 50px 50px;
 `;
 
 const TitleSection = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 2px;
-`;
-
-const Title = styled.p`
-    color: #1D1D1D;
-    font-family: Pretendard;
-    font-size: 28px;
-    font-style: normal;
-    font-weight: 700;
-    line-height: 160%;
-    margin-bottom: 0;
-`;
-
-const Description = styled.p`
-    color: #B2B2B2;
-    font-feature-settings: 'liga' off, 'clig' off;
-    font-family: Pretendard;
-    font-size: 20px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 160%;
-    margin: 0;
-    white-space: pre-line;
-`;
-
-const RightSection = styled.div`
-    display: flex;
-    align-items: center;
-    gap: 16px;
-`;
-
-const SearchWrapper = styled.div`
-    position: relative;
-    display: flex;
-    align-items: center;
-`;
-
-const SearchBox = styled.input`
-    width: 400px;
-    padding: 18px 54px 18px 24px;
-    border-radius: 12px;
-    border: 1px solid #B2B2B2;
-    background: #FFF;
-
-    &::placeholder {
-        color: #8B8B8B;
-        font-family: Pretendard;
-        font-size: 16px;
-        font-style: normal;
-        font-weight: 400;
-        line-height: 160%;
-    }
-
-    &:focus {
-        outline: none;
-        border-color: #F07F23;
-    }
-`;
-
-const SearchIcon = styled.img`
-    position: absolute;
-    right: 20px;
-    width: 24px;
-    height: 24px;
-    pointer-events: none;
-`;
-
-const TeamGrid = styled.div`
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-    margin-top: 24px;
-`;
-
-const AddTeamCard = styled.div`
-    display: flex;
-    height: 88px;
-    padding: 10px 20px;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    align-self: stretch;
-    border-radius: 12px;
-    border: 1px solid #8B8B8B;
-
-    &:hover {
-        border-color: #F5D6BD;
-        background: #FFF2E4;
-    }
-`;
-
-const AddTeamText = styled.p`
-    color: #8B8B8B;
-    font-feature-settings: 'liga' off, 'clig' off;
-    font-family: Pretendard;
-    font-size: 20px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
-    margin: 0;
-`;
-
-const DeleteBtn = styled.button`
-    display: flex;
-    width: 184px;
-    height: 55px;
-    padding: 16px 24px;
-    justify-content: center;
-    align-items: center;
-    flex-shrink: 0;
-    border-radius: 12px;
-    border: 2px solid #B2B2B2;
-    background-color: #fff;
-    &:hover{
-          border: 2px solid #B2B2B2;
-      }
-`;
-const BtnText = styled.p`
-    color: #646464;
-    font-family: Pretendard;
-    font-size: 20px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
+  margin-bottom: 40px;
 `;
 
 const TabContainer = styled.div`
-    display: flex;
-    gap: 8px;
-    margin-bottom: 24px;
-    border-bottom: 2px solid #F0F0F0;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid #F0F0F0;
 `;
 
 const Tab = styled.button`
-    padding: 12px 24px;
-    border: none;
-    background: ${props => props.active ? '#F07F23' : 'transparent'};
-    color: ${props => props.active ? '#fff' : '#8B8B8B'};
-    font-family: Pretendard;
-    font-size: 16px;
-    font-weight: 600;
-    border-radius: 8px 8px 0 0;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    
-    &:hover {
-        background: ${props => props.active ? '#E65100' : '#F5F5F5'};
-    }
+  padding: 12px 24px;
+  border: none;
+  background: ${props => props.active ? '#F07F23' : 'transparent'};
+  color: ${props => props.active ? '#fff' : '#8B8B8B'};
+  font-family: Pretendard;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: ${props => props.active ? '#E65100' : '#F5F5F5'};
+  }
 `;
 
-export default function TeamSpace() {
-    const navigate = useNavigate();
-    const [searchQuery, setSearchQuery] = useState("");
-    const [selectedTeams, setSelectedTeams] = useState([]);
-    const [selectedTeamForDetail, setSelectedTeamForDetail] = useState(null);
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-    const [teams, setTeams] = useState([]);
-    const [activeTab, setActiveTab] = useState("teams"); // "teams" 또는 "seating"
-    const [seatingArrangement, setSeatingArrangement] = useState({});
+const TitleRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 8px;
+`;
 
-    // API에서 팀 목록 가져오기
-    useEffect(() => {
-        fetchTeams();
-    }, []);
+const Title = styled.h1`
+  color: #1D1D1D;
+  font-family: Pretendard;
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0;
+`;
 
-    const fetchTeams = async () => {
-        try {
-            const token = localStorage.getItem("auth_token");
-            const response = await customaxios.get(`${import.meta.env.VITE_API_URL}haram/team`, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-            console.log("팀 목록 응답:", response.data);
-            const teamsList = response.data.teams || [];
-            
-            // 각 팀의 멤버 정보를 가져오기
-            const teamsWithMembers = await Promise.all(
-                teamsList.map(async (team) => {
-                    try {
-                        const memberResponse = await customaxios.get(
-                            `${import.meta.env.VITE_API_URL}tch/team/student/${team.teamId}`,
-                            {
-                                headers: {
-                                    Authorization: `Bearer ${token}`
-                                }
-                            }
-                        );
-                        
-                        return {
-                            ...team,
-                            members: memberResponse.data.student.map(student => ({
-                                id: student.userId,
-                                userId: student.userId,
-                                name: student.name,
-                                gradeClassNum: student.userId
-                            }))
-                        };
-                    } catch (error) {
-                        return {
-                            ...team,
-                            members: []
-                        };
-                    }
-                })
-            );
-            
-            setTeams(teamsWithMembers);
+const DownloadButton = styled.button`
+  padding: 12px 20px;
+  border: 1px solid #F07F23;
+  border-radius: 8px;
+  background: #fff;
+  color: #F07F23;
+  font-family: Pretendard;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
 
-            // 팀이 없으면 랜덤 생성 페이지로 이동
-            if (teamsWithMembers.length === 0) {
-                navigate('/teams/random');
-            }
-        } catch (error) {
-            console.error("팀 목록 조회 실패:", error);
-            alert("팀 목록을 불러오는데 실패했습니다.");
-        }
-    };
+  &:hover {
+    background: #F07F23;
+    color: white;
+  }
 
-    const filteredTeams = teams.filter(team =>
-        team.teamName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        team.name?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
 
-    const handleTeamSelect = (teamId) => {
-        setSelectedTeams(prev =>
-            prev.includes(teamId)
-                ? prev.filter(id => id !== teamId)
-                : [...prev, teamId]
-        );
-    };
+const Subtitle = styled.p`
+  color: #6B7280;
+  font-family: Pretendard;
+  font-size: 18px;
+  font-weight: 400;
+  margin: 0;
+`;
 
-    const handleTeamClick = async (team) => {
-        try {
-            const token = localStorage.getItem("auth_token");
-            const response = await customaxios.get(
-                `${import.meta.env.VITE_API_URL}tch/team/student/${team.teamId}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
-            console.log("팀 상세 조회 응답:", response.data);
+const TeamsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 24px;
+`;
 
-            // 백엔드 응답을 모달이 기대하는 형식으로 변환
-            const teamDetail = {
-                teamId: team.teamId,
-                name: team.teamName,
-                members: response.data.student.map(student => ({
-                    id: student.userId,
-                    name: student.name,
-                    gradeClassNum: student.userId // 학번을 gradeClassNum으로 사용
-                }))
+const CreditsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  width: 100%;
+`;
+
+const TeamCard = styled.div`
+  background: #fff;
+  border: 1px solid #E5E7EB;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
+
+  &:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+`;
+
+const TeamHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+`;
+
+const TeamName = styled.h3`
+  color: #1D1D1D;
+  font-family: Pretendard;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+`;
+
+const TeamCredit = styled.div`
+  color: #F07F23;
+  font-family: Pretendard;
+  font-size: 16px;
+  font-weight: 600;
+`;
+
+const MembersList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+`;
+
+const Member = styled.div`
+  color: #6B7280;
+  font-family: Pretendard;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 12px;
+  background: #F9FAFB;
+  border-radius: 8px;
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+`;
+
+
+
+const DeleteButton = styled.button`
+  padding: 8px 16px;
+  border: 1px solid #EF4444;
+  border-radius: 8px;
+  background: #fff;
+  color: #EF4444;
+  font-family: Pretendard;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #FEF2F2;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: #6B7280;
+  font-family: Pretendard;
+  font-size: 18px;
+`;
+
+const ErrorContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: #EF4444;
+  font-family: Pretendard;
+  font-size: 18px;
+`;
+
+const Modal = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`;
+
+const ModalContent = styled.div`
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 400px;
+  width: 90%;
+`;
+
+const ModalTitle = styled.h3`
+  color: #1D1D1D;
+  font-family: Pretendard;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+`;
+
+const ModalText = styled.p`
+  color: #6B7280;
+  font-family: Pretendard;
+  font-size: 16px;
+  font-weight: 400;
+  margin: 0 0 24px 0;
+`;
+
+const ModalButtonGroup = styled.div`
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+`;
+
+const ModalButton = styled.button`
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-family: Pretendard;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+`;
+
+const CancelButton = styled(ModalButton)`
+  border: 1px solid #E5E7EB;
+  background: #fff;
+  color: #374151;
+
+  &:hover {
+    background: #F9FAFB;
+  }
+`;
+
+const ConfirmButton = styled(ModalButton)`
+  border: none;
+  background: #EF4444;
+  color: white;
+
+  &:hover {
+    background: #DC2626;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+export default function TeamManagement() {
+  const [teams, setTeams] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [deleteModal, setDeleteModal] = useState({ show: false, team: null });
+  const [deleting, setDeleting] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [activeTab, setActiveTab] = useState("teams");
+  const [credits, setCredits] = useState([]);
+
+  useEffect(() => {
+    fetchTeams();
+    if (activeTab === "credits") {
+      fetchCredits();
+    }
+  }, [activeTab]);
+
+  const fetchTeams = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // 모든 팀 조회
+      const response = await customaxios.get('tch/account');
+      
+      let teamsData = [];
+      if (Array.isArray(response.data)) {
+        teamsData = response.data;
+      } else if (Array.isArray(response.data?.teams)) {
+        teamsData = response.data.teams;
+      }
+
+      // 각 팀의 멤버 정보도 가져오기
+      const teamsWithMembers = await Promise.all(
+        teamsData.map(async (team) => {
+          try {
+            const membersResponse = await customaxios.get(`tch/team/student/${team.teamId}`);
+            return {
+              ...team,
+              members: membersResponse.data.student || []
             };
+          } catch (error) {
+            console.error(`팀 ${team.teamId} 멤버 조회 실패:`, error);
+            return {
+              ...team,
+              members: []
+            };
+          }
+        })
+      );
 
-            setSelectedTeamForDetail(teamDetail);
-        } catch (error) {
-            console.error("팀 상세 조회 실패:", error);
-            alert("팀 상세 정보를 불러오는데 실패했습니다.");
-        }
-    };
+      setTeams(teamsWithMembers);
+    } catch (error) {
+      console.error("팀 목록 조회 실패:", error);
+      setError("팀 목록을 불러오는데 실패했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const handleDeleteTeams = () => {
-        if (selectedTeams.length > 0) {
-            setShowDeleteConfirm(true);
-        }
-    };
+  const handleDeleteClick = (team) => {
+    setDeleteModal({ show: true, team });
+  };
 
-    const confirmDeleteTeams = async () => {
-        try {
-            const token = localStorage.getItem("auth_token");
-            await customaxios.delete(`${import.meta.env.VITE_API_URL}haram/team`, {
-                data: { teamIds: selectedTeams },
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-            setTeams(prev => prev.filter(team => !selectedTeams.includes(team.teamId)));
-            setSelectedTeams([]);
-            setShowDeleteConfirm(false);
-            alert("팀이 삭제되었습니다.");
-        } catch (error) {
-            console.error("팀 삭제 실패:", error);
-            alert("팀 삭제에 실패했습니다.");
-        }
-    };
+  const handleDeleteConfirm = async () => {
+    if (!deleteModal.team) return;
 
-    const handleDeleteStudents = async (studentIds) => {
-        if (!selectedTeamForDetail) return;
+    try {
+      setDeleting(true);
+      
+      await customaxios.delete(`tch/team/${deleteModal.team.teamId}`);
+      
+      // 성공 시 팀 목록에서 제거
+      setTeams(teams.filter(team => team.teamId !== deleteModal.team.teamId));
+      setDeleteModal({ show: false, team: null });
+      
+      alert("팀이 성공적으로 삭제되었습니다.");
+    } catch (error) {
+      console.error("팀 삭제 실패:", error);
+      alert("팀 삭제에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setDeleting(false);
+    }
+  };
 
-        try {
-            const token = localStorage.getItem("auth_token");
-            await customaxios.delete(`${import.meta.env.VITE_API_URL}tch/team/student`, {
-                data: { 
-                    teamId: selectedTeamForDetail.teamId,
-                    userIds: studentIds 
-                },
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
+  const handleDeleteCancel = () => {
+    setDeleteModal({ show: false, team: null });
+  };
 
-            // 팀 상세 정보 다시 불러오기
-            const team = teams.find(t => t.teamId === selectedTeamForDetail.teamId);
-            if (team) {
-                await handleTeamClick(team);
-            }
+  const handleDownloadStudentExcel = async () => {
+    try {
+      setDownloading(true);
+      
+      const response = await customaxios.get('tch/excel/students', {
+        responseType: 'blob'
+      });
+      
+      // 파일 다운로드
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      
+      // 파일명 설정 (현재 날짜 포함)
+      const now = new Date();
+      const dateStr = now.toISOString().split('T')[0];
+      link.setAttribute('download', `학생팀정보_${dateStr}.xlsx`);
+      
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      
+    } catch (error) {
+      console.error("학생 엑셀 다운로드 실패:", error);
+      alert("엑셀 파일 다운로드에 실패했습니다.");
+    } finally {
+      setDownloading(false);
+    }
+  };
 
-            alert("팀원이 삭제되었습니다.");
-        } catch (error) {
-            console.error("팀원 삭제 실패:", error);
-            alert("팀원 삭제에 실패했습니다.");
-        }
-    };
+  const fetchCredits = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-    const handleAddStudent = async (teamId, studentId) => {
-        try {
-            const token = localStorage.getItem("auth_token");
-            const response = await customaxios.post(
-                `${import.meta.env.VITE_API_URL}tch/team/student`,
-                {
-                    teamId: teamId,
-                    userId: studentId
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
+      const response = await customaxios.get('haram/account');
+      
+      let teamsData = [];
+      if (Array.isArray(response.data)) {
+        teamsData = response.data;
+      } else if (Array.isArray(response.data?.teams)) {
+        teamsData = response.data.teams;
+      }
 
-            // 성공 시 팀 상세 정보 다시 불러오기
-            const team = teams.find(t => t.teamId === teamId);
-            if (team) {
-                await handleTeamClick(team);
-            }
+      setCredits(teamsData.map(team => ({
+        id: team.teamId,
+        name: team.teamName,
+        credit: team.teamCredit
+      })));
 
-            alert("학생이 팀에 추가되었습니다.");
-        } catch (error) {
-            console.error("학생 추가 실패:", error);
+    } catch (error) {
+      console.error("크레딧 조회 실패:", error);
+      setError("크레딧 정보를 불러오는데 실패했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            if (error.response?.data?.error === "NON_EXIST_USER") {
-                alert("존재하지 않는 학생 ID입니다.");
-            } else if (error.response?.data?.error === "ALREADY_IN_TEAM") {
-                alert("이미 다른 팀에 소속된 학생입니다.");
-            } else {
-                alert("학생 추가에 실패했습니다.");
-            }
-        }
-    };
+  const handleAddCredit = async (teamId, amount) => {
+    try {
+      const response = await customaxios.post('tch/account', {
+        teamId: teamId,
+        addCredit: amount
+      });
 
-    const handleSeatingChange = (arrangement) => {
-        setSeatingArrangement(arrangement);
-    };
+      const data = response.data;
+      
+      // 크레딧 상태 업데이트
+      setCredits(prevCredits =>
+        prevCredits.map(team =>
+          team.id === teamId
+            ? { ...team, credit: data.credit }
+            : team
+        )
+      );
 
-    const renderTeamsView = () => (
-        <>
-            <TopDiv>
-                <TitleSection>
-                    <Title>팀스페이스 조회</Title>
-                    <Description>
-                        글자 박스를 누르면 팀원을 조회할 수 있고{`\n`}
-                        체크 박스를 누르고 삭제 버튼을 눌러 팀을 삭제할 수 있어요
-                    </Description>
-                </TitleSection>
-                <RightSection>
-                    {selectedTeams.length > 0 ? (
-                        <DeleteBtn onClick={handleDeleteTeams}>
-                            <BtnText>
-                                팀 삭제하기
-                            </BtnText>
-                        </DeleteBtn>
-                    ) : (
-                        <SearchWrapper>
-                            <SearchBox
-                                placeholder="팀을 검색해요"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                            <SearchIcon src={VectorIcon} alt="검색" />
-                        </SearchWrapper>
-                    )}
-                </RightSection>
-            </TopDiv>
+      alert(`${data.teamName}에 ${amount.toLocaleString()} 크레딧이 추가되었습니다!`);
 
-            <TeamGrid>
-                {filteredTeams.map(team => (
-                    <TeamCard
-                        key={team.teamId}
-                        team={team}
-                        selected={selectedTeams.includes(team.teamId)}
-                        onSelect={() => handleTeamSelect(team.teamId)}
-                        onClick={() => handleTeamClick(team)}
-                    />
-                ))}
-            </TeamGrid>
-        </>
-    );
+    } catch (error) {
+      console.error("크레딧 추가 실패:", error);
+      
+      if (error.response?.status === 403) {
+        alert("권한이 없습니다. 선생님 계정으로 로그인해주세요.");
+      } else if (error.response?.data?.error === "NON_EXIST_TEAM") {
+        alert("존재하지 않는 팀입니다");
+      } else if (error.response?.data?.error === "INVALID_AMOUNT") {
+        alert("올바르지 않은 금액입니다");
+      } else {
+        alert(`크레딧 추가에 실패했습니다: ${error.response?.data?.error || error.message}`);
+      }
+    }
+  };
 
-    const renderSeatingView = () => (
-        <SeatingChart 
-            teams={teams} 
-            onSeatingChange={handleSeatingChange}
-        />
-    );
+  const renderSeatingView = () => (
+    <>
+      <TitleRow>
+        <Title>좌석 배치</Title>
+      </TitleRow>
+      <Subtitle>팀별 좌석 배치를 확인하고 관리할 수 있습니다</Subtitle>
 
+      <SeatingChart 
+        teams={teams} 
+        onSeatingChange={(arrangement) => {
+          // Handle seating arrangement changes if needed
+          console.log('Seating arrangement updated:', arrangement);
+        }}
+      />
+    </>
+  );
+
+  if (loading) {
     return (
-        <>
-            <Header teamName="최병준" isTeacher={true} />
-            <Body>
-                <TabContainer>
-                    <Tab 
-                        active={activeTab === "teams"} 
-                        onClick={() => setActiveTab("teams")}
-                    >
-                        팀 관리
-                    </Tab>
-                    <Tab 
-                        active={activeTab === "seating"} 
-                        onClick={() => setActiveTab("seating")}
-                    >
-                        좌석 배치
-                    </Tab>
-                </TabContainer>
-
-                {activeTab === "teams" ? renderTeamsView() : renderSeatingView()}
-            </Body>
-
-            <TeamDetailModal
-                isOpen={!!selectedTeamForDetail}
-                onClose={() => setSelectedTeamForDetail(null)}
-                team={selectedTeamForDetail}
-                onDeleteStudents={handleDeleteStudents}
-                onAddStudent={handleAddStudent}
-            />
-
-            <DeleteConfirmModal
-                isOpen={showDeleteConfirm}
-                onClose={() => setShowDeleteConfirm(false)}
-                onConfirm={confirmDeleteTeams}
-                message="정말 팀을 삭제하시겠어요?"
-            />
-        </>
+      <>
+        <Header isTeacher={true} />
+        <Container>
+          <Body>
+            <LoadingContainer>데이터를 불러오는 중...</LoadingContainer>
+          </Body>
+        </Container>
+      </>
     );
+  }
+
+  const renderTeamsView = () => (
+    <>
+      <TitleRow>
+        <Title>팀 관리</Title>
+        <DownloadButton 
+          onClick={handleDownloadStudentExcel}
+          disabled={downloading}
+        >
+          {downloading ? "다운로드 중..." : "학생 정보 엑셀"}
+        </DownloadButton>
+      </TitleRow>
+      <Subtitle>모든 팀을 조회하고 관리할 수 있습니다</Subtitle>
+
+      {error ? (
+        <ErrorContainer>{error}</ErrorContainer>
+      ) : (
+        <TeamsGrid>
+          {teams.map((team) => (
+            <TeamCard key={team.teamId}>
+              <TeamHeader>
+                <TeamName>{team.teamName}</TeamName>
+                <TeamCredit>{team.teamCredit?.toLocaleString()}원</TeamCredit>
+              </TeamHeader>
+              
+              <MembersList>
+                {team.members.length > 0 ? (
+                  team.members.map((member, index) => (
+                    <Member key={index}>
+                      {member.name} ({member.userId})
+                    </Member>
+                  ))
+                ) : (
+                  <Member>팀원 정보 없음</Member>
+                )}
+              </MembersList>
+
+              <ButtonGroup>
+                <DeleteButton 
+                  onClick={() => handleDeleteClick(team)}
+                  disabled={deleting}
+                >
+                  삭제
+                </DeleteButton>
+              </ButtonGroup>
+            </TeamCard>
+          ))}
+        </TeamsGrid>
+      )}
+
+      {teams.length === 0 && !loading && !error && (
+        <LoadingContainer>등록된 팀이 없습니다.</LoadingContainer>
+      )}
+    </>
+  );
+
+  const renderCreditsView = () => (
+    <>
+      <TitleRow>
+        <Title>크레딧 관리</Title>
+      </TitleRow>
+      <Subtitle>모든 팀의 크레딧을 조회하고 추가할 수 있습니다</Subtitle>
+
+      {error ? (
+        <ErrorContainer>{error}</ErrorContainer>
+      ) : (
+        <CreditsGrid>
+          {credits.map((team) => (
+            <CreditCard
+              key={team.id}
+              id={team.id}
+              name={team.name}
+              credit={team.credit}
+              onAddCredit={handleAddCredit}
+            />
+          ))}
+        </CreditsGrid>
+      )}
+
+      {credits.length === 0 && !loading && !error && (
+        <LoadingContainer>등록된 팀이 없습니다.</LoadingContainer>
+      )}
+    </>
+  );
+
+  return (
+    <>
+      <Header isTeacher={true} />
+      <Container>
+        <Body>
+          <TitleSection>
+            <TabContainer>
+              <Tab 
+                active={activeTab === "teams"} 
+                onClick={() => setActiveTab("teams")}
+              >
+                팀 관리
+              </Tab>
+              <Tab 
+                active={activeTab === "credits"} 
+                onClick={() => setActiveTab("credits")}
+              >
+                크레딧 관리
+              </Tab>
+              <Tab 
+                active={activeTab === "seating"} 
+                onClick={() => setActiveTab("seating")}
+              >
+                좌석 배치
+              </Tab>
+            </TabContainer>
+
+            {activeTab === "teams" && renderTeamsView()}
+            {activeTab === "credits" && renderCreditsView()}
+            {activeTab === "seating" && renderSeatingView()}
+          </TitleSection>
+        </Body>
+
+        {deleteModal.show && (
+          <Modal>
+            <ModalContent>
+              <ModalTitle>팀 삭제 확인</ModalTitle>
+              <ModalText>
+                "{deleteModal.team?.teamName}" 팀을 정말 삭제하시겠습니까?
+                <br />
+                이 작업은 되돌릴 수 없습니다.
+              </ModalText>
+              <ModalButtonGroup>
+                <CancelButton onClick={handleDeleteCancel}>
+                  취소
+                </CancelButton>
+                <ConfirmButton 
+                  onClick={handleDeleteConfirm}
+                  disabled={deleting}
+                >
+                  {deleting ? "삭제 중..." : "삭제"}
+                </ConfirmButton>
+              </ModalButtonGroup>
+            </ModalContent>
+          </Modal>
+        )}
+      </Container>
+    </>
+  );
 }
