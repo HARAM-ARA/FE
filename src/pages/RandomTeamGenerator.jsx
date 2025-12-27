@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { AxiosInstnce as customaxios } from "../lib/customAxios.js";
 import Header from "../components/Header.jsx";
 import { mockdata } from "../data/studentData.js";
 
@@ -236,7 +236,6 @@ export default function RandomTeamGenerator() {
       return allStudents.find(s => s.name === name);
     };
 
-    // All 6 fixed pairs are in embedded, so remove them from SW
     const fixedStudents = [
       findStudent("정태양"),
       findStudent("공재욱"),
@@ -345,6 +344,8 @@ export default function RandomTeamGenerator() {
       [findStudent("김현호"), null], // alone
     ];
 
+    console.log("Fixed pairs:", fixedPairs);
+
     // Flatten fixed pairs to get all fixed students
     const fixedStudents = fixedPairs.flat().filter(Boolean);
 
@@ -356,6 +357,9 @@ export default function RandomTeamGenerator() {
       !fixedStudents.some(fixed => fixed?.id === s.id)
     ));
 
+    console.log("Available second year:", availableSecond);
+    console.log("Available first year:", availableFirst);
+
     const teams = [];
     let secondIdx = 0;
     let firstIdx = 0;
@@ -363,16 +367,17 @@ export default function RandomTeamGenerator() {
     // Fixed embedded team numbers: 3, 8, 13, 18, 23, 28
     const embeddedNumbers = [3, 8, 13, 18, 23, 28];
 
-    // Teams 1-4: Pairs with 2학년 1명 + 1학년 3명 (5명 팀)
+    // Teams 1-4: Pairs with 1학년 3명 (5명 팀) - 페어는 이미 2학년 2명
     for (let i = 0; i < 4; i++) {
       const pair = fixedPairs[i];
       const members = [
         ...pair,
-        availableSecond[secondIdx++],
         availableFirst[firstIdx++],
         availableFirst[firstIdx++],
         availableFirst[firstIdx++],
       ].filter(Boolean);
+      
+      console.log(`Team ${i + 1} members:`, members);
       
       if (members.length === 5) {
         teams.push({
@@ -382,15 +387,17 @@ export default function RandomTeamGenerator() {
       }
     }
 
-    // Team 5: 김우성 alone with 1학년 3명 (4명 팀)
+    // Team 5: 김우성 alone with 2학년 1명 + 1학년 2명 (4명 팀)
     const kimWooSung = fixedPairs[4][0];
     if (kimWooSung) {
       const members = [
         kimWooSung,
-        availableFirst[firstIdx++],
+        availableSecond[secondIdx++],
         availableFirst[firstIdx++],
         availableFirst[firstIdx++],
       ].filter(Boolean);
+      
+      console.log("Team 5 (김우성) members:", members);
       
       if (members.length === 4) {
         teams.push({
@@ -400,7 +407,7 @@ export default function RandomTeamGenerator() {
       }
     }
 
-    // Team 6: 김현호 alone with 1학년 3명 (4명 팀)
+    // Team 6: 김현호 alone with 1학년 3명 (4명 팀) - 2학년이 부족하므로
     const kimHyunHo = fixedPairs[5][0];
     if (kimHyunHo) {
       const members = [
@@ -410,6 +417,8 @@ export default function RandomTeamGenerator() {
         availableFirst[firstIdx++],
       ].filter(Boolean);
       
+      console.log("Team 6 (김현호) members:", members);
+      
       if (members.length === 4) {
         teams.push({
           name: `임베디드 ${embeddedNumbers[5]}팀`,
@@ -418,6 +427,7 @@ export default function RandomTeamGenerator() {
       }
     }
 
+    console.log("Total embedded teams created:", teams.length);
     return teams;
   };
 
@@ -456,7 +466,7 @@ export default function RandomTeamGenerator() {
 
       console.log("전송할 데이터:", JSON.stringify(requestBody, null, 2));
 
-      const response = await axios.post(
+      const response = await customaxios.post(
         `${import.meta.env.VITE_API_URL}tch/append`,
         requestBody,
         {
@@ -481,7 +491,7 @@ export default function RandomTeamGenerator() {
 
   return (
     <>
-      <Header isTeacher={true} />
+      <Header teamName="최병준" isTeacher={true} />
       <Body>
         <Container>
           <TitleSection>

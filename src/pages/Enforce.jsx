@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react";
 import styled from "@emotion/styled";
-import Header from "../components/Header";
+import Header from "../components/Header.jsx";
 import FunctionMenu from "../components/EnforceComponent/FunctionMenu.jsx";
 import TierDisplay from "../components/EnforceComponent/TierDisplay.jsx";
 import ProblemStats from "../components/EnforceComponent/ProblemStats.jsx";
 import { useNavigate } from "react-router-dom";
-import { AxiosInstnce as customAxios } from "../lib/customAxios";
+import { AxiosInstnce as customAxios } from "../lib/customAxios.js";
 import bronze from "../assets/bronze.svg";
 import sliver from "../assets/sliver.svg";
 import gold from "../assets/gold.svg";
 import platinum from "../assets/platinum.svg";
 import diamomd from "../assets/Diamond.svg";
 import ruby from "../assets/ruby.svg";
-import ModalComponent from "../components/ModalComponent";
+import ModalComponent from "../components/modalComponent.jsx"
 import Failure from "../assets/failure.svg";
 import icon1hover from "../assets/icon1hover.svg";
 import icon2hover from "../assets/icon2hover.svg";

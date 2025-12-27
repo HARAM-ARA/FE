@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "@emotion/styled";
-import Btn from "../components/button.jsx";
+import Btn from "./button.jsx";
 
 const Box = styled.div`
     display: flex;

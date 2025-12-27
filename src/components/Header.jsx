@@ -1,9 +1,12 @@
 import HaramLogo from "../assets/Logo.svg";
 import styled from "@emotion/styled";
 import Logo from "../assets/HaramLogo.svg";
-import { AxiosInstnce, tokenUtils } from "../lib/customAxios";
+import { AxiosInstnce as customaxios, tokenUtils } from "../lib/customAxios";
 import { useEffect, useState } from "react";
 import { useCredit } from "../context/CreditContext";
+
+import { useNavigate } from "react-router-dom";
+
 
 const Headerbox = styled.div`
     height: 90px;
@@ -141,13 +144,15 @@ const Img = styled.img`
 
 export default function Header({ teamName: propTeamName, isTeacher = false, isTeamName = false, isLogin = false, isLogout = false, isCredit = false, Credit: propCredit }) {
 
+  const nav = useNavigate();
+
   // Context에서 크레딧 정보 가져오기
   const { credit, teamName: contextTeamName, teamId } = useCredit();
   const [userProfile, setUserProfile] = useState(null);
 
   const handleGoogleLogin = async () => {
     try {
-      const response = await AxiosInstnce.get('haram/auth/login');
+      const response = await customaxios.get('haram/auth/login');
       window.location.href = response.data.authURL;
     } catch (error) {
       console.error('로그인 요청 실패:', error);
@@ -156,7 +161,7 @@ export default function Header({ teamName: propTeamName, isTeacher = false, isTe
 
   const GetProfile = async () => {
     try {
-      const response = await AxiosInstnce.get('haram/auth/profile');
+      const response = await customaxios.get('haram/auth/profile');
       return response.data;
     } catch (error) {
       console.error('프로필 조회 실패:', error);
@@ -179,7 +184,7 @@ export default function Header({ teamName: propTeamName, isTeacher = false, isTe
 
   const handleLogout = async () => {
     try {
-      await AxiosInstnce.get('haram/auth/logout');
+      await customaxios.get('haram/auth/logout');
       tokenUtils.removeToken();
       window.location.href = '/';
     } catch (error) {
@@ -201,13 +206,14 @@ export default function Header({ teamName: propTeamName, isTeacher = false, isTe
   return (
     <>
       <Headerbox>
-        <LogoImg src={HaramLogo}></LogoImg>
+        <LogoImg src={HaramLogo} onClick={() => {nav("/")}}></LogoImg>
         <FunctionBox>
           {isTeamName && <AmountText>TEAM {displayTeamName}</AmountText>}
           {isTeacher && <><Img src={Logo} /> <AmountText> {displayUserName} 선생님</AmountText></>}
 
 
           {isLogin && <LoginBtn type="google" onClick={handleGoogleLogin}>로그인</LoginBtn>}
+
           {isCredit && <CreditBtn><CreditColor>{displayCredit}</CreditColor><Gray>크레딧</Gray></CreditBtn>}
           {!isLogin && <LogoutBtn onClick={handleLogout}><LogoutText>로그아웃</LogoutText></LogoutBtn>}
         </FunctionBox>

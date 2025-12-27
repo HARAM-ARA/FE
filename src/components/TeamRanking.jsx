@@ -1,15 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import styled from "@emotion/styled";
-import { AxiosInstnce } from "../lib/customAxios.js";
+import { AxiosInstnce as customaxios } from "../lib/customAxios.js";
 
-
-const RankingContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 16px;
-  align-self: stretch;
-`;
 
 const RankingCard = styled.div`
   display: flex;
@@ -44,25 +36,27 @@ const RankingList = styled.div`
 
 const RankingItem = styled.div`
     display: flex;
-    padding: 22px 30px 22px 50px;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 10px;
-  border-radius: 16px;
-  background: ${props => props.isMyTeam ? '#FFF4E6' : '#FFFFFF'};
-  border: 1px solid ${props => props.isMyTeam ? 'none' : '#8B8B8B'};
-  transition: all 0.2s;
+    padding: 16px 24px;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    border-radius: 16px;
+    background: ${props => props.isMyTeam ? '#FFF4E6' : '#FFFFFF'};
+    border: 1px solid ${props => props.isMyTeam ? 'none' : '#8B8B8B'};
+    transition: all 0.2s;
+    min-height: 60px;
 
-  &:hover {
-    background: ${props => props.isMyTeam ? '#FFF4E6' : '#F9F9F9'};
-  }
+    &:hover {
+        background: ${props => props.isMyTeam ? '#FFF4E6' : '#F9F9F9'};
+    }
 `;
 
 const RankingLeft = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+    min-width: 0;
 `;
 
 const Rank = styled.div`
@@ -72,7 +66,8 @@ const Rank = styled.div`
     font-style: normal;
     font-weight: 800;
     line-height: normal;
-    margin-right:30px;
+    white-space: nowrap;
+    min-width: 40px;
 `;
 
 const TeamName = styled.div`
@@ -82,17 +77,20 @@ const TeamName = styled.div`
     font-style: normal;
     font-weight: 800;
     line-height: normal;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
 `;
 
 const Credit = styled.div`
-    color: #F07F23;
+    color: #1D1D1D;
     font-family: Pretendard;
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 800;
-    line-height: normal;
-    margin-left: 40px;
-    margin-right: 0;
+    font-size: 20px;
+    font-weight: 500;
+    white-space: nowrap;
+    min-width: 80px;
+    text-align: right;
 `;
 
 const LoadingText = styled.div`
@@ -140,40 +138,33 @@ export default function TeamRanking({ isBeforeLogin = false }) {
       setLoading(true);
 
       if (!isBeforeLogin) {
-        const accountResponse = await AxiosInstnce.get('std/account');
+        const accountResponse = await customaxios.get('std/account');
         const myTeam = accountResponse.data.teamId;
         setMyTeamId(myTeam);
       }
 
-      const allTeamsResponse = await AxiosInstnce.get('haram/account');
+      const allTeamsResponse = await customaxios.get('haram/account');
       let raw = allTeamsResponse.data;
 
+      let teams = [];
 
-        // API 응답이 배열이 아닐 수도 있으므로 안전 처리
-        let teams = [];
-
-        if (Array.isArray(raw)) {
-            teams = raw;
-        } else if (Array.isArray(raw?.teams)) {
-            teams = raw.teams;
-        } else if (Array.isArray(raw?.data)) {
-            teams = raw.data;
-        } else if (raw && typeof raw === "object") {
-            // 객체 형태면 values를 배열로 변환
-            teams = Object.values(raw);
-        } else {
-            teams = [];
-        }
-
-
-
-
+      if (Array.isArray(raw)) {
+          teams = raw;
+      } else if (Array.isArray(raw?.teams)) {
+          teams = raw.teams;
+      } else if (Array.isArray(raw?.data)) {
+          teams = raw.data;
+      } else if (raw && typeof raw === "object") {
+          teams = Object.values(raw);
+      } else {
+          teams = [];
+      }
 
       const sortedTeams = teams
          .sort((a, b) => {
            const creditA = Number(a.teamCredit) || 0;
            const creditB = Number(b.teamCredit) || 0;
-           return creditB - creditA; // 내림차순: 크레딧이 큰 팀이 앞으로
+           return creditB - creditA; 
          })
         .map((team, index) => ({
           teamId: team.teamId,
@@ -232,13 +223,14 @@ export default function TeamRanking({ isBeforeLogin = false }) {
                     {team.rank}위
                   </Rank>
                   <TeamName isMyTeam={team.teamId === myTeamId}>
-                    TEAM {team.teamId}
+                    {team.teamName || `TEAM ${team.teamId}`}
                   </TeamName>
                     <Credit >
                         {team.credit}
                     </Credit>
 
                 </RankingLeft>
+                <Credit>{team.credit.toLocaleString()}원</Credit>
               </RankingItem>
             ))}
 
@@ -255,12 +247,13 @@ export default function TeamRanking({ isBeforeLogin = false }) {
                       {myTeam.rank}위
                     </Rank>
                     <TeamName isMyTeam={true}>
-                      TEAM {myTeam.teamId}
+                      {myTeam.teamName || `TEAM ${myTeam.teamId}`}
                     </TeamName>
                       <Credit >
                           {myTeam.credit}
                       </Credit>
                   </RankingLeft>
+                  <Credit>{myTeam.credit.toLocaleString()}원</Credit>
                 </RankingItem>
               </>
             )}

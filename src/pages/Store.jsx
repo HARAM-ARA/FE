@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
-import { useCredit } from "../context/CreditContext";
-import Header from "../components/Header";
+import { AxiosInstnce as customaxios } from "../lib/customAxios.js";
+import { useCredit } from "../context/CreditContext.jsx";
+import Header from "../components/Header.jsx";
 import styled from "@emotion/styled";
-import Button from "../components/Button";
-import ItemCard from "../components/ItemCard";
+import Button from "../components/Button.js";
+import ItemCard from "../components/ItemCard.jsx";
 import Mock from "../assets/Mock.png";
-import ModalComponent from "../components/ModalComponent";
-import AnnouncementModal from "../components/AnnouncementModal";
+import ModalComponent from "../components/ModalComponent.js";
+import AnnouncementModal from "../components/AnnouncementModal.jsx";
 import storeImg from "../assets/store.svg";
 
 
@@ -81,6 +81,8 @@ const Filtering = styled.div`
 const RightMenu = styled.div`
   position:absolute;
   right:0px;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   width: 136px;
   height:24px;
@@ -92,6 +94,23 @@ const RightMenu = styled.div`
   border: 2px solid rgb(178, 178, 178, ${props => (props.active ? 0 : 0.2)}); 
   cursor:pointer;
   background-color: ${props => (props.active ? "#FFF2E4" : "white")}
+`;
+
+const PriceDisplay = styled.div`
+  position: absolute;
+  right: 200px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: ${props => (props.show ? "flex" : "none")};
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: ${props => (props.sufficient ? "#333" : "#FF4444")};
+  border: 1px solid ${props => (props.sufficient ? "#ddd" : "#FF4444")};
 `;
 
 const Cost = styled.p`
@@ -114,13 +133,24 @@ const Items = styled.div`
   margin-top:28px
 `;
 
+const EmptyMessage = styled.div`
+  width: 100%;
+  text-align: center;
+  margin-top: 100px;
+  color: #B2B2B2;
+  font-family: Pretendard;
+  font-size: 18px;
+  font-weight: 400;
+`;
+
 
 
 export default function Store() {
-  const { refreshCredit } = useCredit(); // 크레딧 새로고침 함수
+  const { refreshCredit, credit } = useCredit(); // credit 추가
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [checkedCards, setCheckedCards] = useState({});
+  const [quantities, setQuantities] = useState({}); // 수량 상태 추가
   const [filter, setFilter] = useState(true); // true가 간식 (type: 1), false가 쿠폰 (type: 2)
   const [isOpen, setIsOpen] = useState(false); // 일반 구매 완료 모달용
 
@@ -132,8 +162,9 @@ export default function Store() {
   // 전체 물품 조회
   const fetchAllItems = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}haram/store`);
+      const response = await customaxios.get(`${import.meta.env.VITE_API_URL}haram/store`);
 
+      console.log("API 응답:", response.data); // 디버깅용
 
       setItems(response.data.items.map(item => ({
         id: item.itemId,
@@ -154,13 +185,39 @@ export default function Store() {
 
   const handleCheck = (id, value) => {
     setCheckedCards(prev => ({ ...prev, [id]: value }));
+    if (!value) {
+      // 체크 해제 시 수량도 0으로 초기화
+      setQuantities(prev => ({ ...prev, [id]: 0 }));
+    } else {
+      // 체크 시 수량을 1로 설정
+      setQuantities(prev => ({ ...prev, [id]: 1 }));
+    }
+  };
+
+  const handleQuantityChange = (id, quantity) => {
+    setQuantities(prev => ({ ...prev, [id]: quantity }));
   };
 
   const anyChecked = Object.values(checkedCards).some(Boolean);
 
+  // 선택된 아이템들의 총 가격 계산 (수량 포함)
+  const totalPrice = Object.keys(checkedCards)
+    .filter(id => checkedCards[id])
+    .reduce((sum, id) => {
+      const item = items.find(item => item.id === parseInt(id));
+      const quantity = quantities[id] || 1;
+      return sum + (item ? item.price * quantity : 0);
+    }, 0);
+
   // 물품 구매
   const handlePurchase = async () => {
     if (!anyChecked) return;
+
+    // 잔액 확인
+    if (totalPrice > credit) {
+      alert("크레딧이 부족합니다!");
+      return;
+    }
 
     try {
       const token = localStorage.getItem('auth_token');
@@ -168,8 +225,9 @@ export default function Store() {
 
 
       for (const itemId of itemIdsToPurchase) {
-        await axios.post(`${import.meta.env.VITE_API_URL}std/store`,
-          { itemId: itemId, quantity: 1 },
+        const quantity = quantities[itemId] || 1;
+        await customaxios.post(`${import.meta.env.VITE_API_URL}std/store`,
+          { itemId: itemId, quantity: quantity },
           {
             headers: {
               'Content-Type': 'application/json',
@@ -180,6 +238,7 @@ export default function Store() {
       }
 
       setCheckedCards({});
+      setQuantities({}); // 수량도 초기화
 
 
 
@@ -202,7 +261,38 @@ export default function Store() {
   };
 
 
-  const filteredItems = items.filter(item => item.type === (filter ? 1 : 2));
+  const filteredItems = items.filter(item => {
+    if (filter) {
+      // 간식 탭: type이 1이거나 3인 경우
+      return item.type === 1;
+    } else {
+      // 쿠폰 탭: type이 2인 경우
+      return item.type === 2 || item.type === 3;
+    }
+  });
+
+
+
+  const handleAnnouncementSubmit = async (message) => {
+    try {
+      const token = localStorage.getItem('auth_token');
+
+      await customaxios.post(`${import.meta.env.VITE_API_URL}haram/notice`,
+        { content: message },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+
+      console.log("전체 공지 메시지 전송 완료:", message);
+    } catch (error) {
+      console.error("전체 공지 전송 실패:", error);
+      alert("전체 공지 전송에 실패했습니다.");
+    }
+  };
 
 
 
@@ -210,10 +300,8 @@ export default function Store() {
   return (
     <>
       <Header
-
         isTeamName="true"
         isCredit="true"
-
       />
       <Body>
         <Menu>
@@ -235,6 +323,13 @@ export default function Store() {
               />
             </Filtering>
           </LeftMenu>
+          <PriceDisplay 
+            show={anyChecked} 
+            sufficient={totalPrice <= credit}
+          >
+            총 {totalPrice.toLocaleString()}원
+          </PriceDisplay>
+          
           <RightMenu active={anyChecked}
             onClick={handlePurchase}>
             <Cost active={anyChecked}>구매하기</Cost>
@@ -251,6 +346,10 @@ export default function Store() {
           <div style={{ marginTop: '28px', textAlign: 'center' }}>
             <Description>물품을 불러오는 중...</Description>
           </div>
+        ) : filteredItems.length === 0 ? (
+          <EmptyMessage>
+            {filter ? "간식" : "쿠폰"} 상품이 없습니다.
+          </EmptyMessage>
         ) : (
           <Items>
             {filteredItems.map(item =>
@@ -262,7 +361,9 @@ export default function Store() {
                 img={item.img}
                 stock={item.stock}
                 checked={!!checkedCards[item.id]}
+                quantity={quantities[item.id] || 0}
                 onChange={(e) => handleCheck(item.id, e.target.checked)}
+                onQuantityChange={(quantity) => handleQuantityChange(item.id, quantity)}
               />
             )}
           </Items>

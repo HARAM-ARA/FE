@@ -1,6 +1,6 @@
-import React from "react"
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CreditProvider } from "./context/CreditContext.jsx";
+import AuthConfirm from "./components/AuthConfirm.jsx";
 import Home from "./pages/BeforeHome.jsx";
 import Student from "./pages/StudentHome.jsx";
 import Store from "./pages/Store.jsx";
@@ -14,6 +14,7 @@ import AuthCallback from "./pages/AuthCallback.jsx";
 import DinoGame from "./pages/Dino.jsx";
 import RandomTeamGenerator from "./pages/RandomTeamGenerator.jsx";
 import TimerHome from "./pages/TimerHome.jsx";
+import MyTeam from "./pages/MyTeam.jsx";
 
 export default function App() {
   return (
@@ -24,18 +25,20 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/haram/auth" element={<AuthCallback />} />
             <Route path="/haram/auth/callback" element={<AuthCallback />} />
-            <Route path="/std" element={<Student/>}/>
-            <Route path="/store" element={<Store />} />
-            <Route path="/select" element={<Select />} />
-            <Route path="/tch" element={<Teacher/>} />
-            <Route path="/credits" element={<Credits />}/>
-            <Route path="/enforce" element={<Enforce />}/>
-            <Route path="/teams" element={<TeamSpace />}/>
-            <Route path="/teams/random" element={<RandomTeamGenerator />}/>
-            <Route path="/adminstore" element={<AdminStore />}/>
-            <Route path="/dino" element={<DinoGame />}/>
-            <Route path="/timer" element={<TimerHome />}/>
-            <Route path="/random" element={<RandomTeamGenerator />}/>
+            <Route path="/timer" element={<TimerHome />} />
+            
+            <Route path="/std" element={<AuthConfirm requiredRole="student"><Student/></AuthConfirm>}/>
+            <Route path="/std/team" element={<AuthConfirm requiredRole="student"><MyTeam /></AuthConfirm>} />
+            <Route path="/store" element={<AuthConfirm requiredRole="student"><Store /></AuthConfirm>} />
+            <Route path="/select" element={<AuthConfirm requiredRole="student"><Select /></AuthConfirm>} />
+            <Route path="/credits" element={<AuthConfirm requiredRole="teacher"><Credits /></AuthConfirm>}/>
+            <Route path="/enforce" element={<AuthConfirm requiredRole="student"><Enforce /></AuthConfirm>}/>
+            
+            <Route path="/tch" element={<AuthConfirm requiredRole="teacher"><Teacher/></AuthConfirm>} />
+            <Route path="/teams" element={<AuthConfirm requiredRole="teacher"><TeamSpace /></AuthConfirm>}/>
+            <Route path="/teams/random" element={<AuthConfirm requiredRole="teacher"><RandomTeamGenerator /></AuthConfirm>}/>
+            <Route path="/adminstore" element={<AuthConfirm requiredRole="teacher"><AdminStore /></AuthConfirm>}/>
+            <Route path="/dino" element={<AuthConfirm requiredRole="student"><DinoGame /></AuthConfirm>}/>
           </Routes>
         </CreditProvider>
       </BrowserRouter>

@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import styled from "@emotion/styled";
-import axios from "axios";
+import { AxiosInstnce as customaxios } from "../lib/customAxios.js";
 import Card from "../components/newCard.jsx";
 import Timer from "../components/Timer.jsx";
 import TypingGameCard from "../components/TypingGameCard.jsx";

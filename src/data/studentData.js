@@ -48,7 +48,6 @@ export const mockdata = {
         { id: "2410", name: "양효준" },
         { id: "2411", name: "이수환" },
         { id: "2413", name: "조아라" },
-        { id: "2414", name: "천현수" },
         { id: "2415", name: "최정혁" }
     ],
 
