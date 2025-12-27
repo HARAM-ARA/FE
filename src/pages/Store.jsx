@@ -7,7 +7,6 @@ import Button from "../components/button.jsx";
 import ItemCard from "../components/ItemCard.jsx";
 import Mock from "../assets/Mock.png";
 import ModalComponent from "../components/modalComponent.jsx";
-import AnnouncementModal from "../components/AnnouncementModal.jsx";
 import storeImg from "../assets/store.svg";
 
 
