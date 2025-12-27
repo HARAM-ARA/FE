@@ -5,7 +5,7 @@ import styled from "@emotion/styled";
 import Header from "../components/Header.jsx";
 import Button from "../components/button.jsx";
 import ItemCard from "../components/ItemCard.jsx";
-import Mock from "../assets/Mock.png";
+import Mock from "../assets/mock.png";
 import storeImg from "../assets/store.svg";
 import xImg from "../assets/Frame.svg";
 import { AxiosInstnce as customaxios } from "../lib/customAxios.js";

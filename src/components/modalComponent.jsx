@@ -5,7 +5,7 @@ import styled from "@emotion/styled";
 import xImg from "../assets/Frame.svg";
 import Btn from "./button.jsx";
 import gold from "../assets/gold.svg";
-import platinum from "../assets/platinum.svg";
+import platinum from "../assets/Platinum.svg";
 import icon2hover from "../assets/icon2hover.svg";
 import Checkbox from "./Checkbox.jsx";
 

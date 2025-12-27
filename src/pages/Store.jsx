@@ -5,7 +5,7 @@ import Header from "../components/Header.jsx";
 import styled from "@emotion/styled";
 import Button from "../components/button.jsx";
 import ItemCard from "../components/ItemCard.jsx";
-import Mock from "../assets/Mock.png";
+import Mock from "../assets/mock.png";
 import ModalComponent from "../components/modalComponent.jsx";
 import storeImg from "../assets/store.svg";
 
