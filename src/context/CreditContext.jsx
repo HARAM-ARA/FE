@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios";
+import { AxiosInstnce as customaxios } from "../lib/customAxios.js";
 
 const CreditContext = createContext();
 
@@ -26,7 +26,7 @@ export const CreditProvider = ({ children }) => {
         return;
       }
 
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}std/account`, {
+      const response = await customaxios.get(`${import.meta.env.VITE_API_URL}std/account`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

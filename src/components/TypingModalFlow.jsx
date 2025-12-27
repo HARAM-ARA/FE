@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import ModalBase from "./ModalBase.jsx";
 import Btn from './button.jsx';
 import crownIcon from "../assets/crown.svg";
-import { AxiosInstnce } from "../lib/customAxios.js";
+import { AxiosInstnce as customaxios } from "../lib/customAxios.js";
 import { useCredit } from "../context/CreditContext.jsx";
 
 // 공통 스타일
@@ -257,11 +257,11 @@ export default function TypingModalFlow({ isOpen, onClose, myTeamName = "하람"
     try {
       console.log("=== 타자 게임 데이터 요청 시작 ===");
 
-      const timeResponse = await AxiosInstnce.get('/std/typing/time');
+      const timeResponse = await customaxios.get('/std/typing/time');
       console.log("서버 시간 응답:", timeResponse.data);
       const serverTime = parseInt(timeResponse.data.serverTime, 10);
 
-      const response = await AxiosInstnce.get('/std/typing/game');
+      const response = await customaxios.get('/std/typing/game');
       console.log("게임 데이터 응답:", response.data);
       const { gameId, words, startTime, endTime } = response.data;
 
@@ -301,7 +301,7 @@ export default function TypingModalFlow({ isOpen, onClose, myTeamName = "하람"
 
   const submitAnswers = async (answers) => {
     try {
-      const response = await AxiosInstnce.post('/std/typing/input', {
+      const response = await customaxios.post('/std/typing/input', {
         input: answers,
         gameId: gameId,
       });
@@ -320,7 +320,7 @@ export default function TypingModalFlow({ isOpen, onClose, myTeamName = "하람"
 
   const fetchRanking = async () => {
     try {
-      const response = await AxiosInstnce.get('/std/typing/rank');
+      const response = await customaxios.get('/std/typing/rank');
       const { rank, winners, message } = response.data;
       setMyRank(rank);
       setRankings(winners);

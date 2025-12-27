@@ -1,6 +1,7 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { AxiosInstnce, tokenUtils } from "../lib/customAxios";
+import { AxiosInstnce as customaxios, tokenUtils } from "../lib/customAxios.js";
+import { refreshUserRole } from "../lib/auth.js";
 
 export default function AuthCallback() {
   const location = useLocation();
@@ -20,8 +21,7 @@ export default function AuthCallback() {
       try {
         console.log("인증 코드:", code);
 
-        // POST /haram/auth/login 사용 (백엔드 authController.js의 login 함수)
-        const response = await AxiosInstnce.post("haram/auth/login", {
+        const response = await customaxios.post("haram/auth/login", {
           code: code,
         });
 
@@ -30,8 +30,7 @@ export default function AuthCallback() {
         if (response.data?.data?.token) {
           tokenUtils.setToken(response.data.data.token);
 
-          // 응답에 이미 user 정보가 포함되어 있음
-          const role = response.data?.data?.user?.role;
+          const role = await refreshUserRole();
           console.log("사용자 역할:", role);
 
           if (role === "teacher") {

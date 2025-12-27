@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import styled from '@emotion/styled'
 import { css, keyframes } from '@emotion/react'
+import Header from '../components/Header.jsx'
 
 const GAME_CONFIG = {
     GRAVITY: 0.8,
@@ -22,10 +23,17 @@ const GAME_CONFIG = {
     OBSTACLE_MAX_GAP: 1800,
     SPEED_INCREMENT: 0.5,
     MAX_SPEED: 13,
-    SCORE_INCREMENT_INTERVAL: 100
+    SCORE_INCREMENT_INTERVAL: 100,
+    OBSTACLE_VERTICAL_SPEED: 2,
+    OBSTACLE_VERTICAL_RANGE: 40,
+    SHAKE_TRIGGER_SCORE: 500, // 500점마다 흔들림
+    SHAKE_DURATION: 2000, // 2초간 흔들림
+    SHAKE_INTENSITY: 8, // 흔들림 강도
+    GHOST_BLINK_SPEED: 3, // 깜빡임 속도
+    GHOST_VISIBLE_TIME: 0.7 // 보이는 시간 비율 (0.7 = 70% 시간 동안 보임)
 }
 
-const OBSTACLE_TYPES = ['pass', 'pass1']
+const OBSTACLE_TYPES = ['pass', 'pass1', 'moving_pass', 'moving_pass1', 'ghost_pass', 'ghost_pass1']
 
 const KEY_CODES = {
     SPACE: 'Space',
@@ -44,9 +52,23 @@ const walkAnimation = keyframes`
     100% { background-image: url('/assets/404/walk.png'); }
 `
 
+const shakeAnimation = keyframes`
+    0% { transform: translate(0px, 0px); }
+    10% { transform: translate(-2px, -1px); }
+    20% { transform: translate(-1px, 2px); }
+    30% { transform: translate(3px, 0px); }
+    40% { transform: translate(0px, -2px); }
+    50% { transform: translate(-2px, 1px); }
+    60% { transform: translate(2px, 1px); }
+    70% { transform: translate(1px, -1px); }
+    80% { transform: translate(-1px, 2px); }
+    90% { transform: translate(2px, -2px); }
+    100% { transform: translate(0px, 0px); }
+`
+
 const GameContainer = styled.div`
     width: 100vw;
-    height: 100vh;
+    height: calc(100vh - 163px); /* 헤더 높이만큼 빼기 */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -61,6 +83,10 @@ const GameCanvas = styled.div`
     height: ${GAME_CONFIG.CANVAS_HEIGHT}px;
     border: 1px solid #535353;
     overflow: hidden;
+    
+    ${props => props.isShaking && css`
+        animation: ${shakeAnimation} 0.1s infinite;
+    `}
 `
 
 const TRex = styled.div`
@@ -94,17 +120,43 @@ const TRex = styled.div`
 
 const Obstacle = styled.div`
     position: absolute;
-    bottom: ${props => props.type === 'pass1'
-    ? GAME_CONFIG.GROUND_HEIGHT + 30
-    : GAME_CONFIG.GROUND_HEIGHT}px;
+    bottom: ${props => {
+        const baseBottom = props.type === 'pass1' || props.type === 'moving_pass1' || props.type === 'ghost_pass1'
+            ? GAME_CONFIG.GROUND_HEIGHT + 30
+            : GAME_CONFIG.GROUND_HEIGHT;
+        
+        // 움직이는 장애물인 경우에만 verticalOffset 적용
+        const isMoving = props.type === 'moving_pass' || props.type === 'moving_pass1';
+        return baseBottom + (isMoving ? (props.verticalOffset || 0) : 0);
+    }}px;
     width: ${props => props.width || GAME_CONFIG.OBSTACLE_WIDTH}px;
     height: ${props => props.height || GAME_CONFIG.OBSTACLE_HEIGHT}px;
     left: ${props => props.x}px;
     z-index: 5;
-    background-image: url(${props => props.type === 'pass1' ? '/assets/404/pass1.png' : '/assets/404/pass.png'});
+    background-image: url(${props => {
+        if (props.type === 'pass1' || props.type === 'moving_pass1' || props.type === 'ghost_pass1') {
+            return '/assets/404/pass1.png';
+        }
+        return '/assets/404/pass.png';
+    }});
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
+    transition: bottom 0.1s ease-out;
+    
+    /* 고스트 장애물 깜빡임 효과 */
+    opacity: ${props => {
+        if (props.type === 'ghost_pass' || props.type === 'ghost_pass1') {
+            return props.isVisible ? 0.8 : 0.1;
+        }
+        return 1;
+    }};
+    
+    /* 고스트 장애물일 때 약간의 그림자 효과 */
+    ${props => (props.type === 'ghost_pass' || props.type === 'ghost_pass1') && css`
+        filter: drop-shadow(0 0 3px rgba(255, 0, 0, 0.5));
+        transition: opacity 0.1s ease-in-out;
+    `}
 `
 
 const Ground = styled.div`
@@ -182,6 +234,8 @@ const useGame = () => {
     const [score, setScore] = useState(0)
     const [highScore, setHighScore] = useState(0)
     const [gameSpeed, setGameSpeed] = useState(GAME_CONFIG.SPEED)
+    const [isShaking, setIsShaking] = useState(false)
+    const [lastShakeScore, setLastShakeScore] = useState(0)
     const [tRex, setTRex] = useState({
         jumping: false,
         ducking: false,
@@ -192,6 +246,7 @@ const useGame = () => {
 
     const gameLoopRef = useRef()
     const lastObstacleRef = useRef(0)
+    const shakeTimeoutRef = useRef()
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -226,6 +281,8 @@ const useGame = () => {
         setScore(0)
         setGameSpeed(GAME_CONFIG.SPEED)
         setObstacles([])
+        setIsShaking(false)
+        setLastShakeScore(0)
         setTRex({
             jumping: false,
             ducking: false,
@@ -233,6 +290,11 @@ const useGame = () => {
             jumpHeight: 0
         })
         lastObstacleRef.current = 0
+        
+        // 기존 흔들림 타이머 정리
+        if (shakeTimeoutRef.current) {
+            clearTimeout(shakeTimeoutRef.current)
+        }
     }, [])
 
     const gameOver = useCallback(() => {
@@ -319,24 +381,61 @@ const useGame = () => {
             setObstacles(prevObstacles => {
                 const currentTime = Date.now()
                 let newObstacles = prevObstacles
-                    .map(obstacle => ({
-                        ...obstacle,
-                        x: obstacle.x - gameSpeed
-                    }))
+                    .map(obstacle => {
+                        // 움직이는 장애물인 경우에만 상하 움직임 계산
+                        const isMoving = obstacle.type === 'moving_pass' || obstacle.type === 'moving_pass1';
+                        const isGhost = obstacle.type === 'ghost_pass' || obstacle.type === 'ghost_pass1';
+                        
+                        let verticalOffset = 0;
+                        let isVisible = true;
+                        
+                        if (isMoving) {
+                            const timeElapsed = (currentTime - obstacle.createdAt) / 1000;
+                            verticalOffset = Math.sin(timeElapsed * 2) * GAME_CONFIG.OBSTACLE_VERTICAL_RANGE;
+                        }
+                        
+                        if (isGhost) {
+                            const timeElapsed = (currentTime - obstacle.createdAt) / 1000;
+                            const blinkCycle = Math.sin(timeElapsed * GAME_CONFIG.GHOST_BLINK_SPEED);
+                            isVisible = blinkCycle > (1 - GAME_CONFIG.GHOST_VISIBLE_TIME * 2);
+                        }
+                        
+                        return {
+                            ...obstacle,
+                            x: obstacle.x - gameSpeed,
+                            verticalOffset: verticalOffset,
+                            isVisible: isVisible
+                        }
+                    })
                     .filter(obstacle => obstacle.x > -50)
 
                 if (currentTime - lastObstacleRef.current >
                     GAME_CONFIG.OBSTACLE_MIN_GAP + Math.random() * 1000) {
-                    const type = OBSTACLE_TYPES[
-                        Math.floor(Math.random() * OBSTACLE_TYPES.length)
-                        ]
+                    
+                    // 장애물 타입 확률 분배
+                    const rand = Math.random();
+                    let type;
+                    
+                    if (rand < 0.15) {
+                        // 15% 확률로 움직이는 장애물
+                        type = Math.random() < 0.5 ? 'moving_pass' : 'moving_pass1';
+                    } else if (rand < 0.25) {
+                        // 10% 확률로 고스트 장애물
+                        type = Math.random() < 0.5 ? 'ghost_pass' : 'ghost_pass1';
+                    } else {
+                        // 75% 확률로 일반 장애물
+                        type = Math.random() < 0.5 ? 'pass' : 'pass1';
+                    }
 
                     newObstacles.push({
                         id: currentTime,
                         x: GAME_CONFIG.CANVAS_WIDTH,
                         type: type,
                         width: GAME_CONFIG.OBSTACLE_WIDTH,
-                        height: GAME_CONFIG.OBSTACLE_HEIGHT
+                        height: GAME_CONFIG.OBSTACLE_HEIGHT,
+                        createdAt: currentTime,
+                        verticalOffset: 0,
+                        isVisible: true
                     })
 
                     lastObstacleRef.current = currentTime
@@ -347,11 +446,28 @@ const useGame = () => {
 
             setScore(prevScore => {
                 const newScore = prevScore + 1
+                
+                // 속도 증가 로직
                 if (newScore % GAME_CONFIG.SCORE_INCREMENT_INTERVAL === 0) {
                     setGameSpeed(prevSpeed =>
                         Math.min(prevSpeed + GAME_CONFIG.SPEED_INCREMENT, GAME_CONFIG.MAX_SPEED)
                     )
                 }
+                
+                // 화면 흔들림 로직
+                if (newScore > 0 && 
+                    newScore % GAME_CONFIG.SHAKE_TRIGGER_SCORE === 0 && 
+                    newScore !== lastShakeScore) {
+                    
+                    setLastShakeScore(newScore)
+                    setIsShaking(true)
+                    
+                    // 일정 시간 후 흔들림 중지
+                    shakeTimeoutRef.current = setTimeout(() => {
+                        setIsShaking(false)
+                    }, GAME_CONFIG.SHAKE_DURATION)
+                }
+                
                 return newScore
             })
         }, 1000 / GAME_CONFIG.FPS)
@@ -359,6 +475,9 @@ const useGame = () => {
         return () => {
             if (gameLoopRef.current) {
                 clearInterval(gameLoopRef.current)
+            }
+            if (shakeTimeoutRef.current) {
+                clearTimeout(shakeTimeoutRef.current)
             }
         }
     }, [gameState, gameSpeed])
@@ -375,12 +494,20 @@ const useGame = () => {
         }
 
         const collision = obstacles.some(obstacle => {
-            if (obstacle.type === 'pass1' && tRex.ducking) return false
-            if (obstacle.type === 'pass' && tRex.jumping) return false
+            // 고스트 장애물이 보이지 않을 때는 충돌하지 않음
+            const isGhost = obstacle.type === 'ghost_pass' || obstacle.type === 'ghost_pass1';
+            if (isGhost && !obstacle.isVisible) return false;
+            
+            if ((obstacle.type === 'pass1' || obstacle.type === 'moving_pass1' || obstacle.type === 'ghost_pass1') && tRex.ducking) return false
+            if ((obstacle.type === 'pass' || obstacle.type === 'moving_pass' || obstacle.type === 'ghost_pass') && tRex.jumping) return false
 
-            const obstacleBottom = obstacle.type === 'pass1'
-                ? GAME_CONFIG.CANVAS_HEIGHT - GAME_CONFIG.GROUND_HEIGHT - 30 - obstacle.height
-                : GAME_CONFIG.CANVAS_HEIGHT - GAME_CONFIG.GROUND_HEIGHT - obstacle.height
+            const isHighObstacle = obstacle.type === 'pass1' || obstacle.type === 'moving_pass1' || obstacle.type === 'ghost_pass1';
+            const baseBottom = isHighObstacle ? 30 : 0;
+            const isMoving = obstacle.type === 'moving_pass' || obstacle.type === 'moving_pass1';
+            const verticalOffset = isMoving ? (obstacle.verticalOffset || 0) : 0;
+            
+            const obstacleBottom = GAME_CONFIG.CANVAS_HEIGHT - GAME_CONFIG.GROUND_HEIGHT - 
+                baseBottom - obstacle.height - verticalOffset;
 
             const obstacleRect = {
                 x: obstacle.x,
@@ -408,48 +535,57 @@ const useGame = () => {
         highScore,
         tRex,
         obstacles,
-        startGame
+        startGame,
+        isShaking
     }
 }
 
 function DinoGame() {
-    const { gameState, score, highScore, tRex, obstacles, startGame } = useGame()
+    const { gameState, score, highScore, tRex, obstacles, startGame, isShaking } = useGame()
 
     return (
-        <GameContainer>
-            <GameCanvas>
-                <ScoreDisplay>
-                    <span className="current-score">
-                        {score.toString().padStart(5, '0')}
-                    </span>
-                    <span className="high-score">
-                        {highScore.toString().padStart(5, '0')}
-                    </span>
-                </ScoreDisplay>
+        <>
+            <Header
+                isTeamName="true"
+                isCredit="true"
+            />
+            <GameContainer>
+                <GameCanvas isShaking={isShaking}>
+                    <ScoreDisplay>
+                        <span className="current-score">
+                            {score.toString().padStart(5, '0')}
+                        </span>
+                        <span className="high-score">
+                            {highScore.toString().padStart(5, '0')}
+                        </span>
+                    </ScoreDisplay>
 
-                <TRex
-                    isRunning={gameState === 'playing' && !tRex.jumping && !tRex.ducking}
-                    isJumping={tRex.jumping}
-                    isDucking={tRex.ducking}
-                    jumpHeight={tRex.jumpHeight}
-                />
-
-                {obstacles.map(obstacle => (
-                    <Obstacle
-                        key={obstacle.id}
-                        x={obstacle.x}
-                        type={obstacle.type}
-                        width={obstacle.width}
-                        height={obstacle.height}
+                    <TRex
+                        isRunning={gameState === 'playing' && !tRex.jumping && !tRex.ducking}
+                        isJumping={tRex.jumping}
+                        isDucking={tRex.ducking}
+                        jumpHeight={tRex.jumpHeight}
                     />
-                ))}
 
-                <Ground isMoving={gameState === 'playing'} />
+                    {obstacles.map(obstacle => (
+                        <Obstacle
+                            key={obstacle.id}
+                            x={obstacle.x}
+                            type={obstacle.type}
+                            width={obstacle.width}
+                            height={obstacle.height}
+                            verticalOffset={obstacle.verticalOffset || 0}
+                            isVisible={obstacle.isVisible}
+                        />
+                    ))}
 
-                {gameState === 'gameOver' && <RestartButton onClick={startGame} />}
-                {gameState === 'waiting' && <StartButton onClick={startGame} />}
-            </GameCanvas>
-        </GameContainer>
+                    <Ground isMoving={gameState === 'playing'} />
+
+                    {gameState === 'gameOver' && <RestartButton onClick={startGame} />}
+                    {gameState === 'waiting' && <StartButton onClick={startGame} />}
+                </GameCanvas>
+            </GameContainer>
+        </>
     )
 }
 

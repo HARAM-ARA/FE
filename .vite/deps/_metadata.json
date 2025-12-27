@@ -1,0 +1,88 @@
+{
+  "hash": "1e797076",
+  "configHash": "f615b96b",
+  "lockfileHash": "e71b8052",
+  "browserHash": "73a98472",
+  "optimized": {
+    "@emotion/react": {
+      "src": "../../node_modules/@emotion/react/dist/emotion-react.browser.development.esm.js",
+      "file": "@emotion_react.js",
+      "fileHash": "d685eddf",
+      "needsInterop": false
+    },
+    "@emotion/styled": {
+      "src": "../../node_modules/@emotion/styled/dist/emotion-styled.browser.development.esm.js",
+      "file": "@emotion_styled.js",
+      "fileHash": "9ddf29b2",
+      "needsInterop": false
+    },
+    "axios": {
+      "src": "../../node_modules/axios/index.js",
+      "file": "axios.js",
+      "fileHash": "a1f939b2",
+      "needsInterop": false
+    },
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "2a6343c6",
+      "needsInterop": true
+    },
+    "react-countdown": {
+      "src": "../../node_modules/react-countdown/dist/index.es.js",
+      "file": "react-countdown.js",
+      "fileHash": "89821a5b",
+      "needsInterop": false
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "f7f9f712",
+      "needsInterop": true
+    },
+    "react-modal": {
+      "src": "../../node_modules/react-modal/lib/index.js",
+      "file": "react-modal.js",
+      "fileHash": "ee64ecb1",
+      "needsInterop": true
+    },
+    "react-router-dom": {
+      "src": "../../node_modules/react-router-dom/dist/index.mjs",
+      "file": "react-router-dom.js",
+      "fileHash": "7b112444",
+      "needsInterop": false
+    },
+    "react/jsx-dev-runtime": {
+      "src": "../../node_modules/react/jsx-dev-runtime.js",
+      "file": "react_jsx-dev-runtime.js",
+      "fileHash": "0ca5fe5f",
+      "needsInterop": true
+    },
+    "socket.io-client": {
+      "src": "../../node_modules/socket.io-client/build/esm/index.js",
+      "file": "socket__io-client.js",
+      "fileHash": "8f58a160",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-YCTFYWW3": {
+      "file": "chunk-YCTFYWW3.js"
+    },
+    "chunk-F5KUG6O2": {
+      "file": "chunk-F5KUG6O2.js"
+    },
+    "chunk-7BDNXTBA": {
+      "file": "chunk-7BDNXTBA.js"
+    },
+    "chunk-Z4P6KFT4": {
+      "file": "chunk-Z4P6KFT4.js"
+    },
+    "chunk-GX6WZHXG": {
+      "file": "chunk-GX6WZHXG.js"
+    },
+    "chunk-V4OQ3NZ2": {
+      "file": "chunk-V4OQ3NZ2.js"
+    }
+  }
+}

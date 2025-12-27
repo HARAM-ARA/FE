@@ -152,28 +152,24 @@ const SoldOutOverlay = styled.div`
 
 
 
-export default function ItemCard({ isCoupon = false, checked, onChange, img, title, price, stock, isAdmin = false }) {
-
-
-    const [quantity, setQuantity] = useState(0);
+export default function ItemCard({ isCoupon = false, checked, onChange, img, title, price, stock, isAdmin = false, quantity = 0, onQuantityChange }) {
 
     const increase = () => {
-        setQuantity(prev => prev + 1)
+        const newQuantity = quantity + 1;
+        if (onQuantityChange) {
+            onQuantityChange(newQuantity);
+        }
     }
+    
     const decrease = () => {
-        setQuantity(prev => (prev > 0 ? prev - 1 : 0));
+        const newQuantity = quantity > 0 ? quantity - 1 : 0;
+        if (onQuantityChange) {
+            onQuantityChange(newQuantity);
+        }
     }
 
     const handleCheck = (e) => {
-        const isChecked = e.target.checked;
-
         onChange(e);
-
-        if (!isAdmin && isChecked) {
-            setQuantity(1);
-        } else if (!isAdmin) {
-            setQuantity(0);
-        }
     };
 
     return (
