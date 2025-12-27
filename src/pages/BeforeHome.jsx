@@ -171,7 +171,7 @@ export default function BeforeHome() {
 
       <Body>
         <LeftBox>
-          <TimerBox>
+          <TimerBox onClick={()=>navigate("/timer")}>
             <TextBox>
               <TitleText>타이머</TitleText>
             </TextBox>
