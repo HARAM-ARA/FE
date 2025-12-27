@@ -331,7 +331,7 @@ export default function TeamSpace() {
                         <Title>팀스페이스 조회</Title>
                         <Description>
                             글자 박스를 누르면 팀원을 조회할 수 있고{`\n`}
-                            체크 박스를 누르고 삭제 버튼을 눌러 팀을 삭제할 수 있어요
+                            크레딧 버튼을 누르 팀 크레딧을 추가할 수 있어요
                         </Description>
                     </TitleSection>
                     <RightSection>
