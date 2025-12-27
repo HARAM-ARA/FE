@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Countdown from "react-countdown";
 import styled from '@emotion/styled';
-import Button from './Button.js';
+import Button from './button.jsx';
 import { useCredit } from "../context/CreditContext.jsx";
 
 

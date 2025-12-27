@@ -3,10 +3,10 @@ import { AxiosInstnce as customaxios } from "../lib/customAxios.js";
 import { useCredit } from "../context/CreditContext.jsx";
 import Header from "../components/Header.jsx";
 import styled from "@emotion/styled";
-import Button from "../components/Button.js";
+import Button from "../components/button.jsx";
 import ItemCard from "../components/ItemCard.jsx";
 import Mock from "../assets/Mock.png";
-import ModalComponent from "../components/ModalComponent.js";
+import ModalComponent from "../components/modalComponent.jsx";
 import AnnouncementModal from "../components/AnnouncementModal.jsx";
 import storeImg from "../assets/store.svg";
 

@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import Modal from "react-modal";
 import styled from "@emotion/styled";
 import xImg from "../assets/Frame.svg";
-import Btn from "./Button.js";
+import Btn from "./button.jsx";
 import gold from "../assets/gold.svg";
 import platinum from "../assets/platinum.svg";
 import icon2hover from "../assets/icon2hover.svg";

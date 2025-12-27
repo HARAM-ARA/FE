@@ -2,7 +2,7 @@
 import Modal from "react-modal";
 import styled from "@emotion/styled";
 import xImg from "../assets/Frame.svg";
-import Btn from "./Button.js";
+import Btn from "./button.jsx";
 
 Modal.setAppElement("#root");
 
