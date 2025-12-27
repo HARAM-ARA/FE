@@ -11,6 +11,7 @@ import StoreImg from "../assets/store.svg";
 import Button from "../components/button.jsx";
 import TeamRanking from "../components/TeamRanking.jsx";
 import AnnouncementModal from "../components/AnnouncementModal.jsx";
+import MusicModal from "../components/MusicModal.jsx";
 
 
 const Body = styled.div`
@@ -161,6 +162,7 @@ const StoreImgDiv = styled.img`
 
 export default function Student() {
   const [isAnnouncementModalOpen, setIsAnnouncementModalOpen] = useState(false); // 전체 공지 모달용
+  const [isMusicModalOpen, setIsMusicModalOpen] = useState(false); // 음악 신청 모달용
   const navigate = useNavigate();
   const { credit } = useCredit();
 
@@ -183,6 +185,27 @@ export default function Student() {
         } catch (error) {
             console.error("전체 공지 전송 실패:", error);
             alert("전체 공지 전송에 실패했습니다.");
+        }
+    };
+
+    const handleMusicSubmit = async (music) => {
+        try {
+            const token = localStorage.getItem('auth_token');
+
+            await axios.post(`${import.meta.env.VITE_API_URL}haram/music`,
+                { content: music },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            console.log("음악 신청 완료:", music);
+        } catch (error) {
+            console.error("음악 신청 실패:", error);
+            alert("음악 신청에 실패했습니다.");
         }
     };
 
@@ -228,7 +251,7 @@ export default function Student() {
               <Card title="강화하기"  onClick={()=>navigate('/enforce')}/>
               <Card title="공룡게임" onClick={()=>navigate('/dino')}/>
               <Card title="TTS 메세지" isItem={true} onClick={()=>setIsAnnouncementModalOpen(true)}/>
-              <Card title="음악 신청" isItem={true}/>
+              <Card title="음악 신청" isItem={true} onClick={()=>setIsMusicModalOpen(true)}/>
             </MinigameBox>
           </GameSection>
 
@@ -245,6 +268,12 @@ export default function Student() {
             isOpen={isAnnouncementModalOpen}
             onClose={() => setIsAnnouncementModalOpen(false)}
             onSubmit={handleAnnouncementSubmit}
+        />
+
+        <MusicModal
+            isOpen={isMusicModalOpen}
+            onClose={() => setIsMusicModalOpen(false)}
+            onSubmit={handleMusicSubmit}
         />
     </>
   )

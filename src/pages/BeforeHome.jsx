@@ -83,6 +83,17 @@ const Text = styled.p`
     line-height: normal;
   `;
 
+const DescriptionText = styled.p`
+    color: #8B8B8B;
+    font-family: Pretendard;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 160%; /* 22.4px */
+    letter-spacing: -0.168px;
+    margin: 0;
+`;
+
 const TimerBox = styled.div`
     display: flex;
     height: 392px;
@@ -190,10 +201,11 @@ export default function BeforeHome() {
             </MinigameBox>
           </GameSection>
 
-          <RankingSection>
-            <TitleText>팀 순위</TitleText>
-            <TeamRanking isBeforeLogin={true} />
-          </RankingSection>
+            <RankingSection>
+                <TitleText>팀 순위</TitleText>
+                <DescriptionText> * 해커톤 순위와는 별개로 1~5위까지 상품을 드립니다! </DescriptionText>
+                <TeamRanking />
+            </RankingSection>
         </RightBox>
 
       </Body >

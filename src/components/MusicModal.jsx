@@ -50,7 +50,7 @@ const CloseImg = styled.img`
   cursor: pointer;
 `;
 
-const TTSLabel = styled.p`
+const MusicLabel = styled.p`
     color: #000;
     font-feature-settings: 'liga' off, 'clig' off;
     font-family: Pretendard;
@@ -176,7 +176,7 @@ const SuccessDescription = styled.p`
     align-self: center;
 `;
 
-export default function AnnouncementModal({ isOpen, onClose, onSubmit }) {
+export default function MusicModal({ isOpen, onClose, onSubmit }) {
     const [inputValue, setInputValue] = useState("");
     const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -218,21 +218,20 @@ export default function AnnouncementModal({ isOpen, onClose, onSubmit }) {
             {isSubmitted ? (
                 <SuccessDiv>
                     <SuccessImg src={storeImg} alt="success" />
-                    <SuccessTitle>전송완료!</SuccessTitle>
-                    <SuccessDescription>무대 앞 화면을 확인하세요</SuccessDescription>
+                    <SuccessTitle>신청완료!</SuccessTitle>
+                    <SuccessDescription>음악이 곧 재생됩니다</SuccessDescription>
                 </SuccessDiv>
             ) : (
                 <Div>
-                    <TTSLabel>tts로 읽어요</TTSLabel>
-                    <Title>전체 공지를 날릴 문구를 적어주세요</Title>
-                    <Example>예) 1302 강태은 바보</Example>
+                    <MusicLabel>음악을 신청해요</MusicLabel>
+                    <Title>해커톤 BGM 노래를 신청할 수 있어요</Title>
+                    <Example>예) What is love? - TWICE</Example>
                     <InputBox
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyPress={handleKeyPress}
                         placeholder="Enter 키를 눌러 전송할 수 있어요"
                     />
-
                 </Div>
             )}
         </Modal>
