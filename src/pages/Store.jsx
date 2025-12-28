@@ -210,8 +210,6 @@ export default function Store() {
     try {
       const response = await customaxios.get(`${import.meta.env.VITE_API_URL}haram/store`);
 
-      console.log("API 응답:", response.data); // 디버깅용
-
       setItems(response.data.items.map(item => ({
         id: item.itemId,
         name: item.itemName,
@@ -332,8 +330,6 @@ export default function Store() {
           }
         }
       );
-
-      console.log("전체 공지 메시지 전송 완료:", message);
     } catch (error) {
       console.error("전체 공지 전송 실패:", error);
       alert("전체 공지 전송에 실패했습니다.");

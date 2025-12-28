@@ -43,7 +43,6 @@ const AuthConfirm = ({ children, requiredRole = null, allowedRoles = [] }) => {
     const fetchUserRole = async () => {
       try {
         const role = await getUserRoleCached();
-        console.log('AuthConfirm - Fetched role:', role, 'Required:', requiredRole);
         setUserRole(role);
       } catch (error) {
         console.error('Failed to fetch user role:', error);
@@ -66,16 +65,13 @@ const AuthConfirm = ({ children, requiredRole = null, allowedRoles = [] }) => {
   }
 
   if (requiredRole && userRole !== requiredRole) {
-    console.log('Access denied - role mismatch');
     return <Navigate to="/" replace />;
   }
 
   if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
-    console.log('Access denied - not in allowed roles');
     return <Navigate to="/" replace />;
   }
 
-  console.log('Access granted');
   return children;
 };
 

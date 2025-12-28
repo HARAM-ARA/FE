@@ -76,7 +76,7 @@ export default function Select() {
 
       // 100개 이상이면 자동 리셋
       if (cards.length >= 100) {
-        console.log(`로드 시 게임판 리셋 (${cards.length}개 -> 0개)`);
+
         cards = [];
         if (window.storage) {
           await window.storage.set('drawn_cards', JSON.stringify([]), true);
@@ -88,7 +88,7 @@ export default function Select() {
 
       setDrawnCards(cards);
     } catch (error) {
-      console.log('뽑힌 카드가 없습니다. 새로 시작합니다.');
+
       setDrawnCards([]);
     } finally {
       setIsLoading(false);
@@ -125,7 +125,7 @@ export default function Select() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("팀 목록 API 응답:", data);
+
         setTeams(data.teams || []);
       } else {
         console.error("팀 목록 조회 실패 - 상태 코드:", response.status);
@@ -244,9 +244,7 @@ export default function Select() {
 
       // 100개 다 뽑으면 리셋
       if (newDrawnCards.length >= 100) {
-        console.log(`게임판을 리셋합니다. (현재 ${newDrawnCards.length}개)`);
         setTimeout(() => {
-          console.log('리셋 실행 중...');
           // 저장소 초기화
           if (window.storage) {
             window.storage.set('drawn_cards', JSON.stringify([]), true);
@@ -259,7 +257,7 @@ export default function Select() {
         }, 2000);
       }
 
-      console.log('카드 effect:', data.effect);
+
 
       if (!(data.effect === "swap" || data.effect === "steal" || data.effect === "anger")) {
         await refreshCredit();

@@ -19,19 +19,15 @@ export default function AuthCallback() {
       }
 
       try {
-        console.log("인증 코드:", code);
 
         const response = await customaxios.post("haram/auth/login", {
           code: code,
         });
 
-        console.log("로그인 응답:", response.data);
-
         if (response.data?.data?.token) {
           tokenUtils.setToken(response.data.data.token);
 
           const role = await refreshUserRole();
-          console.log("사용자 역할:", role);
 
           if (role === "teacher") {
             window.location.href = "/tch";

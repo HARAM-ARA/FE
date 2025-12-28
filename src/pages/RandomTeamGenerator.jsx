@@ -358,7 +358,7 @@ export default function RandomTeamGenerator() {
         teams: teamsObject
       };
 
-      console.log("전송할 데이터:", JSON.stringify(requestBody, null, 2));
+
 
       const response = await customaxios.post(
         `${import.meta.env.VITE_API_URL}tch/append`,
@@ -371,12 +371,11 @@ export default function RandomTeamGenerator() {
         }
       );
 
-      console.log("팀 저장 성공:", response.data);
+
       alert("팀이 성공적으로 생성되었습니다!");
       navigate('/teams');
     } catch (error) {
-      console.error("팀 저장 실패:", error);
-      console.error("에러 상세:", error.response?.data);
+
       alert("팀 저장에 실패했습니다. 다시 시도해주세요.");
     } finally {
       setIsSaving(false);

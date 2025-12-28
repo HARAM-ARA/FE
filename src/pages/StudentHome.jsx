@@ -180,12 +180,6 @@ export default function Student() {
                 return;
             }
 
-            console.log("===== TTS 쿠폰 정보 =====");
-            console.log("상품명:", ttsItem.itemName);
-            console.log("가격:", ttsItem.price);
-            console.log("재고:", ttsItem.quantity);
-            console.log("현재 보유 크레딧:", credit);
-
             // 크레딧이 부족한지 확인
             if (credit < ttsItem.price) {
                 alert(`크레딧이 부족합니다. 필요: ${ttsItem.price.toLocaleString()}, 보유: ${credit.toLocaleString()}`);
@@ -203,8 +197,6 @@ export default function Student() {
                 }
             );
 
-            console.log("TTS 쿠폰 구매 완료");
-
             // 크레딧 새로고침
             await refreshCredit();
 
@@ -218,8 +210,6 @@ export default function Student() {
                     }
                 }
             );
-
-            console.log("TTS 메시지 전송 완료:", message);
         } catch (error) {
             console.error("TTS 메시지 전송 실패:", error);
             console.error("에러 상세:", JSON.stringify(error.response?.data, null, 2));
@@ -256,12 +246,6 @@ export default function Student() {
                 return;
             }
 
-            console.log("===== 음악 신청 쿠폰 정보 =====");
-            console.log("상품명:", musicItem.itemName);
-            console.log("가격:", musicItem.price);
-            console.log("재고:", musicItem.quantity);
-            console.log("현재 보유 크레딧:", credit);
-
             // 크레딧이 부족한지 확인
             if (credit < musicItem.price) {
                 alert(`크레딧이 부족합니다. 필요: ${musicItem.price.toLocaleString()}, 보유: ${credit.toLocaleString()}`);
@@ -279,8 +263,6 @@ export default function Student() {
                 }
             );
 
-            console.log("음악 신청 쿠폰 구매 완료");
-
             // 크레딧 새로고침
             await refreshCredit();
 
@@ -294,8 +276,6 @@ export default function Student() {
                     }
                 }
             );
-
-            console.log("음악 신청 완료:", music);
         } catch (error) {
             console.error("음악 신청 실패:", error);
             console.error("에러 상세:", JSON.stringify(error.response?.data, null, 2));
@@ -359,7 +339,6 @@ export default function Student() {
             <MinigameBox>
               <Card title="추억의 뽑기" onClick={()=>navigate('/select')}/>
               <Card title="강화하기"  onClick={()=>navigate('/enforce')}/>
-              <Card title="공룡게임" onClick={()=>navigate('/dino')}/>
               <Card title="TTS 메세지" isItem={true} onClick={()=>setIsAnnouncementModalOpen(true)}/>
               <Card title="음악 신청" isItem={true} onClick={()=>setIsMusicModalOpen(true)}/>
             </MinigameBox>

@@ -100,8 +100,6 @@ export default function Credits() {
     try {
       const response = await customaxios.get('haram/account');
 
-      console.log("크레딧 조회 응답:", response.data);
-
       // 응답 데이터에서 teams 배열 추출
       const teamsData = response.data.teams || [];
 
@@ -129,7 +127,6 @@ export default function Credits() {
   // 크레딧 추가 핸들러
   const handleAddCredit = async (teamId, amount) => {
     try {
-      console.log("크레딧 추가 요청:", { teamId, amount });
 
       const response = await customaxios.post('tch/account',
         {
@@ -138,7 +135,6 @@ export default function Credits() {
         }
       );
 
-      console.log("크레딧 추가 응답:", response.data);
       const data = response.data;
       // data 예시: { teamId: 1, teamName: "TEAM 하람", credit: 1500, addedAmount: 500 }
 

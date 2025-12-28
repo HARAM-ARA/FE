@@ -142,12 +142,11 @@ export default function Timer({height, isTeacher = false, showAnnouncement = fal
         });
 
         socket.on('connect', () => {
-            console.log("Socket.IO 연결 성공 (공지)");
+
         });
 
         socket.on('notice:created', (data) => {
             try {
-                console.log("공지 수신:", data);
 
                 // teacher가 false일 경우에만 공지 표시
                 if (data.teacher === false && data.content) {
@@ -164,7 +163,7 @@ export default function Timer({height, isTeacher = false, showAnnouncement = fal
         });
 
         socket.on('disconnect', () => {
-            console.log("Socket.IO 연결 종료");
+
         });
 
         return () => {
@@ -189,7 +188,6 @@ export default function Timer({height, isTeacher = false, showAnnouncement = fal
                 window.speechSynthesis.speak(utterance);
                 setHasSpoken(true);
 
-                console.log("TTS 재생:", announcement);
             } catch (error) {
                 console.error("TTS 재생 실패:", error);
             }

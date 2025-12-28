@@ -478,7 +478,6 @@ export default function TeamManagement() {
         teams={teams} 
         onSeatingChange={(arrangement) => {
           // Handle seating arrangement changes if needed
-          console.log('Seating arrangement updated:', arrangement);
         }}
       />
     </>

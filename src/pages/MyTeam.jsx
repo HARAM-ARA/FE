@@ -268,7 +268,6 @@ export default function MyTeam() {
 
       // 현재 사용자의 계정 정보 조회 (팀 정보 포함)
       const accountResponse = await customaxios.get('std/account');
-      console.log('Account response:', accountResponse.data);
       
       // 전체 팀 순위 조회
       const rankingsResponse = await customaxios.get('haram/account');

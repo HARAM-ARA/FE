@@ -36,7 +36,6 @@ export default function Card({ width, height, title, description, buttonText, on
       const next = new Date(now.getTime() + 10 * 1000);
       setNextEventTime(next);
       setIsTimerComplete(false);
-      console.log('[테스트 모드] 타이머 10초 후 활성화:', next);
     } else {
 
       const currentHour = now.getHours();

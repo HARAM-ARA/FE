@@ -166,7 +166,7 @@ export default function BeforeHome() {
           navigate('/tch', { replace: true });
         }
       } catch (error) {
-        console.error('Failed to check user role:', error);
+
       }
     };
 
@@ -211,7 +211,6 @@ export default function BeforeHome() {
             <MinigameBox>
               <Card title="추억의 뽑기" />
               <Card title={"강화하기"} />
-              <Card title={"공룡게임"} />
               <Card title="TTS 메세지" isItem={true} />
               <Card title="음악 신청" isItem={true}/>
             </MinigameBox>
