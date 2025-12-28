@@ -11,6 +11,7 @@ import StoreImg from "../assets/store.svg";
 import Button from "../components/button.jsx";
 import TeamRanking from "../components/TeamRanking.jsx";
 import AnnouncementModal from "../components/AnnouncementModal.jsx";
+import MusicModal from "../components/MusicModal.jsx";
 
 
 const Body = styled.div`
@@ -161,15 +162,54 @@ const StoreImgDiv = styled.img`
 
 export default function Student() {
   const [isAnnouncementModalOpen, setIsAnnouncementModalOpen] = useState(false); // 전체 공지 모달용
+  const [isMusicModalOpen, setIsMusicModalOpen] = useState(false); // 음악 신청 모달용
   const navigate = useNavigate();
-  const { credit } = useCredit();
+  const { credit, refreshCredit } = useCredit();
 
 
   const handleAnnouncementSubmit = async (message) => {
         try {
             const token = localStorage.getItem('auth_token');
 
-            await axios.post(`${import.meta.env.VITE_API_URL}haram/notice`,
+            // 1단계: 상점에서 TTS 쿠폰 찾기 (ID: 999)
+            const storeResponse = await customaxios.get(`${import.meta.env.VITE_API_URL}haram/store`);
+            const ttsItem = storeResponse.data.items.find(item => item.itemId === 999);
+
+            if (!ttsItem) {
+                alert("TTS 메시지 상품을 찾을 수 없습니다.");
+                return;
+            }
+
+            console.log("===== TTS 쿠폰 정보 =====");
+            console.log("상품명:", ttsItem.itemName);
+            console.log("가격:", ttsItem.price);
+            console.log("재고:", ttsItem.quantity);
+            console.log("현재 보유 크레딧:", credit);
+
+            // 크레딧이 부족한지 확인
+            if (credit < ttsItem.price) {
+                alert(`크레딧이 부족합니다. 필요: ${ttsItem.price.toLocaleString()}, 보유: ${credit.toLocaleString()}`);
+                return;
+            }
+
+            // 2단계: TTS 쿠폰 구매
+            await customaxios.post(`${import.meta.env.VITE_API_URL}std/store`,
+                { itemId: ttsItem.itemId, quantity: 1 },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            console.log("TTS 쿠폰 구매 완료");
+
+            // 크레딧 새로고침
+            await refreshCredit();
+
+            // 3단계: TTS 메시지 전송
+            await customaxios.post(`${import.meta.env.VITE_API_URL}haram/notice`,
                 { content: message },
                 {
                     headers: {
@@ -179,10 +219,102 @@ export default function Student() {
                 }
             );
 
-            console.log("전체 공지 메시지 전송 완료:", message);
+            console.log("TTS 메시지 전송 완료:", message);
         } catch (error) {
-            console.error("전체 공지 전송 실패:", error);
-            alert("전체 공지 전송에 실패했습니다.");
+            console.error("TTS 메시지 전송 실패:", error);
+            console.error("에러 상세:", JSON.stringify(error.response?.data, null, 2));
+            console.error("에러 상태 코드:", error.response?.status);
+            console.error("에러 URL:", error.config?.url);
+
+            const errorData = error.response?.data;
+            const errorMsg = errorData?.error || errorData?.message || "알 수 없는 오류";
+
+            if (errorData?.error === "PAYMENT_REQUIRED" || errorData?.error === "크레딧이 부족합니다") {
+                alert("크레딧이 부족합니다.");
+            } else if (errorData?.error === "OUT_OF_STOCK") {
+                alert("TTS 메시지 상품의 재고가 부족합니다.");
+            } else if (errorData?.error === "NON_EXIST_ITEM") {
+                alert("TTS 메시지 상품을 찾을 수 없습니다.");
+            } else if (error.response?.status === 403) {
+                alert(`권한이 없습니다. 에러: ${errorMsg}`);
+            } else {
+                alert(`TTS 메시지 전송에 실패했습니다. 에러: ${errorMsg}`);
+            }
+        }
+    };
+
+    const handleMusicSubmit = async (music) => {
+        try {
+            const token = localStorage.getItem('auth_token');
+
+            // 1단계: 상점에서 음악 신청 쿠폰 찾기 (ID: 998)
+            const storeResponse = await customaxios.get(`${import.meta.env.VITE_API_URL}haram/store`);
+            const musicItem = storeResponse.data.items.find(item => item.itemId === 998);
+
+            if (!musicItem) {
+                alert("음악 신청 상품을 찾을 수 없습니다.");
+                return;
+            }
+
+            console.log("===== 음악 신청 쿠폰 정보 =====");
+            console.log("상품명:", musicItem.itemName);
+            console.log("가격:", musicItem.price);
+            console.log("재고:", musicItem.quantity);
+            console.log("현재 보유 크레딧:", credit);
+
+            // 크레딧이 부족한지 확인
+            if (credit < musicItem.price) {
+                alert(`크레딧이 부족합니다. 필요: ${musicItem.price.toLocaleString()}, 보유: ${credit.toLocaleString()}`);
+                return;
+            }
+
+            // 2단계: 음악 신청 쿠폰 구매
+            await customaxios.post(`${import.meta.env.VITE_API_URL}std/store`,
+                { itemId: musicItem.itemId, quantity: 1 },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            console.log("음악 신청 쿠폰 구매 완료");
+
+            // 크레딧 새로고침
+            await refreshCredit();
+
+            // 3단계: 음악 신청
+            await customaxios.post(`${import.meta.env.VITE_API_URL}haram/music`,
+                { content: music },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            console.log("음악 신청 완료:", music);
+        } catch (error) {
+            console.error("음악 신청 실패:", error);
+            console.error("에러 상세:", JSON.stringify(error.response?.data, null, 2));
+            console.error("에러 상태 코드:", error.response?.status);
+
+            const errorData = error.response?.data;
+            const errorMsg = errorData?.error || errorData?.message || "알 수 없는 오류";
+
+            if (errorData?.error === "PAYMENT_REQUIRED" || errorData?.error === "크레딧이 부족합니다") {
+                alert("크레딧이 부족합니다.");
+            } else if (errorData?.error === "OUT_OF_STOCK") {
+                alert("음악 신청 상품의 재고가 부족합니다.");
+            } else if (errorData?.error === "NON_EXIST_ITEM") {
+                alert("음악 신청 상품을 찾을 수 없습니다.");
+            } else if (error.response?.status === 403) {
+                alert(`권한이 없습니다. 에러: ${errorMsg}`);
+            } else {
+                alert(`음악 신청에 실패했습니다. 에러: ${errorMsg}`);
+            }
         }
     };
 
@@ -228,7 +360,7 @@ export default function Student() {
               <Card title="강화하기"  onClick={()=>navigate('/enforce')}/>
               <Card title="공룡게임" onClick={()=>navigate('/dino')}/>
               <Card title="TTS 메세지" isItem={true} onClick={()=>setIsAnnouncementModalOpen(true)}/>
-              <Card title="음악 신청" isItem={true}/>
+              <Card title="음악 신청" isItem={true} onClick={()=>setIsMusicModalOpen(true)}/>
             </MinigameBox>
           </GameSection>
 
@@ -245,6 +377,12 @@ export default function Student() {
             isOpen={isAnnouncementModalOpen}
             onClose={() => setIsAnnouncementModalOpen(false)}
             onSubmit={handleAnnouncementSubmit}
+        />
+
+        <MusicModal
+            isOpen={isMusicModalOpen}
+            onClose={() => setIsMusicModalOpen(false)}
+            onSubmit={handleMusicSubmit}
         />
     </>
   )

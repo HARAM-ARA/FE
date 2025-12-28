@@ -84,7 +84,7 @@ const TeamName = styled.div`
 `;
 
 const Credit = styled.div`
-    color: #1D1D1D;
+    color: #F07F23;
     font-family: Pretendard;
     font-size: 20px;
     font-weight: 500;
@@ -226,7 +226,7 @@ export default function TeamRanking({ isBeforeLogin = false }) {
                     {team.teamName || `TEAM ${team.teamId}`}
                   </TeamName>
                 </RankingLeft>
-                <Credit>{team.credit.toLocaleString()}원</Credit>
+                <Credit>{team.credit.toLocaleString()}</Credit>
               </RankingItem>
             ))}
 
@@ -246,7 +246,7 @@ export default function TeamRanking({ isBeforeLogin = false }) {
                       {myTeam.teamName || `TEAM ${myTeam.teamId}`}
                     </TeamName>
                   </RankingLeft>
-                  <Credit>{myTeam.credit.toLocaleString()}원</Credit>
+                  <Credit>{myTeam.credit.toLocaleString()}</Credit>
                 </RankingItem>
               </>
             )}

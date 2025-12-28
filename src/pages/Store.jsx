@@ -262,11 +262,11 @@ export default function Store() {
 
   const filteredItems = items.filter(item => {
     if (filter) {
-      // 간식 탭: type이 1이거나 3인 경우
+      // 간식 탭: type이 1인 경우
       return item.type === 1;
     } else {
       // 쿠폰 탭: type이 2인 경우
-      return item.type === 2 || item.type === 3;
+      return item.type === 2;
     }
   });
 

@@ -50,7 +50,7 @@ const CloseImg = styled.img`
   cursor: pointer;
 `;
 
-const TTSLabel = styled.p`
+const MusicLabel = styled.p`
     color: #000;
     font-feature-settings: 'liga' off, 'clig' off;
     font-family: Pretendard;
@@ -84,7 +84,6 @@ const Example = styled.p`
     margin-bottom: 24px;
 `;
 
-
 const InputBox = styled.textarea`
     display: flex;
     padding: 20px 24px;
@@ -99,7 +98,6 @@ const InputBox = styled.textarea`
   }
 
   &::placeholder {
-   
       color: #A3A3A3;
       font-feature-settings: 'liga' off, 'clig' off;
       font-family: Pretendard;
@@ -176,7 +174,7 @@ const SuccessDescription = styled.p`
     align-self: center;
 `;
 
-export default function AnnouncementModal({ isOpen, onClose, onSubmit }) {
+export default function MusicModal({ isOpen, onClose, onSubmit }) {
     const [inputValue, setInputValue] = useState("");
     const [isSubmitted, setIsSubmitted] = useState(false);
     const timeoutRef = useRef(null);
@@ -236,21 +234,20 @@ export default function AnnouncementModal({ isOpen, onClose, onSubmit }) {
             {isSubmitted ? (
                 <SuccessDiv>
                     <SuccessImg src={storeImg} alt="success" />
-                    <SuccessTitle>전송완료!</SuccessTitle>
-                    <SuccessDescription>무대 앞 화면을 확인하세요</SuccessDescription>
+                    <SuccessTitle>신청 완료!</SuccessTitle>
+                    <SuccessDescription>앞에 밀린 노래들이 먼저 나와요</SuccessDescription>
                 </SuccessDiv>
             ) : (
                 <Div>
-                    <TTSLabel>tts로 읽어요</TTSLabel>
-                    <Title>전체 공지를 날릴 문구를 적어주세요</Title>
-                    <Example>예) 1302 강태은 바보</Example>
+                    <MusicLabel>음악을 신청해요</MusicLabel>
+                    <Title>해커톤 BGM 노래를 신청할 수 있어요</Title>
+                    <Example>예) What is love? - TWICE</Example>
                     <InputBox
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        placeholder="Enter 키를 눌러 전송할 수 있어요"
+                        placeholder="Enter키를 눌러 전송해요"
                     />
-
                 </Div>
             )}
         </Modal>
