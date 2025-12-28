@@ -255,6 +255,7 @@ export default function MyTeam() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [changingLeader, setChangingLeader] = useState(null);
+  const [leaderId, setLeaderId] = useState(null);
 
   useEffect(() => {
     fetchTeamData();
@@ -292,12 +293,23 @@ export default function MyTeam() {
 
       // API 응답에서 실제 팀원 데이터 사용
       const teamMembers = accountResponse.data?.members || [];
-      const processedMembers = teamMembers.map((member, index) => ({
-        id: member.id,
-        name: member.name,
-        userNumber: member.userNumber,
-        role: index === 0 ? "팀장" : "팀원" // 첫 번째 멤버를 팀장으로 가정
-      }));
+      const currentLeaderId = accountResponse.data?.leaderId;
+      setLeaderId(currentLeaderId);
+      
+      // 팀장을 맨 앞에 배치하고 역할 설정
+      const processedMembers = teamMembers
+        .map(member => ({
+          id: member.id,
+          name: member.name,
+          userNumber: member.userNumber,
+          role: member.id === currentLeaderId ? "팀장" : "팀원"
+        }))
+        .sort((a, b) => {
+          // 팀장을 맨 앞에 배치
+          if (a.role === "팀장") return -1;
+          if (b.role === "팀장") return 1;
+          return 0;
+        });
 
       setTeamData({ 
         members: processedMembers,
@@ -417,7 +429,7 @@ export default function MyTeam() {
                     <MemberActions>
                       <LeaderButton
                         isLeader={member.role === '팀장'}
-                        disabled={changingLeader === member.id}
+                        disabled={changingLeader === member.id || (leaderId !== null && member.role !== '팀장')}
                         onClick={() => handleChangeLeader(member.id)}
                       >
                         {changingLeader === member.id ? '변경중...' : 

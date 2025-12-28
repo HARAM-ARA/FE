@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { AxiosInstnce as customaxios } from "../lib/customAxios.js";
 import { useCredit } from "../context/CreditContext.jsx";
+import { getUserRoleCached } from "../lib/auth.js";
 import Header from "../components/Header.jsx";
 import styled from "@emotion/styled";
 import Button from "../components/button.jsx";
@@ -142,6 +143,20 @@ const EmptyMessage = styled.div`
   font-weight: 400;
 `;
 
+const AccessDeniedMessage = styled.div`
+  width: 100%;
+  text-align: center;
+  margin-top: 100px;
+  color: #FF4444;
+  font-family: Pretendard;
+  font-size: 20px;
+  font-weight: 600;
+  padding: 20px;
+  background-color: #FFF5F5;
+  border-radius: 12px;
+  border: 2px solid #FFE6E6;
+`;
+
 
 
 export default function Store() {
@@ -152,11 +167,43 @@ export default function Store() {
   const [quantities, setQuantities] = useState({}); // 수량 상태 추가
   const [filter, setFilter] = useState(1); // 1: 간식 (type: 1), 2: 쿠폰 (type: 2), 3: 기타 (type: 3)
   const [isOpen, setIsOpen] = useState(false); // 일반 구매 완료 모달용
+  const [userRole, setUserRole] = useState(null);
 
-  // 페이지 로드 시 전체 물품 조회
+  // 페이지 로드 시 전체 물품 조회 및 사용자 역할 확인
   useEffect(() => {
     fetchAllItems();
+    checkUserRole();
   }, []);
+
+  // 사용자 역할 확인
+  const checkUserRole = async () => {
+    try {
+      const role = await getUserRoleCached();
+      
+      // student인 경우 팀장인지 확인
+      if (role === 'student') {
+        try {
+          const accountResponse = await customaxios.get('std/account');
+          const currentUserId = accountResponse.data?.userId; // 현재 사용자 ID
+          const leaderId = accountResponse.data?.leaderId; // 팀장 ID
+          
+          // 현재 사용자가 팀장인지 확인
+          if (currentUserId === leaderId) {
+            setUserRole('teamleader');
+          } else {
+            setUserRole('student');
+          }
+        } catch (error) {
+          console.error("팀 정보 확인 실패:", error);
+          setUserRole(role);
+        }
+      } else {
+        setUserRole(role);
+      }
+    } catch (error) {
+      console.error("사용자 역할 확인 실패:", error);
+    }
+  };
 
   // 전체 물품 조회
   const fetchAllItems = async () => {
@@ -211,6 +258,12 @@ export default function Store() {
   // 물품 구매
   const handlePurchase = async () => {
     if (!anyChecked) return;
+
+    // teamleader 권한 확인
+    if (userRole !== 'teamleader') {
+      alert("물품 구매는 팀장만 가능합니다!");
+      return;
+    }
 
     // 잔액 확인
     if (totalPrice > credit) {
@@ -344,6 +397,11 @@ export default function Store() {
           <div style={{ marginTop: '28px', textAlign: 'center' }}>
             <Description>물품을 불러오는 중...</Description>
           </div>
+        ) : userRole !== 'teamleader' ? (
+          <AccessDeniedMessage>
+            물품 구매는 팀장만 가능합니다.<br/>
+            팀장에게 문의하여 필요한 물품을 구매해주세요.
+          </AccessDeniedMessage>
         ) : filteredItems.length === 0 ? (
           <EmptyMessage>
             {filter === 1 ? "간식" : filter === 2 ? "쿠폰" : "기타"} 상품이 없습니다.

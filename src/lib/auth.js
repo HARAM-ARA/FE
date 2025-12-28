@@ -51,7 +51,7 @@ export const getUserRoleCached = async () => {
 
 export const isStudent = async () => {
   const role = await getUserRole();
-  return role === 'student';
+  return role === 'student' || role === 'teamleader';
 };
 
 export const isTeacher = async () => {
@@ -59,9 +59,14 @@ export const isTeacher = async () => {
   return role === 'teacher';
 };
 
+export const isTeamLeader = async () => {
+  const role = await getUserRole();
+  return role === 'teamleader';
+};
+
 export const isAuthenticated = async () => {
   const role = await getUserRole();
-  return role === 'student' || role === 'teacher';
+  return role === 'student' || role === 'teacher' || role === 'teamleader';
 };
 
 export const clearUserCache = () => {

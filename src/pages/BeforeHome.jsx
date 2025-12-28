@@ -160,7 +160,7 @@ export default function BeforeHome() {
     const checkUserRole = async () => {
       try {
         const role = await getUserRoleCached();
-        if (role === 'student') {
+        if (role === 'student' || role === 'teamleader') {
           navigate('/std', { replace: true });
         } else if (role === 'teacher') {
           navigate('/tch', { replace: true });

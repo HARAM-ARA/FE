@@ -27,18 +27,18 @@ export default function App() {
             <Route path="/haram/auth/callback" element={<AuthCallback />} />
             <Route path="/timer" element={<TimerHome />} />
             
-            <Route path="/std" element={<AuthConfirm requiredRole="student"><Student/></AuthConfirm>}/>
-            <Route path="/std/team" element={<AuthConfirm requiredRole="student"><MyTeam /></AuthConfirm>} />
-            <Route path="/store" element={<AuthConfirm requiredRole="student"><Store /></AuthConfirm>} />
-            <Route path="/select" element={<AuthConfirm requiredRole="student"><Select /></AuthConfirm>} />
+            <Route path="/std" element={<AuthConfirm allowedRoles={["student", "teamleader"]}><Student/></AuthConfirm>}/>
+            <Route path="/std/team" element={<AuthConfirm allowedRoles={["student", "teamleader"]}><MyTeam /></AuthConfirm>} />
+            <Route path="/store" element={<AuthConfirm allowedRoles={["student", "teamleader"]}><Store /></AuthConfirm>} />
+            <Route path="/select" element={<AuthConfirm allowedRoles={["student", "teamleader"]}><Select /></AuthConfirm>} />
             <Route path="/credits" element={<AuthConfirm requiredRole="teacher"><Credits /></AuthConfirm>}/>
-            <Route path="/enforce" element={<AuthConfirm requiredRole="student"><Enforce /></AuthConfirm>}/>
+            <Route path="/enforce" element={<AuthConfirm allowedRoles={["student", "teamleader"]}><Enforce /></AuthConfirm>}/>
             
             <Route path="/tch" element={<AuthConfirm requiredRole="teacher"><Teacher/></AuthConfirm>} />
             <Route path="/teams" element={<AuthConfirm requiredRole="teacher"><TeamSpace /></AuthConfirm>}/>
             <Route path="/teams/random" element={<AuthConfirm requiredRole="teacher"><RandomTeamGenerator /></AuthConfirm>}/>
             <Route path="/adminstore" element={<AuthConfirm requiredRole="teacher"><AdminStore /></AuthConfirm>}/>
-            <Route path="/dino" element={<AuthConfirm requiredRole="student"><DinoGame /></AuthConfirm>}/>
+            <Route path="/dino" element={<AuthConfirm allowedRoles={["student", "teamleader"]}><DinoGame /></AuthConfirm>}/>
           </Routes>
         </CreditProvider>
       </BrowserRouter>
