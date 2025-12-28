@@ -240,13 +240,13 @@ export default function MusicModal({ isOpen, onClose, onSubmit }) {
             ) : (
                 <Div>
                     <MusicLabel>음악을 신청해요</MusicLabel>
-                    <Title>해커톤 BGM 노래를 신청할 수 있어요</Title>
-                    <Example>예) What is love? - TWICE</Example>
+                    <Title>YouTube URL을 입력해주세요</Title>
+                    <Example>예) https://www.youtube.com/watch?v=dQw4w9WgXcQ</Example>
                     <InputBox
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        placeholder="Enter키를 눌러 전송해요"
+                        placeholder="YouTube URL을 입력하고 Enter를 눌러주세요"
                     />
                 </Div>
             )}

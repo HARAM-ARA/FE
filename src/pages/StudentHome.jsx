@@ -243,9 +243,12 @@ export default function Student() {
         }
     };
 
-    const handleMusicSubmit = async (music) => {
+    const handleMusicSubmit = async (youtubeUrl) => {
         try {
             const token = localStorage.getItem('auth_token');
+
+            console.log("===== 음악 신청 시작 =====");
+            console.log("YouTube URL:", youtubeUrl);
 
             // 1단계: 상점에서 음악 신청 쿠폰 찾기 (ID: 998)
             const storeResponse = await customaxios.get(`${import.meta.env.VITE_API_URL}haram/store`);
@@ -253,7 +256,7 @@ export default function Student() {
 
             if (!musicItem) {
                 alert("음악 신청 상품을 찾을 수 없습니다.");
-                return;
+                throw new Error("음악 신청 상품을 찾을 수 없습니다.");
             }
 
             console.log("===== 음악 신청 쿠폰 정보 =====");
@@ -265,7 +268,7 @@ export default function Student() {
             // 크레딧이 부족한지 확인
             if (credit < musicItem.price) {
                 alert(`크레딧이 부족합니다. 필요: ${musicItem.price.toLocaleString()}, 보유: ${credit.toLocaleString()}`);
-                return;
+                throw new Error("크레딧 부족");
             }
 
             // 2단계: 음악 신청 쿠폰 구매
@@ -284,9 +287,10 @@ export default function Student() {
             // 크레딧 새로고침
             await refreshCredit();
 
-            // 3단계: 음악 신청
-            await customaxios.post(`${import.meta.env.VITE_API_URL}haram/music`,
-                { content: music },
+            // 3단계: 음악 신청 API 호출
+            const response = await customaxios.post(
+                `${import.meta.env.VITE_API_URL}std/music/request`,
+                { url: youtubeUrl },
                 {
                     headers: {
                         'Content-Type': 'application/json',
@@ -295,26 +299,48 @@ export default function Student() {
                 }
             );
 
-            console.log("음악 신청 완료:", music);
+            console.log("음악 신청 완료:", response.data);
+
+            // 성공 메시지는 MusicModal에서 처리
         } catch (error) {
             console.error("음악 신청 실패:", error);
             console.error("에러 상세:", JSON.stringify(error.response?.data, null, 2));
             console.error("에러 상태 코드:", error.response?.status);
 
             const errorData = error.response?.data;
-            const errorMsg = errorData?.error || errorData?.message || "알 수 없는 오류";
+            const errorMsg = errorData?.message || errorData?.error || error.message || "알 수 없는 오류";
 
+            // 상점 구매 관련 에러
             if (errorData?.error === "PAYMENT_REQUIRED" || errorData?.error === "크레딧이 부족합니다") {
                 alert("크레딧이 부족합니다.");
             } else if (errorData?.error === "OUT_OF_STOCK") {
                 alert("음악 신청 상품의 재고가 부족합니다.");
             } else if (errorData?.error === "NON_EXIST_ITEM") {
                 alert("음악 신청 상품을 찾을 수 없습니다.");
-            } else if (error.response?.status === 403) {
-                alert(`권한이 없습니다. 에러: ${errorMsg}`);
-            } else {
-                alert(`음악 신청에 실패했습니다. 에러: ${errorMsg}`);
             }
+            // 음악 신청 API 에러
+            else if (errorData?.error === "BAD_REQUEST") {
+                if (errorMsg.includes("YouTube URL")) {
+                    alert("올바른 YouTube URL을 입력해주세요.");
+                } else if (errorMsg.includes("영상 정보")) {
+                    alert("YouTube 영상을 찾을 수 없습니다. URL을 확인해주세요.");
+                } else {
+                    alert(errorMsg);
+                }
+            } else if (errorData?.error === "PERMISSION_DENIED") {
+                alert("음악 신청 권한이 부족합니다.");
+            } else if (errorData?.error === "NON_EXIST_TEAM") {
+                alert("팀에 소속되어 있지 않습니다.");
+            } else if (error.response?.status === 403) {
+                alert(`권한이 없습니다: ${errorMsg}`);
+            } else if (error.response?.status === 404) {
+                alert("팀 정보를 찾을 수 없습니다.");
+            } else if (!errorMsg.includes("크레딧 부족") && !errorMsg.includes("찾을 수 없습니다")) {
+                alert(`음악 신청에 실패했습니다: ${errorMsg}`);
+            }
+
+            // 에러 발생 시 throw하여 모달이 닫히지 않도록 함
+            throw error;
         }
     };
 
