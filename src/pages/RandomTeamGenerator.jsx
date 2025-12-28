@@ -209,14 +209,6 @@ export default function RandomTeamGenerator() {
     return { secondYear, firstYear };
   };
 
-  const getEmbeddedStudents = () => {
-    // Combine team3 and team4, then filter by year
-    const allEmbedded = [...mockdata.team3, ...mockdata.team4];
-    const secondYear = allEmbedded.filter(s => s.id.startsWith('2'));
-    const firstYear = allEmbedded.filter(s => s.id.startsWith('1'));
-    return { secondYear, firstYear };
-  };
-
   const shuffle = (array) => {
     const shuffled = [...array];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -229,9 +221,6 @@ export default function RandomTeamGenerator() {
   // 소프트웨어 팀 생성
   const generateSoftwareTeams = () => {
     const { secondYear, firstYear } = getSoftwareStudents();
-    
-    // 김현호 구분: 2405는 소프트웨어, 2302는 임베디드
-    const softwareKimHyunHo = secondYear.find(s => s.id === "2405");
     
     // 랜덤 셔플
     const availableSecond = shuffle(secondYear);
@@ -306,58 +295,32 @@ export default function RandomTeamGenerator() {
 
 
   const generateEmbeddedTeams = () => {
-    const { secondYear, firstYear } = getEmbeddedStudents();
+    // 고정된 임베디드 2학년 팀들
+    const fixedTeams = [
+      { name: "임베디드 3팀", members: [...mockdata.team4] }, // 정태양, 공재욱
+      { name: "임베디드 8팀", members: [...mockdata.team5] }, // 김민석, 제성주
+      { name: "임베디드 13팀", members: [...mockdata.team6] }, // 이승환, 이주영
+      { name: "임베디드 18팀", members: [...mockdata.team7] }, // 안재민, 방민준
+      { name: "임베디드 23팀", members: [...mockdata.team8] }, // 김우성
+      { name: "임베디드 28팀", members: [...mockdata.team9] }, // 김현호
+    ];
+
+    // team3에서 1학년 학생들을 랜덤으로 섞기
+    const availableFirstYear = shuffle([...mockdata.team3]);
     
-    // 김현호 구분: 2302는 임베디드, 2405는 소프트웨어
-    const embeddedKimHyunHo = secondYear.find(s => s.id === "2302");
+    let firstYearIndex = 0;
     
-    // 랜덤 셔플
-    const availableSecond = shuffle(secondYear);
-    const availableFirst = shuffle(firstYear);
-
-    const teams = [];
-    let secondIdx = 0;
-    let firstIdx = 0;
-
-    // Fixed embedded team numbers: 3, 8, 13, 18, 23, 28
-    const embeddedNumbers = [3, 8, 13, 18, 23, 28];
-
-    // 5명 팀 4개: 2학년 2명 + 1학년 3명
-    for (let i = 0; i < 4; i++) {
-      const members = [
-        availableSecond[secondIdx++],
-        availableSecond[secondIdx++],
-        availableFirst[firstIdx++],
-        availableFirst[firstIdx++],
-        availableFirst[firstIdx++],
-      ].filter(Boolean);
-      
-      if (members.length === 5) {
-        teams.push({
-          name: `임베디드 ${embeddedNumbers[i]}팀`,
-          members
-        });
+    // 각 팀에 1학년 3명씩 추가
+    fixedTeams.forEach(team => {
+      // 모든 팀에 1학년 3명 추가
+      for (let i = 0; i < 3; i++) {
+        if (firstYearIndex < availableFirstYear.length) {
+          team.members.push(availableFirstYear[firstYearIndex++]);
+        }
       }
-    }
+    });
 
-    // 4명 팀 2개: 2학년 1명 + 1학년 3명
-    for (let i = 4; i < 6; i++) {
-      const members = [
-        availableSecond[secondIdx++],
-        availableFirst[firstIdx++],
-        availableFirst[firstIdx++],
-        availableFirst[firstIdx++],
-      ].filter(Boolean);
-      
-      if (members.length === 4) {
-        teams.push({
-          name: `임베디드 ${embeddedNumbers[i]}팀`,
-          members
-        });
-      }
-    }
-
-    return teams;
+    return fixedTeams;
   };
 
   const handleGenerateSoftware = () => {
@@ -448,8 +411,9 @@ export default function RandomTeamGenerator() {
             <TrackCard>
               <TrackTitle>임베디드소프트웨어 트랙</TrackTitle>
               <TeamInfo>
-                <InfoText>2학년 1명 + 1학년 3명 → 2팀</InfoText>
-                <InfoText>2학년 2명 + 1학년 3명 → 4팀</InfoText>
+                <InfoText>고정된 2학년 팀 + 1학년 3명씩 배정</InfoText>
+                <InfoText>2명 팀 4개 + 1학년 3명씩 → 5명 팀</InfoText>
+                <InfoText>1명 팀 2개 + 1학년 3명씩 → 4명 팀</InfoText>
               </TeamInfo>
               <GenerateButton onClick={handleGenerateEmbedded}>
                 랜덤으로 팀 생성하기
