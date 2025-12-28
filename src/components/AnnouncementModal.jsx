@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Modal from "react-modal";
 import styled from "@emotion/styled";
 import xImg from "../assets/Frame.svg";
@@ -179,27 +179,45 @@ const SuccessDescription = styled.p`
 export default function AnnouncementModal({ isOpen, onClose, onSubmit }) {
     const [inputValue, setInputValue] = useState("");
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const timeoutRef = useRef(null);
 
-    const handleSubmit = () => {
-        if (inputValue.trim()) {
-            if (onSubmit) {
-                onSubmit(inputValue);
+    // 컴포넌트 언마운트 시 타이머 정리
+    useEffect(() => {
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
             }
-            setIsSubmitted(true);
+        };
+    }, []);
 
-            setTimeout(() => {
-                handleClose();
-            }, 2000);
+    const handleSubmit = async () => {
+        if (inputValue.trim()) {
+            try {
+                if (onSubmit) {
+                    await onSubmit(inputValue);
+                }
+                setIsSubmitted(true);
+
+                timeoutRef.current = setTimeout(() => {
+                    handleClose();
+                }, 2000);
+            } catch (error) {
+                // 오류 발생 시 모달 닫지 않음
+                console.error("제출 실패:", error);
+            }
         }
     };
 
     const handleClose = () => {
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
         setInputValue("");
         setIsSubmitted(false);
         onClose();
     };
 
-    const handleKeyPress = (e) => {
+    const handleKeyDown = (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleSubmit();
@@ -229,7 +247,7 @@ export default function AnnouncementModal({ isOpen, onClose, onSubmit }) {
                     <InputBox
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
-                        onKeyPress={handleKeyPress}
+                        onKeyDown={handleKeyDown}
                         placeholder="Enter 키를 눌러 전송할 수 있어요"
                     />
 

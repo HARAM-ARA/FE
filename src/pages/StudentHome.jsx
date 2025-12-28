@@ -171,13 +171,9 @@ export default function Student() {
         try {
             const token = localStorage.getItem('auth_token');
 
-            // 1단계: 상점에서 TTS 쿠폰 찾기
+            // 1단계: 상점에서 TTS 쿠폰 찾기 (ID: 999)
             const storeResponse = await customaxios.get(`${import.meta.env.VITE_API_URL}haram/store`);
-            const ttsItem = storeResponse.data.items.find(item =>
-                item.itemName.includes('TTS') ||
-                item.itemName.includes('전체') ||
-                item.itemName.includes('공지')
-            );
+            const ttsItem = storeResponse.data.items.find(item => item.itemId === 999);
 
             if (!ttsItem) {
                 alert("TTS 메시지 상품을 찾을 수 없습니다.");
@@ -251,13 +247,9 @@ export default function Student() {
         try {
             const token = localStorage.getItem('auth_token');
 
-            // 1단계: 상점에서 음악 신청 쿠폰 찾기
+            // 1단계: 상점에서 음악 신청 쿠폰 찾기 (ID: 998)
             const storeResponse = await customaxios.get(`${import.meta.env.VITE_API_URL}haram/store`);
-            const musicItem = storeResponse.data.items.find(item =>
-                item.itemName.includes('음악') ||
-                item.itemName.includes('노래') ||
-                item.itemName.includes('Music')
-            );
+            const musicItem = storeResponse.data.items.find(item => item.itemId === 998);
 
             if (!musicItem) {
                 alert("음악 신청 상품을 찾을 수 없습니다.");
