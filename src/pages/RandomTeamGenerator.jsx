@@ -257,11 +257,12 @@ export default function RandomTeamGenerator() {
       !fixedStudents.some(fixed => fixed?.id === s.id)
     ));
 
-    // Generate random team numbers for SW (1-28 excluding 3, 8, 13, 18, 23, 28)
-    const embeddedNumbers = [3, 8, 13, 18, 23, 28];
+    // Generate random team numbers for SW (1-27 excluding 3, 8, 13, 18, 23, 27)
+    const embeddedNumbers = [3, 8, 13, 18, 23, 27];
     const swNumbers = shuffle(
-      Array.from({ length: 28 }, (_, i) => i + 1).filter(n => !embeddedNumbers.includes(n))
+      Array.from({ length: 27 }, (_, i) => i + 1).filter(n => !embeddedNumbers.includes(n))
     );
+
 
     const teams = [];
     let secondIdx = 0;
@@ -276,17 +277,19 @@ export default function RandomTeamGenerator() {
         availableFirst[firstIdx++],
         availableFirst[firstIdx++],
       ].filter(Boolean);
-      
+
+
       if (members.length === 4) {
         teams.push({
           name: `소프트웨어 ${swNumbers[numberIdx++]}팀`,
           members
         });
       }
+
     }
 
-    // 5-person teams (4개): 2학년 3명 + 1학년 2명
-    for (let i = 0; i < 4; i++) {
+    // 5-person teams (3개): 2학년 3명 + 1학년 2명
+    for (let i = 0; i < 3; i++) {
       const members = [
         availableSecond[secondIdx++],
         availableSecond[secondIdx++],
@@ -294,7 +297,9 @@ export default function RandomTeamGenerator() {
         availableFirst[firstIdx++],
         availableFirst[firstIdx++],
       ].filter(Boolean);
-      
+
+
+
       if (members.length === 5) {
         teams.push({
           name: `소프트웨어 ${swNumbers[numberIdx++]}팀`,
@@ -312,14 +317,19 @@ export default function RandomTeamGenerator() {
         availableFirst[firstIdx++],
         availableFirst[firstIdx++],
       ].filter(Boolean);
-      
+
+
       if (members.length === 5) {
         teams.push({
           name: `소프트웨어 ${swNumbers[numberIdx++]}팀`,
           members
         });
+      } else {
+
       }
     }
+
+
 
     return teams;
   };
@@ -344,7 +354,7 @@ export default function RandomTeamGenerator() {
       [findStudent("김현호"), null], // alone
     ];
 
-    console.log("Fixed pairs:", fixedPairs);
+
 
     // Flatten fixed pairs to get all fixed students
     const fixedStudents = fixedPairs.flat().filter(Boolean);
@@ -357,15 +367,13 @@ export default function RandomTeamGenerator() {
       !fixedStudents.some(fixed => fixed?.id === s.id)
     ));
 
-    console.log("Available second year:", availableSecond);
-    console.log("Available first year:", availableFirst);
 
     const teams = [];
     let secondIdx = 0;
     let firstIdx = 0;
 
-    // Fixed embedded team numbers: 3, 8, 13, 18, 23, 28
-    const embeddedNumbers = [3, 8, 13, 18, 23, 28];
+    // Fixed embedded team numbers: 3, 8, 13, 18, 23, 27
+    const embeddedNumbers = [3, 8, 13, 18, 23, 27];
 
     // Teams 1-4: Pairs with 1학년 3명 (5명 팀) - 페어는 이미 2학년 2명
     for (let i = 0; i < 4; i++) {
@@ -397,7 +405,7 @@ export default function RandomTeamGenerator() {
         availableFirst[firstIdx++],
       ].filter(Boolean);
       
-      console.log("Team 5 (김우성) members:", members);
+
       
       if (members.length === 4) {
         teams.push({
@@ -417,8 +425,7 @@ export default function RandomTeamGenerator() {
         availableFirst[firstIdx++],
       ].filter(Boolean);
       
-      console.log("Team 6 (김현호) members:", members);
-      
+
       if (members.length === 4) {
         teams.push({
           name: `임베디드 ${embeddedNumbers[5]}팀`,
@@ -427,7 +434,7 @@ export default function RandomTeamGenerator() {
       }
     }
 
-    console.log("Total embedded teams created:", teams.length);
+
     return teams;
   };
 
@@ -455,8 +462,10 @@ export default function RandomTeamGenerator() {
       const token = localStorage.getItem("auth_token");
 
 
-      const teamsObject = allTeams.reduce((acc, team, index) => {
-        acc[index + 1] = team.members.map(member => parseInt(member.id));
+      // 팀 이름에서 번호를 추출하여 사용 (예: "소프트웨어 5팀" → 5, "임베디드 3팀" → 3)
+      const teamsObject = allTeams.reduce((acc, team) => {
+        const teamNumber = parseInt(team.name.match(/\d+/)[0]);
+        acc[teamNumber] = team.members.map(member => parseInt(member.id));
         return acc;
       }, {});
 
@@ -505,7 +514,7 @@ export default function RandomTeamGenerator() {
               <TrackTitle>소프트웨어개발 트랙</TrackTitle>
               <TeamInfo>
                 <InfoText>2학년 2명 + 1학년 2명 → 16팀</InfoText>
-                <InfoText>2학년 3명 + 1학년 2명 → 4팀</InfoText>
+                <InfoText>2학년 3명 + 1학년 2명 → 3팀</InfoText>
                 <InfoText>2학년 2명 + 1학년 3명 → 2팀</InfoText>
               </TeamInfo>
               <GenerateButton onClick={handleGenerateSoftware}>
