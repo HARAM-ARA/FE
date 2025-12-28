@@ -324,6 +324,7 @@ export default function Student() {
       <Header
         isTeamName="true"
         isCredit="true"
+        isMyTeam="true"
       />
 
       <Body>

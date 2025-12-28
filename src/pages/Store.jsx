@@ -150,7 +150,7 @@ export default function Store() {
   const [loading, setLoading] = useState(true);
   const [checkedCards, setCheckedCards] = useState({});
   const [quantities, setQuantities] = useState({}); // 수량 상태 추가
-  const [filter, setFilter] = useState(true); // true가 간식 (type: 1), false가 쿠폰 (type: 2)
+  const [filter, setFilter] = useState(1); // 1: 간식 (type: 1), 2: 쿠폰 (type: 2), 3: 기타 (type: 3)
   const [isOpen, setIsOpen] = useState(false); // 일반 구매 완료 모달용
 
   // 페이지 로드 시 전체 물품 조회
@@ -261,13 +261,7 @@ export default function Store() {
 
 
   const filteredItems = items.filter(item => {
-    if (filter) {
-      // 간식 탭: type이 1인 경우
-      return item.type === 1;
-    } else {
-      // 쿠폰 탭: type이 2인 경우
-      return item.type === 2;
-    }
+    return item.type === filter;
   });
 
 
@@ -312,13 +306,18 @@ export default function Store() {
             <Filtering>
               <Button
                 text="간식"
-                active={filter === true}
-                path={() => setFilter(true)}
+                active={filter === 1}
+                path={() => setFilter(1)}
               />
               <Button
                 text="쿠폰"
-                active={filter === false}
-                path={() => setFilter(false)}
+                active={filter === 2}
+                path={() => setFilter(2)}
+              />
+              <Button
+                text="기타"
+                active={filter === 3}
+                path={() => setFilter(3)}
               />
             </Filtering>
           </LeftMenu>
@@ -347,7 +346,7 @@ export default function Store() {
           </div>
         ) : filteredItems.length === 0 ? (
           <EmptyMessage>
-            {filter ? "간식" : "쿠폰"} 상품이 없습니다.
+            {filter === 1 ? "간식" : filter === 2 ? "쿠폰" : "기타"} 상품이 없습니다.
           </EmptyMessage>
         ) : (
           <Items>

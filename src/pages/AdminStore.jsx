@@ -408,7 +408,7 @@ const AddItemComponent = ({ onAddItem, onClose }) => {
     const [name, setName] = useState("");
     const [price, setPrice] = useState("");
     const [quantity, setQuantity] = useState(10);
-    const [type, setType] = useState(1); // 1: 간식, 2: 쿠폰
+    const [type, setType] = useState(1); // 1: 간식, 2: 쿠폰, 3: 기타
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const fileInputRef = useRef(null);
@@ -416,7 +416,7 @@ const AddItemComponent = ({ onAddItem, onClose }) => {
     const increase = () => setQuantity(prev => prev + 1);
     const decrease = () => setQuantity(prev => (prev > 1 ? prev - 1 : 1));
 
-    const isFormValid = name.trim() !== "" && price.trim() !== "" && parseInt(price) > 0 && quantity >= 1 && (type === 1 || type === 2);
+    const isFormValid = name.trim() !== "" && price.trim() !== "" && parseInt(price) > 0 && quantity >= 1 && (type === 1 || type === 2 || type === 3);
 
     const handleSubmit = () => {
         if (!isFormValid) return;
@@ -499,6 +499,7 @@ const AddItemComponent = ({ onAddItem, onClose }) => {
                     <TypeToggle>
                         <TypeButton type="button" active={type === 1} onClick={() => setType(1)}>간식</TypeButton>
                         <TypeButton type="button" active={type === 2} onClick={() => setType(2)}>쿠폰</TypeButton>
+                        <TypeButton type="button" active={type === 3} onClick={() => setType(3)}>기타</TypeButton>
                     </TypeToggle>
 
                     <CustomButton onClick={handleSubmit} disabled={!isFormValid}>
@@ -516,7 +517,7 @@ export default function AdminStore() {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [checkedCards, setCheckedCards] = useState({});
-    const [filter, setFilter] = useState(true); // true: 간식 (type: 1), false: 쿠폰 (type: 2)
+    const [filter, setFilter] = useState(1); // 1: 간식 (type: 1), 2: 쿠폰 (type: 2), 3: 기타 (type: 3)
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
@@ -701,13 +702,18 @@ export default function AdminStore() {
                         <Filtering>
                             <Button
                                 text="간식"
-                                active={filter === true}
-                                path={() => setFilter(true)}
+                                active={filter === 1}
+                                path={() => setFilter(1)}
                             />
                             <Button
                                 text="쿠폰"
-                                active={filter === false}
-                                path={() => setFilter(false)}
+                                active={filter === 2}
+                                path={() => setFilter(2)}
+                            />
+                            <Button
+                                text="기타"
+                                active={filter === 3}
+                                path={() => setFilter(3)}
                             />
                         </Filtering>
                     </LeftMenu>
@@ -746,7 +752,7 @@ export default function AdminStore() {
                     </div>
                 ) : (
                     <Items>
-                        {items.filter(item => item.type === (filter ? 1 : 2)).map(item =>
+                        {items.filter(item => item.type === filter).map(item =>
                             <ItemCard
                                 isCoupon={item.type === 2 ? "true" : undefined}
                                 key={item.id}

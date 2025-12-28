@@ -34,11 +34,11 @@ export default function AuthCallback() {
           console.log("사용자 역할:", role);
 
           if (role === "teacher") {
-            navigate("/tch", { replace: true });
+            window.location.href = "/tch";
             redirected = true;
             return;
           } else if (role === "student") {
-            navigate("/std", { replace: true });
+            window.location.href = "/std";
             redirected = true;
             return;
           }

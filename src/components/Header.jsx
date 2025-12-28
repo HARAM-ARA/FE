@@ -134,6 +134,35 @@ const Gray = styled.span`
     line-height: normal;
   `;
 
+const TeamBtn = styled.button`
+    display: flex;
+    height: 44px;
+    padding: 13px 19px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-radius: 12px;
+    background: white;
+    border: 1px solid var(--Primary-150, #FDB882);
+    &:hover{
+      border: 1px solid var(--Primary-150, #FDB882);
+      background: #FFF2E4;
+    }
+    &:focus {
+      outline: none;
+    }
+  `;
+
+const TeamText = styled.span`
+    color: var(--Primary-200, #F07F23);
+    text-align: center;
+    font-family: Pretendard;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+  `;
+
 const Img = styled.img`
       width: 40px;
       height: 40px;
@@ -142,7 +171,7 @@ const Img = styled.img`
 
 
 
-export default function Header({ teamName: propTeamName, isTeacher = false, isTeamName = false, isLogin = false, isLogout = false, isCredit = false, Credit: propCredit }) {
+export default function Header({ teamName: propTeamName, isTeacher = false, isTeamName = false, isLogin = false, isLogout = false, isCredit = false, isMyTeam = false, Credit: propCredit }) {
 
   const nav = useNavigate();
 
@@ -211,7 +240,7 @@ export default function Header({ teamName: propTeamName, isTeacher = false, isTe
           {isTeamName && <AmountText>TEAM {displayTeamName}</AmountText>}
           {isTeacher && <><Img src={Logo} /> <AmountText> {displayUserName} 선생님</AmountText></>}
 
-
+          {isMyTeam && <TeamBtn onClick={() => nav('/std/team')}><TeamText>내팀 보기</TeamText></TeamBtn>}
           {isLogin && <LoginBtn type="google" onClick={handleGoogleLogin}>로그인</LoginBtn>}
 
           {isCredit && <CreditBtn><CreditColor>{displayCredit}</CreditColor><Gray>크레딧</Gray></CreditBtn>}

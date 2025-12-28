@@ -155,6 +155,7 @@ const MemberCard = styled.div`
   display: flex;
   align-items: center;
   gap: 16px;
+  position: relative;
 `;
 
 const MemberAvatar = styled.div`
@@ -190,6 +191,43 @@ const MemberRole = styled.div`
   font-weight: 500;
 `;
 
+const MemberNumber = styled.div`
+  color: #9CA3AF;
+  font-family: Pretendard;
+  font-size: 12px;
+  font-weight: 400;
+  margin-top: 2px;
+`;
+
+const MemberActions = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const LeaderButton = styled.button`
+  background: ${props => props.isLeader ? '#10B981' : '#F07F23'};
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-family: Pretendard;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: ${props => props.isLeader ? 'default' : 'pointer'};
+  transition: all 0.2s ease;
+  opacity: ${props => props.disabled ? 0.6 : 1};
+
+  &:hover {
+    background: ${props => props.isLeader ? '#10B981' : props.disabled ? '#F07F23' : '#E06B1F'};
+    transform: ${props => props.isLeader || props.disabled ? 'none' : 'translateY(-1px)'};
+  }
+
+  &:active {
+    transform: ${props => props.isLeader || props.disabled ? 'none' : 'translateY(0)'};
+  }
+`;
+
 const LoadingContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -216,6 +254,7 @@ export default function MyTeam() {
   const [teamRank, setTeamRank] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [changingLeader, setChangingLeader] = useState(null);
 
   useEffect(() => {
     fetchTeamData();
@@ -228,6 +267,7 @@ export default function MyTeam() {
 
       // 현재 사용자의 계정 정보 조회 (팀 정보 포함)
       const accountResponse = await customaxios.get('std/account');
+      console.log('Account response:', accountResponse.data);
       
       // 전체 팀 순위 조회
       const rankingsResponse = await customaxios.get('haram/account');
@@ -250,15 +290,21 @@ export default function MyTeam() {
 
       const myTeamRank = sortedTeams.find(team => team.teamId === teamId)?.rank || 0;
 
-      // 임시 팀원 데이터 (실제 API가 없으므로)
-      const mockMembers = [
-        { id: 1, name: "팀원 1", role: "팀장" },
-        { id: 2, name: "팀원 2", role: "팀원" },
-        { id: 3, name: "팀원 3", role: "팀원" },
-        { id: 4, name: "팀원 4", role: "팀원" }
-      ];
+      // API 응답에서 실제 팀원 데이터 사용
+      const teamMembers = accountResponse.data?.members || [];
+      const processedMembers = teamMembers.map((member, index) => ({
+        id: member.id,
+        name: member.name,
+        userNumber: member.userNumber,
+        role: index === 0 ? "팀장" : "팀원" // 첫 번째 멤버를 팀장으로 가정
+      }));
 
-      setTeamData({ members: mockMembers });
+      setTeamData({ 
+        members: processedMembers,
+        teamId: accountResponse.data?.teamId,
+        teamName: accountResponse.data?.teamName,
+        credit: accountResponse.data?.credit
+      });
       setTeamRank(myTeamRank);
 
     } catch (error) {
@@ -268,15 +314,34 @@ export default function MyTeam() {
       // 임시 데이터 (개발용)
       setTeamData({
         members: [
-          { id: 1, name: "김학생", role: "팀장" },
-          { id: 2, name: "이학생", role: "팀원" },
-          { id: 3, name: "박학생", role: "팀원" },
-          { id: 4, name: "최학생", role: "팀원" }
+          { id: 1, name: "김학생", role: "팀장", userNumber: "1001" },
+          { id: 2, name: "이학생", role: "팀원", userNumber: "1002" },
+          { id: 3, name: "박학생", role: "팀원", userNumber: "1003" },
+          { id: 4, name: "최학생", role: "팀원", userNumber: "1004" }
         ]
       });
       setTeamRank(3);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleChangeLeader = async (studentId) => {
+    try {
+      setChangingLeader(studentId);
+      
+      await customaxios.post('std/team/leader', {
+        student: studentId
+      });
+
+      // 성공 후 팀 데이터 다시 조회
+      await fetchTeamData();
+      
+    } catch (error) {
+      console.error("팀장 변경 실패:", error);
+      alert("팀장 변경에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setChangingLeader(null);
     }
   };
 
@@ -307,11 +372,11 @@ export default function MyTeam() {
             <TeamHeader>
               <TeamNameSection>
                 <TeamBadge>TEAM</TeamBadge>
-                <TeamName>{teamName || `TEAM ${teamId}`}</TeamName>
+                <TeamName>{teamData?.teamName || teamName || `TEAM ${teamId}`}</TeamName>
               </TeamNameSection>
               <CreditDisplay>
                 <CreditLabel>보유 크레딧</CreditLabel>
-                <CreditAmount>{credit.toLocaleString()}원</CreditAmount>
+                <CreditAmount>{(teamData?.credit || credit).toLocaleString()}원</CreditAmount>
               </CreditDisplay>
             </TeamHeader>
 
@@ -325,7 +390,7 @@ export default function MyTeam() {
                 <StatLabel>팀원 수</StatLabel>
               </StatCard>
               <StatCard>
-                <StatValue>{credit.toLocaleString()}</StatValue>
+                <StatValue>{(teamData?.credit || credit).toLocaleString()}</StatValue>
                 <StatLabel>총 크레딧</StatLabel>
               </StatCard>
             </StatsGrid>
@@ -345,7 +410,20 @@ export default function MyTeam() {
                     <MemberInfo>
                       <MemberName>{member.name || '알 수 없음'}</MemberName>
                       <MemberRole>{member.role || '팀원'}</MemberRole>
+                      {member.userNumber && (
+                        <MemberNumber>학번: {member.userNumber}</MemberNumber>
+                      )}
                     </MemberInfo>
+                    <MemberActions>
+                      <LeaderButton
+                        isLeader={member.role === '팀장'}
+                        disabled={changingLeader === member.id}
+                        onClick={() => handleChangeLeader(member.id)}
+                      >
+                        {changingLeader === member.id ? '변경중...' : 
+                         member.role === '팀장' ? '팀장' : '팀장 지정'}
+                      </LeaderButton>
+                    </MemberActions>
                   </MemberCard>
                 )) || (
                   <div style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#6B7280', padding: '40px 0' }}>

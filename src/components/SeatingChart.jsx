@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import { AxiosInstnce as customaxios } from "../lib/customAxios.js";
 import SeatDetailModal from "./SeatDetailModal.jsx";
@@ -35,13 +35,13 @@ const ClassroomLayout = styled.div`
     align-items: center;
 `;
 
-// 교단 (1,2,3번 좌석 옆)
+// 교단 (세로로 팀 5개 크기)
 const TeacherDesk = styled.div`
     position: absolute;
-    top: 280px;
+    top: 120px;
     right: 50px;
     width: 80px;
-    height: 200px;
+    height: 400px;
     background: #4CAF50;
     border-radius: 8px;
     display: flex;
@@ -54,17 +54,8 @@ const TeacherDesk = styled.div`
     text-orientation: mixed;
 `;
 
-// 팀별 색상 정의
-const teamColors = [
-    { border: '#FF6B6B', background: '#FFE5E5' }, // 빨간색
-    { border: '#4ECDC4', background: '#E5F9F7' }, // 청록색
-    { border: '#45B7D1', background: '#E5F4FD' }, // 파란색
-    { border: '#96CEB4', background: '#F0F9F4' }, // 초록색
-    { border: '#FECA57', background: '#FEF7E0' }, // 노란색
-    { border: '#FF9FF3', background: '#FFE5FB' }, // 분홍색
-    { border: '#A55EEA', background: '#F0E5FF' }, // 보라색
-    { border: '#26DE81', background: '#E5FFF0' }, // 라임색
-];
+// 기본 색상 (모든 팀 동일)
+const defaultColor = { border: '#E0E0E0', background: '#F5F5F5' };
 
 // 좌석 스타일
 const Seat = styled.div`
@@ -103,7 +94,7 @@ const StudentName = styled.div`
     line-height: 1.1;
 `;
 
-// 팀 구역 배치 데이터 (1-27팀을 구역으로 배치)
+// 팀 구역 배치 데이터 (1-28팀을 구역으로 배치)
 const teamAreas = [
     // 1열 (맨 오른쪽, 교단 옆) - 3개 팀
     { teamNumber: 1, x: 700, y: 280 },
@@ -138,59 +129,20 @@ const teamAreas = [
     { teamNumber: 22, x: 300, y: 360 },
     { teamNumber: 23, x: 300, y: 440 },
 
-    // 6열 (맨 왼쪽) - 4개 팀 (27번까지)
+    // 6열 (맨 왼쪽) - 5개 팀 (28번까지)
     { teamNumber: 24, x: 200, y: 120 },
     { teamNumber: 25, x: 200, y: 200 },
     { teamNumber: 26, x: 200, y: 280 },
     { teamNumber: 27, x: 200, y: 360 },
+    { teamNumber: 28, x: 200, y: 440 },
 ];
-
-const TeamLegend = styled.div`
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    margin-bottom: 20px;
-    padding: 16px;
-    background: #F8F9FA;
-    border-radius: 8px;
-`;
-
-const LegendItem = styled.div`
-    display: flex;
-    align-items: center;
-    gap: 8px;
-`;
-
-const ColorBox = styled.div`
-    width: 20px;
-    height: 20px;
-    border: 2px solid ${props => props.borderColor};
-    background: ${props => props.backgroundColor};
-    border-radius: 4px;
-`;
-
-const LegendText = styled.span`
-    font-family: Pretendard;
-    font-size: 14px;
-    font-weight: 500;
-    color: #333;
-`;
 
 export default function SeatingChart({ teams = [], onSeatingChange }) {
     const [teamArrangement, setTeamArrangement] = useState({}); // 팀 번호 -> 팀 정보 매핑
-    const [teamColorMap, setTeamColorMap] = useState({});
     const [selectedTeam, setSelectedTeam] = useState(null);
     const [showSeatModal, setShowSeatModal] = useState(false);
 
     useEffect(() => {
-        // 팀별 색상 매핑
-        const colorMap = {};
-        teams.forEach((team, index) => {
-            const teamId = team.teamId || team.id;
-            colorMap[teamId] = teamColors[index % teamColors.length];
-        });
-        setTeamColorMap(colorMap);
-
         // 팀을 팀 번호에 매핑 (teamId가 팀 번호)
         const newArrangement = {};
         teams.forEach(team => {
@@ -199,7 +151,7 @@ export default function SeatingChart({ teams = [], onSeatingChange }) {
                 teamId: teamId,
                 teamName: team.name || team.teamName,
                 members: team.members || [],
-                color: colorMap[teamId]
+                color: defaultColor
             };
         });
 
@@ -265,7 +217,7 @@ export default function SeatingChart({ teams = [], onSeatingChange }) {
 
                 {teamAreas.map(area => {
                     const team = teamArrangement[area.teamNumber];
-                    const teamColor = team?.color || { border: '#E0E0E0', background: '#F5F5F5' };
+                    const teamColor = team?.color || defaultColor;
 
                     return (
                         <Seat

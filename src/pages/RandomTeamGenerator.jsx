@@ -230,46 +230,25 @@ export default function RandomTeamGenerator() {
   const generateSoftwareTeams = () => {
     const { secondYear, firstYear } = getSoftwareStudents();
     
-    // Find fixed constraint students - search across ALL data
-    const allStudents = [...mockdata.team1, ...mockdata.team2, ...mockdata.team3, ...mockdata.team4];
-    const findStudent = (name) => {
-      return allStudents.find(s => s.name === name);
-    };
+    // 김현호 구분: 2405는 소프트웨어, 2302는 임베디드
+    const softwareKimHyunHo = secondYear.find(s => s.id === "2405");
+    
+    // 랜덤 셔플
+    const availableSecond = shuffle(secondYear);
+    const availableFirst = shuffle(firstYear);
 
-    const fixedStudents = [
-      findStudent("정태양"),
-      findStudent("공재욱"),
-      findStudent("제성주"),
-      findStudent("김민석"),
-      findStudent("이주영"),
-      findStudent("이승환"),
-      findStudent("방민준"),
-      findStudent("안재민"),
-      findStudent("김우성"),
-      findStudent("김현호"),
-    ].filter(Boolean);
-
-    // Remove fixed students from available pool
-    const availableSecond = shuffle(secondYear.filter(s => 
-      !fixedStudents.some(fixed => fixed?.id === s.id)
-    ));
-    const availableFirst = shuffle(firstYear.filter(s => 
-      !fixedStudents.some(fixed => fixed?.id === s.id)
-    ));
-
-    // Generate random team numbers for SW (1-27 excluding 3, 8, 13, 18, 23, 27)
-    const embeddedNumbers = [3, 8, 13, 18, 23, 27];
+    // Generate random team numbers for SW (1-27 excluding 3, 8, 13, 18, 23, 28)
+    const embeddedNumbers = [3, 8, 13, 18, 23, 28];
     const swNumbers = shuffle(
-      Array.from({ length: 27 }, (_, i) => i + 1).filter(n => !embeddedNumbers.includes(n))
+      Array.from({ length: 28 }, (_, i) => i + 1).filter(n => !embeddedNumbers.includes(n))
     );
-
 
     const teams = [];
     let secondIdx = 0;
     let firstIdx = 0;
     let numberIdx = 0;
 
-    // 4-person teams (16개): 2학년 2명 + 1학년 2명
+    // 4명 팀 16개: 2학년 2명 + 1학년 2명
     for (let i = 0; i < 16; i++) {
       const members = [
         availableSecond[secondIdx++],
@@ -278,17 +257,15 @@ export default function RandomTeamGenerator() {
         availableFirst[firstIdx++],
       ].filter(Boolean);
 
-
       if (members.length === 4) {
         teams.push({
           name: `소프트웨어 ${swNumbers[numberIdx++]}팀`,
           members
         });
       }
-
     }
 
-    // 5-person teams (3개): 2학년 3명 + 1학년 2명
+    // 5명 팀 3개: 2학년 3명 + 1학년 2명
     for (let i = 0; i < 3; i++) {
       const members = [
         availableSecond[secondIdx++],
@@ -298,8 +275,6 @@ export default function RandomTeamGenerator() {
         availableFirst[firstIdx++],
       ].filter(Boolean);
 
-
-
       if (members.length === 5) {
         teams.push({
           name: `소프트웨어 ${swNumbers[numberIdx++]}팀`,
@@ -308,8 +283,8 @@ export default function RandomTeamGenerator() {
       }
     }
 
-    // 5-person teams (2개): 2학년 2명 + 1학년 3명
-    for (let i = 0; i < 2; i++) {
+    // 5명 팀 3개: 2학년 2명 + 1학년 3명
+    for (let i = 0; i < 3; i++) {
       const members = [
         availableSecond[secondIdx++],
         availableSecond[secondIdx++],
@@ -318,18 +293,13 @@ export default function RandomTeamGenerator() {
         availableFirst[firstIdx++],
       ].filter(Boolean);
 
-
       if (members.length === 5) {
         teams.push({
           name: `소프트웨어 ${swNumbers[numberIdx++]}팀`,
           members
         });
-      } else {
-
       }
     }
-
-
 
     return teams;
   };
@@ -338,54 +308,29 @@ export default function RandomTeamGenerator() {
   const generateEmbeddedTeams = () => {
     const { secondYear, firstYear } = getEmbeddedStudents();
     
-    // Find fixed constraint students - search across ALL data
-    const allStudents = [...mockdata.team1, ...mockdata.team2, ...mockdata.team3, ...mockdata.team4];
-    const findStudent = (name) => {
-      return allStudents.find(s => s.name === name);
-    };
-
-    // All 6 fixed pairs go to embedded
-    const fixedPairs = [
-      [findStudent("정태양"), findStudent("공재욱")],
-      [findStudent("제성주"), findStudent("김민석")],
-      [findStudent("이주영"), findStudent("이승환")],
-      [findStudent("방민준"), findStudent("안재민")],
-      [findStudent("김우성"), null], // alone
-      [findStudent("김현호"), null], // alone
-    ];
-
-
-
-    // Flatten fixed pairs to get all fixed students
-    const fixedStudents = fixedPairs.flat().filter(Boolean);
-
-    // Remove fixed students from available pool
-    const availableSecond = shuffle(secondYear.filter(s => 
-      !fixedStudents.some(fixed => fixed?.id === s.id)
-    ));
-    const availableFirst = shuffle(firstYear.filter(s => 
-      !fixedStudents.some(fixed => fixed?.id === s.id)
-    ));
-
+    // 김현호 구분: 2302는 임베디드, 2405는 소프트웨어
+    const embeddedKimHyunHo = secondYear.find(s => s.id === "2302");
+    
+    // 랜덤 셔플
+    const availableSecond = shuffle(secondYear);
+    const availableFirst = shuffle(firstYear);
 
     const teams = [];
     let secondIdx = 0;
     let firstIdx = 0;
 
-    // Fixed embedded team numbers: 3, 8, 13, 18, 23, 27
-    const embeddedNumbers = [3, 8, 13, 18, 23, 27];
+    // Fixed embedded team numbers: 3, 8, 13, 18, 23, 28
+    const embeddedNumbers = [3, 8, 13, 18, 23, 28];
 
-    // Teams 1-4: Pairs with 1학년 3명 (5명 팀) - 페어는 이미 2학년 2명
+    // 5명 팀 4개: 2학년 2명 + 1학년 3명
     for (let i = 0; i < 4; i++) {
-      const pair = fixedPairs[i];
       const members = [
-        ...pair,
+        availableSecond[secondIdx++],
+        availableSecond[secondIdx++],
         availableFirst[firstIdx++],
         availableFirst[firstIdx++],
         availableFirst[firstIdx++],
       ].filter(Boolean);
-      
-      console.log(`Team ${i + 1} members:`, members);
       
       if (members.length === 5) {
         teams.push({
@@ -395,45 +340,22 @@ export default function RandomTeamGenerator() {
       }
     }
 
-    // Team 5: 김우성 alone with 2학년 1명 + 1학년 2명 (4명 팀)
-    const kimWooSung = fixedPairs[4][0];
-    if (kimWooSung) {
+    // 4명 팀 2개: 2학년 1명 + 1학년 3명
+    for (let i = 4; i < 6; i++) {
       const members = [
-        kimWooSung,
         availableSecond[secondIdx++],
         availableFirst[firstIdx++],
         availableFirst[firstIdx++],
+        availableFirst[firstIdx++],
       ].filter(Boolean);
-      
-
       
       if (members.length === 4) {
         teams.push({
-          name: `임베디드 ${embeddedNumbers[4]}팀`,
+          name: `임베디드 ${embeddedNumbers[i]}팀`,
           members
         });
       }
     }
-
-    // Team 6: 김현호 alone with 1학년 3명 (4명 팀) - 2학년이 부족하므로
-    const kimHyunHo = fixedPairs[5][0];
-    if (kimHyunHo) {
-      const members = [
-        kimHyunHo,
-        availableFirst[firstIdx++],
-        availableFirst[firstIdx++],
-        availableFirst[firstIdx++],
-      ].filter(Boolean);
-      
-
-      if (members.length === 4) {
-        teams.push({
-          name: `임베디드 ${embeddedNumbers[5]}팀`,
-          members
-        });
-      }
-    }
-
 
     return teams;
   };
@@ -515,7 +437,7 @@ export default function RandomTeamGenerator() {
               <TeamInfo>
                 <InfoText>2학년 2명 + 1학년 2명 → 16팀</InfoText>
                 <InfoText>2학년 3명 + 1학년 2명 → 3팀</InfoText>
-                <InfoText>2학년 2명 + 1학년 3명 → 2팀</InfoText>
+                <InfoText>2학년 2명 + 1학년 3명 → 3팀</InfoText>
               </TeamInfo>
               <GenerateButton onClick={handleGenerateSoftware}>
                 랜덤으로 팀 생성하기
