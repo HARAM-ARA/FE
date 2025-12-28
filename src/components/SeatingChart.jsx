@@ -103,47 +103,46 @@ const StudentName = styled.div`
     line-height: 1.1;
 `;
 
-// 좌석 배치 데이터 (가운데 정렬, 교단이 오른쪽)
-const seatPositions = [
-    // 1열 (맨 오른쪽, 교단 옆)
-    { number: 1, x: 700, y: 280 },
-    { number: 2, x: 700, y: 360 },
-    { number: 3, x: 700, y: 440 },
-    
-    // 2열
-    { number: 4, x: 600, y: 120 },
-    { number: 5, x: 600, y: 200 },
-    { number: 6, x: 600, y: 280 },
-    { number: 7, x: 600, y: 360 },
-    { number: 8, x: 600, y: 440 },
-    
-    // 3열
-    { number: 9, x: 500, y: 120 },
-    { number: 10, x: 500, y: 200 },
-    { number: 11, x: 500, y: 280 },
-    { number: 12, x: 500, y: 360 },
-    { number: 13, x: 500, y: 440 },
-    
-    // 4열
-    { number: 14, x: 400, y: 120 },
-    { number: 15, x: 400, y: 200 },
-    { number: 16, x: 400, y: 280 },
-    { number: 17, x: 400, y: 360 },
-    { number: 18, x: 400, y: 440 },
-    
-    // 5열
-    { number: 19, x: 300, y: 120 },
-    { number: 20, x: 300, y: 200 },
-    { number: 21, x: 300, y: 280 },
-    { number: 22, x: 300, y: 360 },
-    { number: 23, x: 300, y: 440 },
-    
-    // 6열 (맨 왼쪽)
-    { number: 24, x: 200, y: 120 },
-    { number: 25, x: 200, y: 200 },
-    { number: 26, x: 200, y: 280 },
-    { number: 27, x: 200, y: 360 },
-    { number: 28, x: 200, y: 440 },
+// 팀 구역 배치 데이터 (1-27팀을 구역으로 배치)
+const teamAreas = [
+    // 1열 (맨 오른쪽, 교단 옆) - 3개 팀
+    { teamNumber: 1, x: 700, y: 280 },
+    { teamNumber: 2, x: 700, y: 360 },
+    { teamNumber: 3, x: 700, y: 440 },
+
+    // 2열 - 5개 팀
+    { teamNumber: 4, x: 600, y: 120 },
+    { teamNumber: 5, x: 600, y: 200 },
+    { teamNumber: 6, x: 600, y: 280 },
+    { teamNumber: 7, x: 600, y: 360 },
+    { teamNumber: 8, x: 600, y: 440 },
+
+    // 3열 - 5개 팀
+    { teamNumber: 9, x: 500, y: 120 },
+    { teamNumber: 10, x: 500, y: 200 },
+    { teamNumber: 11, x: 500, y: 280 },
+    { teamNumber: 12, x: 500, y: 360 },
+    { teamNumber: 13, x: 500, y: 440 },
+
+    // 4열 - 5개 팀
+    { teamNumber: 14, x: 400, y: 120 },
+    { teamNumber: 15, x: 400, y: 200 },
+    { teamNumber: 16, x: 400, y: 280 },
+    { teamNumber: 17, x: 400, y: 360 },
+    { teamNumber: 18, x: 400, y: 440 },
+
+    // 5열 - 5개 팀
+    { teamNumber: 19, x: 300, y: 120 },
+    { teamNumber: 20, x: 300, y: 200 },
+    { teamNumber: 21, x: 300, y: 280 },
+    { teamNumber: 22, x: 300, y: 360 },
+    { teamNumber: 23, x: 300, y: 440 },
+
+    // 6열 (맨 왼쪽) - 4개 팀 (27번까지)
+    { teamNumber: 24, x: 200, y: 120 },
+    { teamNumber: 25, x: 200, y: 200 },
+    { teamNumber: 26, x: 200, y: 280 },
+    { teamNumber: 27, x: 200, y: 360 },
 ];
 
 const TeamLegend = styled.div`
@@ -178,25 +177,12 @@ const LegendText = styled.span`
 `;
 
 export default function SeatingChart({ teams = [], onSeatingChange }) {
-    const [seatingArrangement, setSeatingArrangement] = useState({});
-    const [allStudents, setAllStudents] = useState([]);
+    const [teamArrangement, setTeamArrangement] = useState({}); // 팀 번호 -> 팀 정보 매핑
     const [teamColorMap, setTeamColorMap] = useState({});
-    const [selectedSeat, setSelectedSeat] = useState(null);
+    const [selectedTeam, setSelectedTeam] = useState(null);
     const [showSeatModal, setShowSeatModal] = useState(false);
-    const [seatTeamMap, setSeatTeamMap] = useState({}); // 좌석 번호 -> 팀 ID 매핑
 
     useEffect(() => {
-        // 모든 팀의 학생들을 하나의 배열로 합치기
-        const students = teams.flatMap(team => 
-            team.members?.map(member => ({
-                ...member,
-                id: member.id || member.userId, // API 응답에 맞게 통일
-                teamName: team.name || team.teamName,
-                teamId: team.teamId || team.id
-            })) || []
-        );
-        setAllStudents(students);
-
         // 팀별 색상 매핑
         const colorMap = {};
         teams.forEach((team, index) => {
@@ -205,43 +191,29 @@ export default function SeatingChart({ teams = [], onSeatingChange }) {
         });
         setTeamColorMap(colorMap);
 
-        // 자동으로 전체 팀 배치
-        if (students.length > 0) {
-            const newArrangement = {};
-            const newSeatTeamMap = {};
-            let seatIndex = 0;
-            
-            // 팀별로 순서대로 배치
-            teams.forEach(team => {
-                if (team.members) {
-                    team.members.forEach(member => {
-                        if (seatIndex < seatPositions.length) {
-                            const seatNumber = seatPositions[seatIndex].number;
-                            newArrangement[seatNumber] = {
-                                ...member,
-                                id: member.id || member.userId,
-                                teamName: team.name || team.teamName,
-                                teamId: team.teamId || team.id
-                            };
-                            // 좌석 번호와 팀 ID 매핑
-                            newSeatTeamMap[seatNumber] = team.teamId || team.id;
-                            seatIndex++;
-                        }
-                    });
-                }
-            });
-            
-            setSeatingArrangement(newArrangement);
-            setSeatTeamMap(newSeatTeamMap);
-            onSeatingChange?.(newArrangement);
-        }
+        // 팀을 팀 번호에 매핑 (teamId가 팀 번호)
+        const newArrangement = {};
+        teams.forEach(team => {
+            const teamId = team.teamId || team.id;
+            newArrangement[teamId] = {
+                teamId: teamId,
+                teamName: team.name || team.teamName,
+                members: team.members || [],
+                color: colorMap[teamId]
+            };
+        });
+
+        setTeamArrangement(newArrangement);
+        onSeatingChange?.(newArrangement);
     }, [teams]);
 
-    const handleSeatClick = async (seatNumber) => {
-        const teamId = seatTeamMap[seatNumber];
-        if (!teamId) {
-            setSelectedSeat({
-                seatNumber,
+    const handleTeamClick = async (teamNumber) => {
+        const team = teamArrangement[teamNumber];
+
+        // 팀이 없는 경우
+        if (!team) {
+            setSelectedTeam({
+                seatNumber: teamNumber,
                 teamId: null,
                 students: [],
                 teamColor: null,
@@ -254,68 +226,62 @@ export default function SeatingChart({ teams = [], onSeatingChange }) {
         try {
             const token = localStorage.getItem("auth_token");
             const response = await customaxios.get(
-                `${import.meta.env.VITE_API_URL}tch/team/student/${teamId}`,
+                `${import.meta.env.VITE_API_URL}tch/team/student/${team.teamId}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
                 }
             );
-            
-            // 현재 팀 정보 찾기
-            const currentTeam = teams.find(t => (t.teamId || t.id) === teamId);
-            const teamName = currentTeam?.name || currentTeam?.teamName || `팀 ${teamId}`;
-            
+
             // API 응답을 모달에 전달할 형태로 변환
             const teamStudents = response.data.student.map(student => ({
                 ...student,
                 id: student.userId,
-                teamId: teamId,
-                teamName: teamName
+                teamId: team.teamId,
+                teamName: team.teamName
             }));
 
-            setSelectedSeat({ 
-                seatNumber, 
-                teamId, 
+            setSelectedTeam({
+                seatNumber: teamNumber,
+                teamId: team.teamId,
                 students: teamStudents,
-                teamColor: teamColorMap[teamId],
-                teamName: teamName
+                teamColor: team.color,
+                teamName: team.teamName
             });
             setShowSeatModal(true);
-            
+
         } catch (error) {
             console.error("팀 학생 목록 조회 실패:", error);
             alert("팀 정보를 불러오는데 실패했습니다.");
         }
     };
 
-    const getStudentTeamColor = (student) => {
-        if (!student || !student.teamId) return null;
-        return teamColorMap[student.teamId];
-    };
-
     return (
         <ChartContainer>
-            <Title>교실 좌석 배치</Title>
+            <Title>교실 좌석 배치 (팀 단위)</Title>
             <ClassroomLayout>
                 <TeacherDesk>교단</TeacherDesk>
-                
-                {seatPositions.map(position => {
-                    const student = seatingArrangement[position.number];
-                    
+
+                {teamAreas.map(area => {
+                    const team = teamArrangement[area.teamNumber];
+                    const teamColor = team?.color || { border: '#E0E0E0', background: '#F5F5F5' };
+
                     return (
                         <Seat
-                            key={position.number}
-                            style={{ left: position.x, top: position.y }}
-                            onClick={() => handleSeatClick(position.number)}
-                            data-student-id={student?.id || student?.userId}
+                            key={area.teamNumber}
+                            style={{
+                                left: area.x,
+                                top: area.y,
+                                borderColor: teamColor.border,
+                                backgroundColor: teamColor.background
+                            }}
+                            onClick={() => handleTeamClick(area.teamNumber)}
                         >
-                            <SeatNumber>{position.number}</SeatNumber>
-                            {student && (
+                            <SeatNumber>팀 {area.teamNumber}</SeatNumber>
+                            {team && (
                                 <StudentName>
-                                    {student.name}
-                                    <br />
-                                    {student.gradeClassNum || student.id || student.userId}
+                                    {team.members?.length || 0}명
                                 </StudentName>
                             )}
                         </Seat>
@@ -326,7 +292,7 @@ export default function SeatingChart({ teams = [], onSeatingChange }) {
             <SeatDetailModal
                 isOpen={showSeatModal}
                 onClose={() => setShowSeatModal(false)}
-                seatData={selectedSeat}
+                seatData={selectedTeam}
             />
         </ChartContainer>
     );
