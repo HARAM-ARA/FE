@@ -16,6 +16,8 @@ import RandomTeamGenerator from "./pages/RandomTeamGenerator.jsx";
 import TimerHome from "./pages/TimerHome.jsx";
 import TeacherTimer from "./pages/TeacherTimer.jsx";
 import MyTeam from "./pages/MyTeam.jsx";
+import StudentPurchases from "./pages/StudentPurchases.jsx";
+import TeacherPurchases from "./pages/TeacherPurchases.jsx";
 
 export default function App() {
   return (
@@ -31,12 +33,14 @@ export default function App() {
             
             <Route path="/std" element={<AuthConfirm allowedRoles={["student", "teamleader"]}><Student/></AuthConfirm>}/>
             <Route path="/std/team" element={<AuthConfirm allowedRoles={["student", "teamleader"]}><MyTeam /></AuthConfirm>} />
+            <Route path="/std/purchases" element={<AuthConfirm allowedRoles={["student", "teamleader"]}><StudentPurchases /></AuthConfirm>} />
             <Route path="/store" element={<AuthConfirm allowedRoles={["student", "teamleader"]}><Store /></AuthConfirm>} />
             <Route path="/select" element={<AuthConfirm allowedRoles={["student", "teamleader"]}><Select /></AuthConfirm>} />
             <Route path="/credits" element={<AuthConfirm requiredRole="teacher"><Credits /></AuthConfirm>}/>
             <Route path="/enforce" element={<AuthConfirm allowedRoles={["student", "teamleader"]}><Enforce /></AuthConfirm>}/>
             
             <Route path="/tch" element={<AuthConfirm requiredRole="teacher"><Teacher/></AuthConfirm>} />
+            <Route path="/tch/purchases" element={<AuthConfirm requiredRole="teacher"><TeacherPurchases /></AuthConfirm>} />
             <Route path="/teams" element={<AuthConfirm requiredRole="teacher"><TeamSpace /></AuthConfirm>}/>
             <Route path="/teams/random" element={<AuthConfirm requiredRole="teacher"><RandomTeamGenerator /></AuthConfirm>}/>
             <Route path="/adminstore" element={<AuthConfirm requiredRole="teacher"><AdminStore /></AuthConfirm>}/>

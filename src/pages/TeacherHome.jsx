@@ -112,6 +112,12 @@ export default function TeacherHome() {
                                 buttonText="시작하기"
                                 onClick={() => navigate("/adminstore")}
                             />
+                            <Card
+                                title="팀별 구매 기록"
+                                description="각 팀의 구매 기록을 확인해요"
+                                buttonText="확인하기"
+                                onClick={() => navigate("/tch/purchases")}
+                            />
                         </FunctionBox>
                     </Div>
                 </MainDiv>

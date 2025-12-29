@@ -329,6 +329,17 @@ export default function Student() {
               </Storediv>
             </StoreCard>
           </ButtonRow>
+          <ButtonRow>
+            <StoreCard>
+              <Storediv>
+                <Storeleft>
+                  <StoreImgDiv src={StoreImg} />
+                  <Text>구매 기록</Text>
+                </Storeleft>
+                <Button text="확인하기" onClick={()=>navigate('/std/purchases')}></Button>
+              </Storediv>
+            </StoreCard>
+          </ButtonRow>
         </LeftBox>
 
         <RightBox>
