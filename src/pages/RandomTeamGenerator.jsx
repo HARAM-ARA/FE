@@ -590,55 +590,57 @@ export default function RandomTeamGenerator() {
   const startCountdown = (type) => {
     setCurrentGenerationType(type);
     setShowCountdown(true);
-    setCountdownNumber(3);
+    setCountdownNumber(10);
     setCountdownText("팀 생성 준비 중...");
     setAnimateNumber(true);
     setAnimateText(true);
     setShowShockWave(true);
     setShowElectricBolt(true);
 
-    // 3초 카운트다운
-    setTimeout(() => {
-      setAnimateNumber(false);
-      setShowShockWave(false);
-      setShowElectricBolt(false);
-      setTimeout(() => {
-        setCountdownNumber(2);
-        setAnimateNumber(true);
-        setCountdownText("학생들을 섞는 중...");
-        setAnimateText(true);
-        setShowRainbowRing(true);
-        setShowPulseWave(true);
-      }, 50);
-    }, 800);
+    // 10초 카운트다운
+    const countdownSteps = [
+      { number: 9, text: "학생 데이터 로딩 중...", delay: 1000 },
+      { number: 8, text: "알고리즘 초기화 중...", delay: 2000 },
+      { number: 7, text: "학생들을 섞는 중...", delay: 3000 },
+      { number: 6, text: "팀 구성 계산 중...", delay: 4000 },
+      { number: 5, text: "밸런스 조정 중...", delay: 5000 },
+      { number: 4, text: "최적화 진행 중...", delay: 6000 },
+      { number: 3, text: "마지막 검증 중...", delay: 7000 },
+      { number: 2, text: "최종 조정 중...", delay: 8000 },
+      { number: 1, text: "거의 완료...", delay: 9000 },
+      { number: "🎉", text: "팀 생성 완료!", delay: 10000 }
+    ];
 
-    setTimeout(() => {
-      setAnimateNumber(false);
-      setShowRainbowRing(false);
-      setShowPulseWave(false);
+    countdownSteps.forEach((step, index) => {
       setTimeout(() => {
-        setCountdownNumber(1);
-        setAnimateNumber(true);
-        setCountdownText("마지막 조정 중...");
-        setAnimateText(true);
-        setShowShockWave(true);
-        setShowElectricBolt(true);
-      }, 50);
-    }, 1600);
-
-    setTimeout(() => {
-      setAnimateNumber(false);
-      setShowShockWave(false);
-      setShowElectricBolt(false);
-      setTimeout(() => {
-        setCountdownNumber("🎉");
-        setAnimateNumber(true);
-        setCountdownText("팀 생성 완료!");
-        setAnimateText(true);
-        setShowRainbowRing(true);
-        setShowPulseWave(true);
-      }, 50);
-    }, 2400);
+        setAnimateNumber(false);
+        setShowShockWave(false);
+        setShowElectricBolt(false);
+        setShowRainbowRing(false);
+        setShowPulseWave(false);
+        
+        setTimeout(() => {
+          setCountdownNumber(step.number);
+          setAnimateNumber(true);
+          setCountdownText(step.text);
+          setAnimateText(true);
+          
+          // 다양한 효과를 번갈아가며 표시
+          if (index % 4 === 0) {
+            setShowShockWave(true);
+            setShowElectricBolt(true);
+          } else if (index % 4 === 1) {
+            setShowRainbowRing(true);
+          } else if (index % 4 === 2) {
+            setShowPulseWave(true);
+            setShowElectricBolt(true);
+          } else {
+            setShowRainbowRing(true);
+            setShowPulseWave(true);
+          }
+        }, 50);
+      }, step.delay - 800);
+    });
 
     // 최종 팀 생성 및 오버레이 종료
     setTimeout(() => {
@@ -652,7 +654,7 @@ export default function RandomTeamGenerator() {
       setShowCountdown(false);
       setShowRainbowRing(false);
       setShowPulseWave(false);
-    }, 4000);
+    }, 11000);
   };
 
   const getSoftwareStudents = () => {
