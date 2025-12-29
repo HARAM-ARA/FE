@@ -134,7 +134,7 @@ export default function Timer({height, isTeacher = false, showAnnouncement = fal
         if (!showAnnouncement) return; // showAnnouncement가 false면 공지 기능 비활성화
 
         // Socket.IO 연결
-        const socket = io('http://blleaf.kro.kr:8031', {
+        const socket = io('https://api.haram.team', {
             transports: ['websocket', 'polling'],
             reconnection: true,
             reconnectionDelay: 1000,
