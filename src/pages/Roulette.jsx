@@ -37,40 +37,12 @@ const RouletteWrapper = styled.div`
   height: 400px;
 `;
 
-const RouletteCircle = styled.div`
+const RouletteSVG = styled.svg`
   width: 100%;
   height: 100%;
-  border-radius: 50%;
-  position: relative;
+  transform: rotate(${props => props.rotation}deg);
   transition: transform 3s cubic-bezier(0.25, 0.1, 0.25, 1);
-  transform: rotate(${props => props.rotation}deg);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-`;
-
-const RouletteSlice = styled.div`
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  clip-path: polygon(50% 50%, 50% 0%, ${props => props.end}% ${props => props.endY}%, 50% 50%);
-  transform: rotate(${props => props.rotation}deg);
-  background-color: ${props => props.color};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const SliceText = styled.div`
-  position: absolute;
-  top: 30%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(${props => props.rotation}deg);
-  color: white;
-  font-family: Pretendard, sans-serif;
-  font-size: 18px;
-  font-weight: 600;
-  text-align: center;
-  pointer-events: none;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.15));
 `;
 
 const Arrow = styled.div`
@@ -195,6 +167,38 @@ export default function Roulette() {
 
   const sliceAngle = 360 / ITEMS.length;
 
+  // SVG Path 생성 함수
+  const createSlicePath = (index) => {
+    const startAngle = (index * sliceAngle - 90) * (Math.PI / 180);
+    const endAngle = ((index + 1) * sliceAngle - 90) * (Math.PI / 180);
+
+    const radius = 200;
+    const centerX = 200;
+    const centerY = 200;
+
+    const x1 = centerX + radius * Math.cos(startAngle);
+    const y1 = centerY + radius * Math.sin(startAngle);
+    const x2 = centerX + radius * Math.cos(endAngle);
+    const y2 = centerY + radius * Math.sin(endAngle);
+
+    const largeArcFlag = sliceAngle > 180 ? 1 : 0;
+
+    return `M ${centerX} ${centerY} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
+  };
+
+  // 텍스트 위치 계산
+  const getTextPosition = (index) => {
+    const angle = ((index * sliceAngle + sliceAngle / 2) - 90) * (Math.PI / 180);
+    const radius = 130;
+    const centerX = 200;
+    const centerY = 200;
+
+    const x = centerX + radius * Math.cos(angle);
+    const y = centerY + radius * Math.sin(angle);
+
+    return { x, y, rotation: (index * sliceAngle + sliceAngle / 2) };
+  };
+
   return (
     <>
       <Header isTeamName="true" isCredit="true" />
@@ -206,30 +210,37 @@ export default function Roulette() {
 
           <RouletteWrapper>
             <Arrow />
-            <RouletteCircle rotation={rotation}>
+            <RouletteSVG rotation={rotation} viewBox="0 0 400 400">
               {ITEMS.map((item, index) => {
-                const startAngle = index * sliceAngle;
-                const endAngle = (index + 1) * sliceAngle;
-
-                // 끝점 계산 (원의 둘레 상의 점)
-                const endX = 50 + 50 * Math.sin((endAngle * Math.PI) / 180);
-                const endY = 50 - 50 * Math.cos((endAngle * Math.PI) / 180);
-
+                const textPos = getTextPosition(index);
                 return (
-                  <React.Fragment key={index}>
-                    <RouletteSlice
-                      rotation={startAngle}
-                      end={endX}
-                      endY={endY}
-                      color={item.color}
+                  <g key={index}>
+                    <path
+                      d={createSlicePath(index)}
+                      fill={item.color}
+                      stroke="white"
+                      strokeWidth="2"
                     />
-                    <SliceText rotation={startAngle + sliceAngle / 2}>
+                    <text
+                      x={textPos.x}
+                      y={textPos.y}
+                      fill="white"
+                      fontSize="16"
+                      fontWeight="600"
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      transform={`rotate(${textPos.rotation}, ${textPos.x}, ${textPos.y})`}
+                      style={{
+                        fontFamily: 'Pretendard, sans-serif',
+                        textShadow: '1px 1px 2px rgba(0, 0, 0, 0.3)'
+                      }}
+                    >
                       {item.text}
-                    </SliceText>
-                  </React.Fragment>
+                    </text>
+                  </g>
                 );
               })}
-            </RouletteCircle>
+            </RouletteSVG>
             <CenterCircle />
           </RouletteWrapper>
 
