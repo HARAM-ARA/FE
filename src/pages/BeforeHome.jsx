@@ -215,7 +215,7 @@ export default function BeforeHome() {
 
             <MinigameBox>
               <Card title="추억의 뽑기" />
-              <Card title={"강화하기"} />
+              
               <Card title="TTS 메세지" isItem={true} />
             </MinigameBox>
           </GameSection>
