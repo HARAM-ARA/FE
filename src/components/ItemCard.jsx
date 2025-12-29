@@ -74,6 +74,14 @@ const Price = styled.p`
     margin: 0;
 `;
 
+const Stock = styled.p`
+    color: ${props => props.isLow ? '#FF4444' : '#666'};
+    font-family: Pretendard;
+    font-size: 1rem;
+    font-weight: 400;
+    margin: 0.25rem 0 0 0;
+`;
+
 const QuantityBox = styled.div`
     display: flex;
     align-items: center;
@@ -92,9 +100,14 @@ const QuantityBtn = styled.button`
     background: transparent;
     cursor: pointer;
 
-    &:hover {
+    &:hover:not(:disabled) {
         background: #fff2e4;
         border-color: transparent;
+    }
+
+    &:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
     }
 `;
 
@@ -121,11 +134,19 @@ export default function ItemCard({
     img,
     title,
     price,
+    stock = -1, // -1이면 무제한
     quantity = 0,
     onQuantityChange,
     isAdmin = false
 }) {
-    const increase = () => onQuantityChange?.(quantity + 1);
+    const isUnlimited = stock === -1;
+    const canIncrease = isUnlimited || quantity < stock;
+    
+    const increase = () => {
+        if (canIncrease) {
+            onQuantityChange?.(quantity + 1);
+        }
+    };
     const decrease = () => onQuantityChange?.(Math.max(0, quantity - 1));
 
     return (
@@ -137,21 +158,25 @@ export default function ItemCard({
                             type="checkbox"
                             checked={checked}
                             onChange={onChange}
+                            disabled={!isUnlimited && stock <= 0}
                         />
                         <Des>
                             <Img src={img} />
                             <Content>
                                 <Title>{title}</Title>
                                 <Price>{price} 크레딧</Price>
+                                <Stock isLow={!isUnlimited && stock <= 3}>
+                                    {isUnlimited ? '재고: 무제한' : `재고: ${stock}개`}
+                                </Stock>
 
                                 {!isAdmin && (
                                     <QuantityBox>
-                                        <QuantityBtn onClick={decrease}>
+                                        <QuantityBtn onClick={decrease} disabled={quantity <= 0}>
                                             <Gray>-</Gray>
                                         </QuantityBtn>
                                         <QuantityText>{quantity}</QuantityText>
-                                        <QuantityBtn onClick={increase}>
-                                            <Gray>+</Gray>
+                                        <QuantityBtn onClick={increase} disabled={!canIncrease}>
+                                            <Gray style={{ opacity: canIncrease ? 1 : 0.3 }}>+</Gray>
                                         </QuantityBtn>
                                     </QuantityBox>
                                 )}
