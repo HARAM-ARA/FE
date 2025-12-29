@@ -126,14 +126,14 @@ const BackButton = styled.button`
 
 // 룰렛 아이템 설정
 const ITEMS = [
-  { text: "크레딧 +100", color: "#FF6B6B" },
-  { text: "크레딧 +50", color: "#4ECDC4" },
-  { text: "크레딧 +200", color: "#FFE66D" },
-  { text: "크레딧 +30", color: "#95E1D3" },
-  { text: "크레딧 +150", color: "#F38181" },
-  { text: "크레딧 +80", color: "#AA96DA" },
+  { text: "크레딧 +1000", color: "#FF6B6B" },
+  { text: "크레딧 +5000", color: "#4ECDC4" },
+  { text: "크레딧 +2000", color: "#FFE66D" },
+  { text: "크레딧 +3000", color: "#95E1D3" },
+  { text: "크레딧 +1500", color: "#F38181" },
+  { text: "크레딧 +800", color: "#AA96DA" },
   { text: "꽝!", color: "#8B8B8B" },
-  { text: "크레딧 +120", color: "#FCBAD3" },
+  { text: "크레딧 +8000", color: "#FCBAD3" },
 ];
 
 export default function Roulette() {
