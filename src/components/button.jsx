@@ -1,53 +1,61 @@
 import React from "react";
-import styled from '@emotion/styled';
+import styled from "@emotion/styled";
 
-export default function Button({ path, onClick, text, active, isModal, isSelect }) {
+const Btn = styled.button`
+    border: 1px solid
+        ${({ isModal, active }) =>
+            isModal ? "#F07F23" : active ? "none" : "#B2B2B2"};
 
-    const Btn = styled.button`
-        border: 1px solid ${props =>
-                props.isModal ? '#F07F23' : (props.active ? 'none' : '#B2B2B2')};
-        height: ${props => props.isModal ? '50px' : "40px"};
-        display: inline-flex;
-        padding: 10px 24px;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-        flex-shrink: 0;
-        border-radius: ${props => props.isSelect ? '12px' : '80px'};
-        background-color:${props => props.active ? '#FFF2E4' : 'white'};
-        cursor: pointer;
+    height: ${({ isModal }) => (isModal ? "50px" : "40px")};
+    display: inline-flex;
+    padding: 10px 24px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
 
-        /* hover 시에도 outline 완전 제거 */
-        &:hover {
-            background: #FFF2E4;
-            border: none;
-            color: #F07F23;
-            outline: none !important;
-            box-shadow: none !important;
-        }
+    border-radius: ${({ isSelect }) => (isSelect ? "12px" : "80px")};
+    background-color: ${({ active }) => (active ? "#FFF2E4" : "white")};
+    cursor: pointer;
 
-        /* focus 전부 제거 */
-        &:focus{
-            border: 1px solid #B2B2B2;
-        }
-        &:focus-visible,
-        &:active {
-            outline: none !important;
-            box-shadow: none !important;
-            border: none !important;
-        }
+    color: ${({ isModal, active }) =>
+            isModal ? "#F07F23" : active ? "#F07F23" : "#646464"};
 
-        color:${props =>
-                props.isModal ? "#F07F23" :
-                        (props.active ? '#F07F23' : '#646464')};
-        font-family: Pretendard;
-        font-size: 16px;
-        font-weight: 500;
-    `;
+    font-family: Pretendard;
+    font-size: 16px;
+    font-weight: 500;
 
+    transition: transform 0.08s ease;
+
+    &:hover {
+        background: #fff2e4;
+        border: 1px solid #fff2e4;
+        color: #f07f23;
+    }
+
+    &:active {
+        transform: scale(0.96);
+        background: #fff2e4;
+        border: 1px solid #fff2e4;
+    }
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: none;
+    }
+`;
+
+export default function Button({
+    path,
+    onClick,
+    text,
+    active,
+    isModal,
+    isSelect,
+}) {
     const handleClick = () => {
-        if (typeof onClick === "function") onClick();
-        if (typeof path === "function") path();
+        onClick?.();
+        path?.();
     };
 
     return (
@@ -56,6 +64,7 @@ export default function Button({ path, onClick, text, active, isModal, isSelect 
             active={active}
             isModal={isModal}
             isSelect={isSelect}
+            type="button"
         >
             {text}
         </Btn>
