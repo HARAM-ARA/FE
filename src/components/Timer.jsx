@@ -260,7 +260,7 @@ export default function Timer({height, isTeacher = false, showAnnouncement = fal
                     </AnnouncementBanner>
                 )}
                 <Countdown
-                    date={new Date("2025-12-30T00:00:00").getTime()}
+                    date={new Date("2025-12-31T10:30:00").getTime()}
                     renderer={renderer}
                 />
             </TimerCard>
