@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import Card from "../components/card.jsx";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header.jsx";
-
+import Timer from "../components/Timer.jsx";
 
 const Body = styled.div`
     display: flex;
@@ -61,6 +61,15 @@ const Div = styled.div`
     flex-direction: column;
     align-items: flex-start;
 `;
+const TimerBox = styled.div`
+    display: flex;
+    height: 392px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 32px;
+    flex-shrink: 0;
+    align-self: stretch;
+  `;
 
 export default function TeacherHome() {
     const navigate = useNavigate();
@@ -73,6 +82,12 @@ export default function TeacherHome() {
 
             <Body>
                 <MainDiv>
+                    <TimerBox onClick={() => navigate("/timer")}>
+                                <TextBox>
+                                  <TitleText>타이머</TitleText>
+                                </TextBox>
+                                <Timer />
+                    </TimerBox>
                     <Div>
                         <TextBox>
                             <TitleText>선생님 기능</TitleText>

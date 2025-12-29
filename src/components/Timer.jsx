@@ -182,7 +182,23 @@ export default function Timer({height, isTeacher = false, showAnnouncement = fal
     const playerRef = useRef(null);
     const [isPlayerReady, setIsPlayerReady] = useState(false);
     const [userRole, setUserRole] = useState(null);
-    const [currentSongData, setCurrentSongData] = useState(null); // 전체 곡 정보 저장
+    const [currentSongData, setCurrentSongData] = useState(null);
+    const [apiCalledForCurrentSong, setApiCalledForCurrentSong] = useState(false); // API 호출 중복 방지
+
+    // 음악 스트리밍 API 호출 함수 (곡 종료 시)
+    const callMusicStreamAPI = async (musicId) => {
+        try {
+            const token = localStorage.getItem("auth_token");
+            const response = await AxiosInstnce.get(`/tch/music/stream/${musicId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            console.log('🎵 음악 스트리밍 API 호출 성공:', musicId, response.data);
+        } catch (error) {
+            console.error('🎵 음악 스트리밍 API 호출 실패:', musicId, error);
+        }
+    };
 
     // 기존 프로필 정보 가져오기 (중복 API 호출 방지)
     const getUserRoleFromStorage = async () => {
@@ -223,7 +239,7 @@ export default function Timer({height, isTeacher = false, showAnnouncement = fal
         }
     };
 
-    // YouTube 플레이어 초기화 (음악 재생 페이지에서만)
+    // YouTube 플레이어 초기화
     useEffect(() => {
         if (!shouldPlayMusic) return;
         
@@ -237,7 +253,7 @@ export default function Timer({height, isTeacher = false, showAnnouncement = fal
 
         // YouTube API 준비 완료 콜백
         window.onYouTubeIframeAPIReady = () => {
-            if (!shouldPlayMusic) return; // 다시 한번 확인
+            if (!shouldPlayMusic) return;
             
             playerRef.current = new window.YT.Player('youtube-player', {
                 height: '1',
@@ -257,6 +273,11 @@ export default function Timer({height, isTeacher = false, showAnnouncement = fal
                         setIsPlayerReady(true);
                         setPlayerState('준비완료');
                         console.log('YouTube 플레이어 준비 완료');
+                        
+                        // 플레이어 준비 완료 후 음악 큐 확인
+                        setTimeout(() => {
+                            fetchMusicQueue();
+                        }, 1000);
                     },
                     onStateChange: (event) => {
                         const states = {
@@ -272,15 +293,46 @@ export default function Timer({height, isTeacher = false, showAnnouncement = fal
                         setPlayerState(stateName);
                         setIsPlaying(event.data === 1);
                         
-                        if (event.data === window.YT.PlayerState.ENDED) {
-                            // 곡이 끝나면 다음 곡 재생 로직 추가 가능
-                            fetchMusicQueue();
+                        console.log('🎵 YouTube 플레이어 상태 변경:', stateName, event.data);
+                        
+                        // 재생이 시작되면 스트리밍 API 호출 (중복 방지)
+                        if (event.data === 1 && currentSongData && currentSongData.id && !apiCalledForCurrentSong) {
+                            console.log('🎵 재생 시작됨. 스트리밍 API 호출:', currentSongData.id);
+                            setApiCalledForCurrentSong(true);
+                            callMusicStreamAPI(currentSongData.id);
+                        } else if (event.data === 1 && apiCalledForCurrentSong) {
+                            console.log('🎵 재생 시작됨. 하지만 이미 API 호출됨:', currentSongData?.id);
                         }
                         
-                        // /timer 페이지에서 role이 teacher일 때 재생 시작 시 스트리밍 API 호출
-                        if (event.data === 1 && currentSongData) {
-                            console.log('🎵 음악 재생 상태 변경 감지, API 호출 시도');
-                            callMusicStreamAPI(currentSongData);
+                        // 자동재생이 차단된 경우 사용자 상호작용 대기
+                        if (event.data === -1 && currentMusic) {
+                            console.log('🎵 자동재생이 차단됨. 클릭하여 재생하세요.');
+                            setPlayerState('클릭하여 재생');
+                            
+                            // 사용자 상호작용 이벤트 리스너 추가
+                            const handleUserInteraction = () => {
+                                if (playerRef.current && currentMusic) {
+                                    console.log('🎵 사용자 상호작용 후 재생 시도');
+                                    playerRef.current.playVideo();
+                                    document.removeEventListener('click', handleUserInteraction);
+                                    document.removeEventListener('keydown', handleUserInteraction);
+                                }
+                            };
+                            
+                            document.addEventListener('click', handleUserInteraction, { once: true });
+                            document.addEventListener('keydown', handleUserInteraction, { once: true });
+                        }
+                        
+                        if (event.data === window.YT.PlayerState.ENDED) {
+                            // 현재 곡 초기화 후 다음 곡 재생
+                            setCurrentMusic(null);
+                            setApiCalledForCurrentSong(false); // API 호출 플래그 초기화
+                            
+                            // 바로 다음 곡 재생 (지연 시간 최소화)
+                            setTimeout(() => {
+                                console.log('🎵 곡이 끝났습니다. 바로 다음 곡을 재생합니다.');
+                                fetchMusicQueue();
+                            }, 500);
                         }
                     }
                 }
@@ -291,40 +343,14 @@ export default function Timer({height, isTeacher = false, showAnnouncement = fal
         if (window.YT && window.YT.Player) {
             window.onYouTubeIframeAPIReady();
         }
-    }, [shouldPlayMusic, isTeacherTimerPage]);
-
-    // 선생님 음악 스트리밍 API 호출
-    const callMusicStreamAPI = async (songData) => {
-        // 실시간으로 role 확인
-        const currentRole = await getCurrentUserRole();
         
-        // /timer 페이지에서 role이 teacher일 때만 호출
-        if (!isTimerPage || currentRole !== 'teacher' || !songData || !songData.id) {
-            console.log('스트리밍 API 호출 조건 미충족:', {
-                isTimerPage,
-                currentRole,
-                songData
-            });
-            return;
-        }
-        
-        try {
-            console.log('🎵 선생님 음악 스트리밍 API 호출 시작:', songData);
-            const token = localStorage.getItem("auth_token");
-            
-            // 큐의 id를 사용하여 API 호출
-            const response = await AxiosInstnce.post(`/tch/music/stream`, {}, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-            
-            console.log('✅ 음악 스트리밍 API 호출 성공:', response.data);
-        } catch (error) {
-            console.error('❌ 음악 스트리밍 API 호출 실패:', error.response?.data || error.message);
-        }
-    };
+        // 컴포넌트 언마운트 시 정리
+        return () => {
+            if (playerRef.current && playerRef.current.destroy) {
+                playerRef.current.destroy();
+            }
+        };
+    }, [shouldPlayMusic]);
 
     // 현재 사용자 role을 즉시 확인하는 함수
     const getCurrentUserRole = () => {
@@ -369,49 +395,70 @@ export default function Timer({height, isTeacher = false, showAnnouncement = fal
     const fetchMusicQueue = async () => {
         if (!shouldPlayMusic) return;
         
+        // 현재 재생 중이면 큐 체크하지 않음
+        if (isPlaying && currentMusic) {
+            console.log('🎵 현재 재생 중이므로 큐 체크 건너뜀:', currentMusic);
+            return;
+        }
+        
         try {
             const response = await AxiosInstnce.get("/haram/music/queue");
             console.log('음악 큐 응답:', response.data);
             
             if (response.data.queue && response.data.queue.length > 0) {
                 const firstSong = response.data.queue[0];
+                console.log('🎵 첫 번째 곡 정보:', firstSong);
+                
                 const videoId = extractVideoId(firstSong.url);
+                console.log('🎵 추출된 비디오 ID:', videoId, '원본 URL:', firstSong.url);
                 
                 setCurrentSongTitle(cleanSongTitle(firstSong.title));
-                setCurrentSongData(firstSong); // 전체 곡 정보 저장
+                setCurrentSongData(firstSong);
                 
-                if (videoId && videoId !== currentMusic) {
+                // 새로운 곡이고 현재 재생 중이 아닐 때만 재생
+                if (videoId && videoId !== currentMusic && !isPlaying) {
+                    console.log('🎵 새로운 곡 감지 - 현재:', currentMusic, '새로운:', videoId, '재생상태:', isPlaying);
                     setCurrentMusic(videoId);
+                    setApiCalledForCurrentSong(false); // 새로운 곡이므로 API 호출 플래그 초기화
                     
                     // 플레이어가 준비되면 음악 재생
                     if (isPlayerReady && playerRef.current) {
+                        console.log('🎵 YouTube 플레이어로 비디오 로드 시작:', videoId);
                         playerRef.current.loadVideoById(videoId);
                         console.log('🎵 음악 재생 시작:', cleanSongTitle(firstSong.title));
-                        
-                        // /timer 페이지에서 role이 teacher일 때 스트리밍 API 호출
-                        console.log('🎵 새 곡 로드 시 API 호출 시도');
-                        callMusicStreamAPI(firstSong);
+                    } else {
+                        console.log('🎵 플레이어가 준비되지 않음 - isPlayerReady:', isPlayerReady, 'playerRef:', !!playerRef.current);
                     }
+                } else {
+                    console.log('🎵 곡 로드 건너뜀 - videoId:', videoId, 'currentMusic:', currentMusic, 'isPlaying:', isPlaying);
                 }
             } else {
+                console.log('🎵 큐가 비어있습니다. 재생을 중단합니다.');
                 setCurrentSongTitle('재생할 곡이 없습니다');
+                setPlayerState('대기중');
+                setIsPlaying(false);
+                setCurrentMusic(null);
             }
         } catch (error) {
             console.error('음악 큐 가져오기 실패:', error);
+            setPlayerState('오류');
         }
     };
 
     // 현재 음악이 변경되면 재생
     useEffect(() => {
+        console.log('🎵 useEffect 트리거 - currentMusic:', currentMusic, 'isPlayerReady:', isPlayerReady, 'playerRef:', !!playerRef.current);
+        
         if (currentMusic && isPlayerReady && playerRef.current) {
-            playerRef.current.loadVideoById(currentMusic);
-            console.log('🎵 useEffect에서 음악 변경 감지, API 호출 시도');
-            if (currentSongData) {
-                callMusicStreamAPI(currentSongData);
+            console.log('🎵 useEffect에서 비디오 로드:', currentMusic);
+            try {
+                playerRef.current.loadVideoById(currentMusic);
+                console.log('🎵 loadVideoById 호출 완료');
+            } catch (error) {
+                console.error('🎵 loadVideoById 에러:', error);
             }
         }
     }, [currentMusic, isPlayerReady]);
-
 
     useEffect(() => {
         // 컴포넌트 마운트 시 사용자 프로필 가져오기
@@ -426,13 +473,8 @@ export default function Timer({height, isTeacher = false, showAnnouncement = fal
         
         // 음악 재생 페이지에서만 음악 기능 활성화
         if (shouldPlayMusic) {
-            // 컴포넌트 마운트 시 음악 큐 가져오기
-            fetchMusicQueue();
-
-            // 주기적으로 음악 큐 확인 (30초마다)
-            const musicInterval = setInterval(fetchMusicQueue, 30000);
-            
-        return () => clearInterval(musicInterval);
+            // 주기적 체크 완전 비활성화 - 곡이 끝날 때만 다음 곡 로드
+            console.log('🎵 주기적 큐 체크 비활성화됨');
         }
 
         if (!showAnnouncement) return;
