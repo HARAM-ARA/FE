@@ -17,7 +17,6 @@ const Headerbox = styled.div`
     justify-content: flex-end;
     flex-wrap: nowrap;
     background: #fff;
-    
   `;
 
 const LogoImg = styled.img`
@@ -25,6 +24,7 @@ const LogoImg = styled.img`
     height:90px;
     position: absolute;
     left: 0;
+    cursor: pointer;
   `;
 
 const FunctionBox = styled.div`
@@ -44,6 +44,7 @@ const AmountText = styled.p`
     font-style: normal;
     font-weight: 800;
     line-height: normal;
+    margin-right: 1rem;
 `;
 
 const LoginBtn = styled.button`

@@ -161,22 +161,23 @@ const Description = styled.p`
 `;
 
 const Box = styled.div`
-    width: ${props => props.width || "246px"};
-    height: ${props => props.height || "106px"};
-    display: flex;
-    padding: ${props => props.isTeacher ? "32px 40px" : props.padding || "57px 37px"};
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    gap: 10px;
-    border-radius: 12px;
-    border: 1px solid #8B8B8B;
-    background-color: white;
-    cursor: pointer;
-    
-    &:hover{
-      background-color:  ${(props) => (props.isOrange ? "#FFF2E4" : "white")};
-    }
+  width: ${props => props.width || "246px"};
+  height: ${props => props.height || "106px"};
+  display: flex;
+  padding: ${props =>
+    props.isTeacher ? "32px 40px" : props.padding || "57px 37px"};
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  border-radius: 12px;
+  border: 1px solid #8B8B8B;
+  background-color: white;
+  cursor: pointer;
+
+  &:hover:not(:has(button:hover)) {
+    background-color: ${(props) =>
+    props.isOrange ? "#FFF2E4" : "white"};
+  }
 `;
 
 const InBox = styled.div`
