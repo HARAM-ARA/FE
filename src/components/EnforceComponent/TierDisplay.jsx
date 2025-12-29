@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 
 const TierTap = styled.div`
   display: flex;
-  width: 375px;
+  width: 600px;
   flex-direction: column;
   align-items: center;
   gap: 90px;

@@ -188,7 +188,9 @@ export default function BeforeHome() {
               <TitleText style={{cursor: 'pointer'}}>타이머</TitleText>
               <DescriptionText style={{marginTop: '0.5rem'}}>* 타이머 클릭 시 타이머 페이지로 이동합니다. </DescriptionText>
             </TextBox>
-            <Timer />
+            <Timer
+              style={{ cursor: 'pointer' }} 
+            />
           </TimerBox>
 
           <TitleText>상점</TitleText>
