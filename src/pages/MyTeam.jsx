@@ -268,11 +268,11 @@ export default function MyTeam() {
 
       // 현재 사용자의 계정 정보 조회 (팀 정보 포함)
       const accountResponse = await customaxios.get('std/account');
-      
+
       // 전체 팀 순위 조회
       const rankingsResponse = await customaxios.get('haram/account');
       let teams = [];
-      
+
       if (Array.isArray(rankingsResponse.data)) {
         teams = rankingsResponse.data;
       } else if (Array.isArray(rankingsResponse.data?.teams)) {
@@ -294,7 +294,7 @@ export default function MyTeam() {
       const teamMembers = accountResponse.data?.members || [];
       const currentLeaderId = accountResponse.data?.leaderId;
       setLeaderId(currentLeaderId);
-      
+
       // 팀장을 맨 앞에 배치하고 역할 설정
       const processedMembers = teamMembers
         .map(member => ({
@@ -310,7 +310,7 @@ export default function MyTeam() {
           return 0;
         });
 
-      setTeamData({ 
+      setTeamData({
         members: processedMembers,
         teamId: accountResponse.data?.teamId,
         teamName: accountResponse.data?.teamName,
@@ -321,7 +321,7 @@ export default function MyTeam() {
     } catch (error) {
       console.error("팀 데이터 조회 실패:", error);
       setError("팀 정보를 불러오는데 실패했습니다.");
-      
+
       // 임시 데이터 (개발용)
       setTeamData({
         members: [
@@ -340,17 +340,17 @@ export default function MyTeam() {
   const handleChangeLeader = async (studentId) => {
     try {
       setChangingLeader(studentId);
-      
+
       await customaxios.post('std/team/leader', {
         student: studentId
       });
 
       // 성공 후 팀 데이터 다시 조회
       await fetchTeamData();
-      
+
     } catch (error) {
       console.error("팀장 변경 실패:", error);
-      alert("팀장 변경에 실패했습니다. 다시 시도해주세요.");
+      alert("팀장은 한 번만 설정할 수 있습니다");
     } finally {
       setChangingLeader(null);
     }
@@ -376,7 +376,7 @@ export default function MyTeam() {
         <Body>
           <TitleSection>
             <Title>내 팀</Title>
-            <Subtitle>우리 팀의 정보와 현황을 확인해보세요</Subtitle>
+            <Subtitle>우리 팀의 정보와 현황을 확인해 보세요. 단, 팀장은 한 번만 설정할 수 있습니다.</Subtitle>
           </TitleSection>
 
           <TeamInfoCard>
@@ -431,16 +431,16 @@ export default function MyTeam() {
                         disabled={changingLeader === member.id || (leaderId !== null && member.role !== '팀장')}
                         onClick={() => handleChangeLeader(member.id)}
                       >
-                        {changingLeader === member.id ? '변경중...' : 
-                         member.role === '팀장' ? '팀장' : '팀장 지정'}
+                        {changingLeader === member.id ? '변경중...' :
+                          member.role === '팀장' ? '팀장' : '팀장 지정'}
                       </LeaderButton>
                     </MemberActions>
                   </MemberCard>
                 )) || (
-                  <div style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#6B7280', padding: '40px 0' }}>
-                    팀원 정보가 없습니다.
-                  </div>
-                )}
+                    <div style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#6B7280', padding: '40px 0' }}>
+                      팀원 정보가 없습니다.
+                    </div>
+                  )}
               </MembersList>
             )}
           </MembersSection>
