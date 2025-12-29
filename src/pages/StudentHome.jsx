@@ -15,6 +15,7 @@ import MusicModal from "../components/MusicModal.jsx";
 
 
 const Body = styled.div`
+    display: flex;
     width: 100vh;
     height: 575px;
     display: flex;
@@ -25,13 +26,13 @@ const Body = styled.div`
   `;
 
 const LeftBox = styled.div`
-   
     height: 575px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: 27px;
-    margin: 0px 0px 0px 0px;
+    margin-left: 3rem;
+    margin-right: 1.5rem;
   `;
 
 const RightBox = styled.div`

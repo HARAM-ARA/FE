@@ -86,15 +86,21 @@ const Example = styled.p`
 
 const InputBox = styled.textarea`
     display: flex;
-    padding: 20px 24px;
+    padding: 1rem;
+    justify-content: center;
     align-items: center;
-    gap: 10px;
+    color: #000;
+    font-size: 1rem;
+    align-items: center;
     align-self: stretch;
     border-radius: 10px;
-    background: #ECECEC;
+    background: #fbfbfb;
+    border: 1px solid #b0b0b0;
+    resize: none;
 
   &:focus {
     border-color: #F07F23;
+    outline: none;
   }
 
   &::placeholder {
