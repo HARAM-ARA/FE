@@ -27,7 +27,7 @@ const LeftBox = styled.div`
     flex-direction: column;
     align-items: flex-start;
     gap: 27px;
-    margin-left: 4.8rem;
+    margin-left: 3rem;
     margin-right: 1.5rem;
   `;
 
