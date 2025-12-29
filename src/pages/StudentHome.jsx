@@ -341,7 +341,6 @@ export default function Student() {
               <Card title="추억의 뽑기" onClick={()=>navigate('/select')}/>
               <Card title="강화하기"  onClick={()=>navigate('/enforce')}/>
               <Card title="TTS 메세지" isItem={true} onClick={()=>setIsAnnouncementModalOpen(true)}/>
-              <Card title="음악 신청" isItem={true} onClick={()=>setIsMusicModalOpen(true)}/>
             </MinigameBox>
           </GameSection>
 
