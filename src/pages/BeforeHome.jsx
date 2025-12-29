@@ -222,7 +222,7 @@ export default function BeforeHome() {
 
           <RankingSection>
             <TitleText>팀 순위</TitleText>
-            <DescriptionText>* 해커톤 순위와는 별개로 1~5위까지 상품을 드립니다! </DescriptionText>
+            <DescriptionText>* 해커톤 순위와는 별개로 1~3위까지 상품을 드립니다! </DescriptionText>
             <TeamRanking isBeforeLogin={true} />
           </RankingSection>
         </RightBox>
