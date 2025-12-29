@@ -170,6 +170,8 @@ const MusicInfo = styled.div`
 export default function Timer({height, isTeacher = false, showAnnouncement = false}) {
     const location = useLocation();
     const isTimerPage = location.pathname === '/timer';
+    const isTeacherTimerPage = location.pathname === '/tch/timer';
+    const shouldPlayMusic = isTimerPage || isTeacherTimerPage;
     
     const [announcement, setAnnouncement] = useState(null);
     const [hasSpoken, setHasSpoken] = useState(false);
@@ -179,10 +181,51 @@ export default function Timer({height, isTeacher = false, showAnnouncement = fal
     const [isPlaying, setIsPlaying] = useState(false);
     const playerRef = useRef(null);
     const [isPlayerReady, setIsPlayerReady] = useState(false);
+    const [userRole, setUserRole] = useState(null);
+    const [currentSongData, setCurrentSongData] = useState(null); // 전체 곡 정보 저장
 
-    // YouTube 플레이어 초기화 (/timer 페이지에서만)
+    // 기존 프로필 정보 가져오기 (중복 API 호출 방지)
+    const getUserRoleFromStorage = async () => {
+        try {
+            // 먼저 localStorage에서 확인
+            const cachedProfile = localStorage.getItem('userProfile');
+            if (cachedProfile) {
+                const profile = JSON.parse(cachedProfile);
+                console.log('👤 캐시된 프로필 사용:', profile);
+                return profile.role;
+            }
+            
+            // 캐시가 없으면 API 호출
+            const token = localStorage.getItem("auth_token");
+            if (!token) return null;
+            
+            const response = await AxiosInstnce.get("/haram/auth/profile", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            
+            console.log('👤 프로필 API 응답:', response.data);
+            
+            if (response.data.success && response.data.data.user) {
+                const user = response.data.data.user;
+                // localStorage에 캐시
+                localStorage.setItem('userProfile', JSON.stringify(user));
+                setUserRole(user.role);
+                console.log('👤 사용자 role 설정:', user.role);
+                return user.role;
+            }
+            
+            return null;
+        } catch (error) {
+            console.error('👤 프로필 가져오기 실패:', error);
+            return null;
+        }
+    };
+
+    // YouTube 플레이어 초기화 (음악 재생 페이지에서만)
     useEffect(() => {
-        if (!isTimerPage) return;
+        if (!shouldPlayMusic) return;
         
         // YouTube iframe API 로드
         if (!window.YT) {
@@ -194,7 +237,7 @@ export default function Timer({height, isTeacher = false, showAnnouncement = fal
 
         // YouTube API 준비 완료 콜백
         window.onYouTubeIframeAPIReady = () => {
-            if (!isTimerPage) return; // 다시 한번 확인
+            if (!shouldPlayMusic) return; // 다시 한번 확인
             
             playerRef.current = new window.YT.Player('youtube-player', {
                 height: '1',
@@ -233,6 +276,12 @@ export default function Timer({height, isTeacher = false, showAnnouncement = fal
                             // 곡이 끝나면 다음 곡 재생 로직 추가 가능
                             fetchMusicQueue();
                         }
+                        
+                        // /timer 페이지에서 role이 teacher일 때 재생 시작 시 스트리밍 API 호출
+                        if (event.data === 1 && currentSongData) {
+                            console.log('🎵 음악 재생 상태 변경 감지, API 호출 시도');
+                            callMusicStreamAPI(currentSongData);
+                        }
                     }
                 }
             });
@@ -242,7 +291,56 @@ export default function Timer({height, isTeacher = false, showAnnouncement = fal
         if (window.YT && window.YT.Player) {
             window.onYouTubeIframeAPIReady();
         }
-    }, [isTimerPage]);
+    }, [shouldPlayMusic, isTeacherTimerPage]);
+
+    // 선생님 음악 스트리밍 API 호출
+    const callMusicStreamAPI = async (songData) => {
+        // 실시간으로 role 확인
+        const currentRole = await getCurrentUserRole();
+        
+        // /timer 페이지에서 role이 teacher일 때만 호출
+        if (!isTimerPage || currentRole !== 'teacher' || !songData || !songData.id) {
+            console.log('스트리밍 API 호출 조건 미충족:', {
+                isTimerPage,
+                currentRole,
+                songData
+            });
+            return;
+        }
+        
+        try {
+            console.log('🎵 선생님 음악 스트리밍 API 호출 시작:', songData);
+            const token = localStorage.getItem("auth_token");
+            
+            // 큐의 id를 사용하여 API 호출
+            const response = await AxiosInstnce.post(`/tch/music/stream`, {}, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            console.log('✅ 음악 스트리밍 API 호출 성공:', response.data);
+        } catch (error) {
+            console.error('❌ 음악 스트리밍 API 호출 실패:', error.response?.data || error.message);
+        }
+    };
+
+    // 현재 사용자 role을 즉시 확인하는 함수
+    const getCurrentUserRole = () => {
+        try {
+            const cachedProfile = localStorage.getItem('userProfile');
+            if (cachedProfile) {
+                const profile = JSON.parse(cachedProfile);
+                console.log('👤 실시간 role 확인:', profile.role);
+                return profile.role;
+            }
+            return null;
+        } catch (error) {
+            console.error('👤 role 확인 실패:', error);
+            return null;
+        }
+    };
 
     // 곡 제목 정리 함수
     const cleanSongTitle = (title) => {
@@ -267,9 +365,9 @@ export default function Timer({height, isTeacher = false, showAnnouncement = fal
         return match ? match[1] : null;
     };
 
-    // 음악 큐 가져오기 (/timer 페이지에서만)
+    // 음악 큐 가져오기 (음악 재생 페이지에서만)
     const fetchMusicQueue = async () => {
-        if (!isTimerPage) return;
+        if (!shouldPlayMusic) return;
         
         try {
             const response = await AxiosInstnce.get("/haram/music/queue");
@@ -280,6 +378,7 @@ export default function Timer({height, isTeacher = false, showAnnouncement = fal
                 const videoId = extractVideoId(firstSong.url);
                 
                 setCurrentSongTitle(cleanSongTitle(firstSong.title));
+                setCurrentSongData(firstSong); // 전체 곡 정보 저장
                 
                 if (videoId && videoId !== currentMusic) {
                     setCurrentMusic(videoId);
@@ -287,7 +386,11 @@ export default function Timer({height, isTeacher = false, showAnnouncement = fal
                     // 플레이어가 준비되면 음악 재생
                     if (isPlayerReady && playerRef.current) {
                         playerRef.current.loadVideoById(videoId);
-                        console.log('음악 재생 시작:', cleanSongTitle(firstSong.title));
+                        console.log('🎵 음악 재생 시작:', cleanSongTitle(firstSong.title));
+                        
+                        // /timer 페이지에서 role이 teacher일 때 스트리밍 API 호출
+                        console.log('🎵 새 곡 로드 시 API 호출 시도');
+                        callMusicStreamAPI(firstSong);
                     }
                 }
             } else {
@@ -302,20 +405,34 @@ export default function Timer({height, isTeacher = false, showAnnouncement = fal
     useEffect(() => {
         if (currentMusic && isPlayerReady && playerRef.current) {
             playerRef.current.loadVideoById(currentMusic);
+            console.log('🎵 useEffect에서 음악 변경 감지, API 호출 시도');
+            if (currentSongData) {
+                callMusicStreamAPI(currentSongData);
+            }
         }
     }, [currentMusic, isPlayerReady]);
 
 
     useEffect(() => {
-        // /timer 페이지에서만 음악 기능 활성화
+        // 컴포넌트 마운트 시 사용자 프로필 가져오기
         if (isTimerPage) {
+            getUserRoleFromStorage().then(role => {
+                if (role) {
+                    setUserRole(role);
+                    console.log('👤 초기 role 설정 완료:', role);
+                }
+            });
+        }
+        
+        // 음악 재생 페이지에서만 음악 기능 활성화
+        if (shouldPlayMusic) {
             // 컴포넌트 마운트 시 음악 큐 가져오기
             fetchMusicQueue();
 
             // 주기적으로 음악 큐 확인 (30초마다)
             const musicInterval = setInterval(fetchMusicQueue, 30000);
             
-            return () => clearInterval(musicInterval);
+        return () => clearInterval(musicInterval);
         }
 
         if (!showAnnouncement) return;
@@ -354,7 +471,7 @@ export default function Timer({height, isTeacher = false, showAnnouncement = fal
         return () => {
             socket.disconnect();
         };
-    }, [showAnnouncement, isPlayerReady, isTimerPage]);
+    }, [showAnnouncement, isPlayerReady, shouldPlayMusic]);
 
 
     useEffect(() => {
@@ -434,7 +551,7 @@ export default function Timer({height, isTeacher = false, showAnnouncement = fal
 
     return (
         <>
-            {isTimerPage && (
+            {shouldPlayMusic && (
                 <>
                     <div style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }}>
                         <div id="youtube-player"></div>
@@ -446,6 +563,7 @@ export default function Timer({height, isTeacher = false, showAnnouncement = fal
                             {currentSongTitle || '음악 로딩 중...'}
                         </MusicInfo>
                         <div>({playerState})</div>
+                        {isTimerPage && getCurrentUserRole() === 'teacher' && <div style={{marginLeft: '8px', fontSize: '10px'}}>🎵</div>}
                     </MusicIndicator>
                 </>
             )}

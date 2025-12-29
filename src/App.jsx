@@ -14,6 +14,7 @@ import AuthCallback from "./pages/AuthCallback.jsx";
 import DinoGame from "./pages/Dino.jsx";
 import RandomTeamGenerator from "./pages/RandomTeamGenerator.jsx";
 import TimerHome from "./pages/TimerHome.jsx";
+import TeacherTimer from "./pages/TeacherTimer.jsx";
 import MyTeam from "./pages/MyTeam.jsx";
 
 export default function App() {
@@ -26,6 +27,7 @@ export default function App() {
             <Route path="/haram/auth" element={<AuthCallback />} />
             <Route path="/haram/auth/callback" element={<AuthCallback />} />
             <Route path="/timer" element={<TimerHome />} />
+            <Route path="/tch/timer" element={<AuthConfirm requiredRole="teacher"><TeacherTimer /></AuthConfirm>} />
             
             <Route path="/std" element={<AuthConfirm allowedRoles={["student", "teamleader"]}><Student/></AuthConfirm>}/>
             <Route path="/std/team" element={<AuthConfirm allowedRoles={["student", "teamleader"]}><MyTeam /></AuthConfirm>} />

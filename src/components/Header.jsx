@@ -206,6 +206,8 @@ export default function Header({ teamName: propTeamName, isTeacher = false, isTe
         const profile = await GetProfile();
         if (profile?.data?.user) {
           setUserProfile(profile.data.user);
+          // localStorage에 프로필 정보 저장 (Timer 컴포넌트에서 재사용)
+          localStorage.setItem('userProfile', JSON.stringify(profile.data.user));
         }
       }
     };
