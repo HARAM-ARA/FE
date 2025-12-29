@@ -17,7 +17,7 @@ import reset from "../assets/reset.svg";
 import anger from "../assets/anger.svg";
 import boom from "../assets/boom.svg";
 import swap from "../assets/swap.svg";
-
+import { AxiosInstnce } from "../lib/customAxios"
 
 export function SelectCard({ cardId, onCardClick, isDrawing, isDrawn }) {
   if (isDrawn) {
@@ -110,7 +110,24 @@ export default function Select() {
 
   //뽑힌 카드 목록
   useEffect(() => {
-    loadDrawnCards();
+    const fetchBoard = async () => {
+      try {
+        const res = await AxiosInstnce.get("/haram/board");
+        // cards 배열에서 true인 인덱스들을 drawnCards로 변환
+        if (res.data && res.data.cards) {
+          const drawn = res.data.cards
+            .map((isDrawn, index) => isDrawn ? index : -1)
+            .filter(index => index !== -1);
+          setDrawnCards(drawn);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error("보드 데이터 로드 실패:", error);
+        loadDrawnCards(); // 실패 시 로컬스토리지에서 로드
+      }
+    };
+    
+    fetchBoard();
     fetchTeams();
   }, []);
 
