@@ -230,7 +230,7 @@ export default function Header({ teamName: propTeamName, isTeacher = false, isTe
   const displayCredit = credit > 0 ? credit.toLocaleString() : (propCredit || '0');
 
   // 팀 이름 표시 (teamId 우선, Context teamName, props 순서)
-  const displayTeamName = teamId || contextTeamName || propTeamName || '팀';
+  const displayTeamName = contextTeamName || propTeamName || '팀';
 
   // 사용자 이름 표시 (API에서 받아온 값 우선, props는 fallback)
   const displayUserName = userProfile?.name || propTeamName;

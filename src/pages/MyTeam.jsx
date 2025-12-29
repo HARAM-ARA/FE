@@ -383,7 +383,7 @@ export default function MyTeam() {
             <TeamHeader>
               <TeamNameSection>
                 <TeamBadge>TEAM</TeamBadge>
-                <TeamName>{`TEAM ${teamId}`}</TeamName>
+                <TeamName>{teamName}</TeamName>
               </TeamNameSection>
               <CreditDisplay>
                 <CreditLabel>보유 크레딧</CreditLabel>
