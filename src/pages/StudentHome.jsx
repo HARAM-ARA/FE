@@ -267,8 +267,8 @@ export default function Student() {
             await refreshCredit();
 
             // 3단계: 음악 신청
-            await customaxios.post(`${import.meta.env.VITE_API_URL}haram/music`,
-                { content: music },
+            await customaxios.post(`${import.meta.env.VITE_API_URL}std/music/request`,
+                { url: music },
                 {
                     headers: {
                         'Content-Type': 'application/json',
