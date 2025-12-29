@@ -240,7 +240,7 @@ export default function Header({ teamName: propTeamName, isTeacher = false, isTe
       <Headerbox>
         <LogoImg src={HaramLogo} onClick={() => {nav("/")}}></LogoImg>
         <FunctionBox>
-          {isTeamName && <AmountText>TEAM {displayTeamName}</AmountText>}
+          {isTeamName && <AmountText>{displayTeamName}</AmountText>}
           {isTeacher && <><Img src={Logo} /> <AmountText> {displayUserName} 선생님</AmountText></>}
 
           {isMyTeam && <TeamBtn onClick={() => nav('/std/team')}><TeamText>내팀 보기</TeamText></TeamBtn>}
