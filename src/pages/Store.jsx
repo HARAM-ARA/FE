@@ -10,11 +10,13 @@ import Mock from "../assets/mock.png";
 import ModalComponent from "../components/modalComponent.jsx";
 import storeImg from "../assets/store.svg";
 
+const Container = styled.div` 
+  margin-left: 3rem;
+`;
 
 const Body = styled.div`
   width: 1339px;
   height: 575px;
-  align-items: flex-end;
   gap: 55px;
   margin: 0px 50px 95px 70px;
   background: #fff;
@@ -179,14 +181,14 @@ export default function Store() {
   const checkUserRole = async () => {
     try {
       const role = await getUserRoleCached();
-      
+
       // student인 경우 팀장인지 확인
       if (role === 'student') {
         try {
           const accountResponse = await customaxios.get('std/account');
           const currentUserId = accountResponse.data?.userId; // 현재 사용자 ID
           const leaderId = accountResponse.data?.leaderId; // 팀장 ID
-          
+
           // 현재 사용자가 팀장인지 확인
           if (currentUserId === leaderId) {
             setUserRole('teamleader');
@@ -345,84 +347,84 @@ export default function Store() {
         isTeamName="true"
         isCredit="true"
       />
-      <Body>
-        <Menu>
-          <LeftMenu>
-            <TextBox>
-              <Title>상점</Title>
-              <Description>상점에서 원하는 상품을 구매해요<br></br> 체크 박스를 누르면 구매하기 버튼이 나타나요!</Description>
-            </TextBox>
-            <Filtering>
-              <Button
-                text="간식"
-                active={filter === 1}
-                path={() => setFilter(1)}
-              />
-              <Button
-                text="쿠폰"
-                active={filter === 2}
-                path={() => setFilter(2)}
-              />
-              <Button
-                text="기타"
-                active={filter === 3}
-                path={() => setFilter(3)}
-              />
-            </Filtering>
-          </LeftMenu>
-          <PriceDisplay 
-            show={anyChecked} 
-            sufficient={totalPrice <= credit}
-          >
-            총 {totalPrice.toLocaleString()}원
-          </PriceDisplay>
-          
-          <RightMenu active={anyChecked}
-            onClick={handlePurchase}>
-            <Cost active={anyChecked}>구매하기</Cost>
-          </RightMenu>
+      <Container>
+        <Body>
+          <Menu>
+            <LeftMenu>
+              <TextBox>
+                <Title>상점</Title>
+                <Description>상점에서 원하는 상품을 구매해요<br></br> 체크 박스를 누르면 구매하기 버튼이 나타나요!</Description>
+              </TextBox>
+              <Filtering>
+                <Button
+                  text="간식"
+                  active={filter === 1}
+                  path={() => setFilter(1)}
+                />
+                <Button
+                  text="쿠폰"
+                  active={filter === 2}
+                  path={() => setFilter(2)}
+                />
+                <Button
+                  text="기타"
+                  active={filter === 3}
+                  path={() => setFilter(3)}
+                />
+              </Filtering>
+            </LeftMenu>
+            <PriceDisplay
+              show={anyChecked}
+              sufficient={totalPrice <= credit}
+            >
+              총 {totalPrice.toLocaleString()}원
+            </PriceDisplay>
 
-          <ModalComponent isOpen={isOpen} onClose={() => setIsOpen(false)}
-            title="구매완료! 상품을 가져가세요!"
-            img={storeImg} >
-          </ModalComponent>
+            <RightMenu active={anyChecked}
+              onClick={handlePurchase}>
+              <Cost active={anyChecked}>구매하기</Cost>
+            </RightMenu>
 
-        </Menu>
+            <ModalComponent isOpen={isOpen} onClose={() => setIsOpen(false)}
+              title="구매완료! 상품을 가져가세요!"
+              img={storeImg} >
+            </ModalComponent>
 
-        {loading ? (
-          <div style={{ marginTop: '28px', textAlign: 'center' }}>
-            <Description>물품을 불러오는 중...</Description>
-          </div>
-        ) : userRole !== 'teamleader' ? (
-          <AccessDeniedMessage>
-            물품 구매는 팀장만 가능합니다.<br/>
-            팀장에게 문의하여 필요한 물품을 구매해주세요.
-          </AccessDeniedMessage>
-        ) : filteredItems.length === 0 ? (
-          <EmptyMessage>
-            {filter === 1 ? "간식" : filter === 2 ? "쿠폰" : "기타"} 상품이 없습니다.
-          </EmptyMessage>
-        ) : (
-          <Items>
-            {filteredItems.map(item =>
-              <ItemCard
-                isCoupon={item.type === 2 ? "true" : undefined}
-                key={item.id}
-                title={item.name}
-                price={item.price}
-                img={item.img}
-                stock={item.stock}
-                checked={!!checkedCards[item.id]}
-                quantity={quantities[item.id] || 0}
-                onChange={(e) => handleCheck(item.id, e.target.checked)}
-                onQuantityChange={(quantity) => handleQuantityChange(item.id, quantity)}
-              />
-            )}
-          </Items>
-        )}
+          </Menu>
 
-
-      </Body>
+          {loading ? (
+            <div style={{ marginTop: '28px', textAlign: 'center' }}>
+              <Description>물품을 불러오는 중...</Description>
+            </div>
+          ) : userRole !== 'teamleader' ? (
+            <AccessDeniedMessage>
+              물품 구매는 팀장만 가능합니다.<br />
+              팀장에게 문의하여 필요한 물품을 구매해주세요.
+            </AccessDeniedMessage>
+          ) : filteredItems.length === 0 ? (
+            <EmptyMessage>
+              {filter === 1 ? "간식" : filter === 2 ? "쿠폰" : "기타"} 상품이 없습니다.
+            </EmptyMessage>
+          ) : (
+            <Items>
+              {filteredItems.map(item =>
+                <ItemCard
+                  isCoupon={item.type === 2 ? "true" : undefined}
+                  key={item.id}
+                  title={item.name}
+                  price={item.price}
+                  img={item.img}
+                  stock={item.stock}
+                  checked={!!checkedCards[item.id]}
+                  quantity={quantities[item.id] || 0}
+                  onChange={(e) => handleCheck(item.id, e.target.checked)}
+                  onQuantityChange={(quantity) => handleQuantityChange(item.id, quantity)}
+                />
+              )}
+            </Items>
+          )}
+        </Body>
+      </Container>
     </>
   )
 }
