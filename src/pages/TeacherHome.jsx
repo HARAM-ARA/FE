@@ -73,32 +73,32 @@ export default function TeacherHome() {
 
             <Body>
                 <MainDiv>
-                   <Div>
-                       <TextBox>
-                           <TitleText>선생님 기능</TitleText>
-                       </TextBox>
+                    <Div>
+                        <TextBox>
+                            <TitleText>선생님 기능</TitleText>
+                        </TextBox>
 
-                       <FunctionBox>
-                           <Card
-                               title="팀 랜덤 생성"
-                               description="팀을 랜덤으로 생성해요"
-                               buttonText="시작하기"
-                               onClick={() => navigate("/teams/random")}
-                           />
-                           <Card
-                               title="팀 조회 및 팀 크레딧 추가"
-                               description="팀을 조회하고 크레딧을 추가해요"
-                               buttonText="시작하기"
-                               onClick={() => navigate("/teams")}
-                           />
-                           <Card
-                               title="상점 관리"
-                               description="상점에 상품을 등록하고 삭제해요"
-                               buttonText="시작하기"
-                               onClick={() => navigate("/adminstore")}
-                           />
-                       </FunctionBox>
-                   </Div>
+                        <FunctionBox>
+                            <Card
+                                title="팀 랜덤 생성"
+                                description="팀을 랜덤으로 생성해요"
+                                buttonText="시작하기"
+                                onClick={() => navigate("/teams/random")}
+                            />
+                            <Card
+                                title="팀 조회 및 팀 크레딧 추가"
+                                description="팀을 조회하고 크레딧을 추가해요"
+                                buttonText="시작하기"
+                                onClick={() => navigate("/teams")}
+                            />
+                            <Card
+                                title="상점 관리"
+                                description="상점에 상품을 등록하고 삭제해요"
+                                buttonText="시작하기"
+                                onClick={() => navigate("/adminstore")}
+                            />
+                        </FunctionBox>
+                    </Div>
                 </MainDiv>
             </Body>
         </>

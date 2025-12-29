@@ -97,6 +97,7 @@ const GenerateButton = styled.button`
   font-size: 20px;
   font-weight: 600;
   cursor: pointer;
+  margin-top: 2rem;
   transition: all 0.2s;
     color: #B2B2B2;
 
