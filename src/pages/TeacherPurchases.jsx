@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import { AxiosInstnce as customaxios } from "../lib/customAxios.js";
 import Header from "../components/Header.jsx";
@@ -32,10 +32,6 @@ const Subtitle = styled.p`
   font-family: Pretendard;
   font-size: 16px;
   margin: 0;
-`;
-
-const TeamSelector = styled.div`
-  margin-bottom: 30px;
 `;
 
 const TeamGrid = styled.div`
@@ -93,20 +89,9 @@ const PurchaseItem = styled.div`
   padding: 20px;
   background: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-`;
-
-const ItemHeader = styled.div`
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 12px;
-`;
-
-const ItemImage = styled.img`
-  width: 60px;
-  height: 60px;
-  border-radius: 8px;
-  object-fit: cover;
 `;
 
 const ItemInfo = styled.div`
@@ -171,49 +156,56 @@ const LoadingState = styled.div`
 
 export default function TeacherPurchases() {
   const [teams, setTeams] = useState([]);
+  const [stores, setStores] = useState([]);
+  const [allPurchases, setAllPurchases] = useState([]);
   const [selectedTeam, setSelectedTeam] = useState(null);
-  const [purchases, setPurchases] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [purchaseLoading, setPurchaseLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchTeams();
+    fetchData();
   }, []);
 
-  const fetchTeams = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const response = await customaxios.get(`${import.meta.env.VITE_API_URL}haram/team`);
-      setTeams(response.data.teams || []);
+      
+      // 팀 목록, 상점 목록, 구매 기록 동시 조회
+      const [teamsRes, storesRes, purchasesRes] = await Promise.all([
+        customaxios.get(`${import.meta.env.VITE_API_URL}tch/account`),
+        customaxios.get(`${import.meta.env.VITE_API_URL}haram/store`),
+        customaxios.get(`${import.meta.env.VITE_API_URL}tch/store/purchases`).catch(() => ({ data: { items: [] } }))
+      ]);
+
+      setTeams(teamsRes.data.teams || []);
+      setStores(storesRes.data.items || []);
+      setAllPurchases(purchasesRes.data.items || []);
     } catch (err) {
-      console.error('팀 목록 조회 실패:', err);
-      setError('팀 목록을 불러오는데 실패했습니다.');
+      console.error('데이터 조회 실패:', err);
+      setError('데이터를 불러오는데 실패했습니다.');
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchTeamPurchases = async (teamId) => {
-    try {
-      setPurchaseLoading(true);
-      const response = await customaxios.get(`${import.meta.env.VITE_API_URL}tch/purchases/${teamId}`);
-      
-      if (response.data.success) {
-        setPurchases(response.data.data.purchases);
-        setSelectedTeam(response.data.data.team);
-      }
-    } catch (err) {
-      console.error('구매 기록 조회 실패:', err);
-      alert(err.response?.data?.message || '구매 기록을 불러오는데 실패했습니다.');
-    } finally {
-      setPurchaseLoading(false);
-    }
+  const handleTeamSelect = (team) => {
+    setSelectedTeam(team);
   };
 
-  const handleTeamSelect = (team) => {
-    fetchTeamPurchases(team.id);
+  const getTeamPurchases = () => {
+    if (!selectedTeam) return [];
+    return allPurchases.filter(p => p.teamId === selectedTeam.teamId);
+  };
+
+  const getStoreName = (itemId) => {
+    const store = stores.find(s => s.itemId === itemId);
+    return store?.itemName || `상품 #${itemId}`;
+  };
+
+  const getStorePrice = (itemId) => {
+    const store = stores.find(s => s.itemId === itemId);
+    return store?.price || 0;
   };
 
   const formatDate = (dateString) => {
@@ -232,7 +224,7 @@ export default function TeacherPurchases() {
       <Container>
         <Header isTeacher={true} />
         <Body>
-          <LoadingState>팀 목록을 불러오는 중...</LoadingState>
+          <LoadingState>데이터를 불러오는 중...</LoadingState>
         </Body>
       </Container>
     );
@@ -250,6 +242,8 @@ export default function TeacherPurchases() {
     );
   }
 
+  const teamPurchases = getTeamPurchases();
+
   return (
     <Container>
       <Header isTeacher={true} />
@@ -261,70 +255,57 @@ export default function TeacherPurchases() {
           <Subtitle>각 팀의 구매 기록을 확인할 수 있습니다.</Subtitle>
         </TitleSection>
 
-        <TeamSelector>
-          <h3 style={{ 
-            color: '#1D1D1D', 
-            fontFamily: 'Pretendard', 
-            fontSize: '20px', 
-            fontWeight: '600',
-            marginBottom: '16px'
-          }}>
-            팀 선택
-          </h3>
-          <TeamGrid>
-            {teams.map((team) => (
-              <TeamCard
-                key={team.id}
-                selected={selectedTeam?.id === team.id}
-                onClick={() => handleTeamSelect(team)}
-              >
-                <TeamName>{team.name || `${team.class_number}반 ${team.team_number}팀`}</TeamName>
-                <TeamCredit>크레딧: {team.team_credit?.toLocaleString() || 0}원</TeamCredit>
-              </TeamCard>
-            ))}
-          </TeamGrid>
-        </TeamSelector>
+        <h3 style={{ 
+          color: '#1D1D1D', 
+          fontFamily: 'Pretendard', 
+          fontSize: '20px', 
+          fontWeight: '600',
+          marginBottom: '16px'
+        }}>
+          팀 선택
+        </h3>
+        <TeamGrid>
+          {teams.map((team) => (
+            <TeamCard
+              key={team.teamId}
+              selected={selectedTeam?.teamId === team.teamId}
+              onClick={() => handleTeamSelect(team)}
+            >
+              <TeamName>{team.teamName}</TeamName>
+              <TeamCredit>크레딧: {team.teamCredit?.toLocaleString() || 0}원</TeamCredit>
+            </TeamCard>
+          ))}
+        </TeamGrid>
 
         {selectedTeam && (
           <SelectedTeamInfo>
             <TeamName style={{ fontSize: '20px', marginBottom: '10px' }}>
-              {selectedTeam.name || `${selectedTeam.class_number}반 ${selectedTeam.team_number}팀`}
+              {selectedTeam.teamName}
             </TeamName>
             <TeamCredit style={{ fontSize: '16px' }}>
-              현재 크레딧: {selectedTeam.team_credit?.toLocaleString() || 0}원
+              현재 크레딧: {selectedTeam.teamCredit?.toLocaleString() || 0}원
             </TeamCredit>
           </SelectedTeamInfo>
         )}
 
-        {purchaseLoading ? (
-          <LoadingState>구매 기록을 불러오는 중...</LoadingState>
-        ) : selectedTeam ? (
+        {selectedTeam ? (
           <PurchaseList>
-            {purchases.length === 0 ? (
+            {teamPurchases.length === 0 ? (
               <EmptyState>이 팀은 아직 구매한 상품이 없습니다.</EmptyState>
             ) : (
-              purchases.map((purchase) => (
-                <PurchaseItem key={purchase.id}>
-                  <ItemHeader>
-                    <ItemImage 
-                      src={purchase.image_url} 
-                      alt={purchase.item_name}
-                      onError={(e) => {
-                        e.target.src = '/placeholder-image.png';
-                      }}
-                    />
-                    <ItemInfo>
-                      <ItemName>{purchase.item_name}</ItemName>
-                      <ItemDetails>
-                        <span>수량: {purchase.quantity}개</span>
-                        <span>단가: {purchase.unit_price?.toLocaleString() || 0}원</span>
-                        <span>총액: {purchase.total_price?.toLocaleString() || 0}원</span>
-                      </ItemDetails>
-                    </ItemInfo>
-                    <PurchaseDate>
-                      {formatDate(purchase.purchased_at)}
-                    </PurchaseDate>
-                  </ItemHeader>
+              teamPurchases.map((purchase, index) => (
+                <PurchaseItem key={index}>
+                  <ItemInfo>
+                    <ItemName>{getStoreName(purchase.itemId)}</ItemName>
+                    <ItemDetails>
+                      <span>수량: {purchase.quantity}개</span>
+                      <span>단가: {getStorePrice(purchase.itemId)?.toLocaleString() || 0}원</span>
+                      <span>총액: {(getStorePrice(purchase.itemId) * purchase.quantity)?.toLocaleString() || 0}원</span>
+                    </ItemDetails>
+                  </ItemInfo>
+                  <PurchaseDate>
+                    {formatDate(purchase.when)}
+                  </PurchaseDate>
                 </PurchaseItem>
               ))
             )}

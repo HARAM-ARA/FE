@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import { AxiosInstnce as customaxios } from "../lib/customAxios.js";
 import Header from "../components/Header.jsx";
@@ -69,20 +69,9 @@ const PurchaseItem = styled.div`
   padding: 20px;
   background: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-`;
-
-const ItemHeader = styled.div`
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 12px;
-`;
-
-const ItemImage = styled.img`
-  width: 60px;
-  height: 60px;
-  border-radius: 8px;
-  object-fit: cover;
 `;
 
 const ItemInfo = styled.div`
@@ -148,29 +137,55 @@ const LoadingState = styled.div`
 export default function StudentPurchases() {
   const [purchases, setPurchases] = useState([]);
   const [team, setTeam] = useState(null);
+  const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchPurchases();
+    fetchData();
   }, []);
 
-  const fetchPurchases = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const response = await customaxios.get(`${import.meta.env.VITE_API_URL}std/purchases`);
       
-      if (response.data.success) {
-        setPurchases(response.data.data.purchases);
-        setTeam(response.data.data.team);
+      // 내 계정 정보, 상점 목록, 구매 기록 동시 조회
+      const [accountRes, storesRes, purchasesRes] = await Promise.all([
+        customaxios.get(`${import.meta.env.VITE_API_URL}std/account`),
+        customaxios.get(`${import.meta.env.VITE_API_URL}haram/store`),
+        customaxios.get(`${import.meta.env.VITE_API_URL}std/purchases`).catch(() => ({ data: { success: true, data: { purchases: [] } } }))
+      ]);
+
+      setTeam({
+        teamId: accountRes.data.teamId,
+        teamName: accountRes.data.teamName,
+        credit: accountRes.data.credit
+      });
+      setStores(storesRes.data.items || []);
+      
+      // std/purchases API 응답 형식에 맞게 처리
+      if (purchasesRes.data.success) {
+        setPurchases(purchasesRes.data.data.purchases || []);
+      } else {
+        setPurchases([]);
       }
     } catch (err) {
-      console.error('구매 기록 조회 실패:', err);
-      setError(err.response?.data?.message || '구매 기록을 불러오는데 실패했습니다.');
+      console.error('데이터 조회 실패:', err);
+      setError(err.response?.data?.message || '데이터를 불러오는데 실패했습니다.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const getStoreName = (itemId) => {
+    const store = stores.find(s => s.itemId === itemId);
+    return store?.itemName || `상품 #${itemId}`;
+  };
+
+  const getStorePrice = (itemId) => {
+    const store = stores.find(s => s.itemId === itemId);
+    return store?.price || 0;
   };
 
   const formatDate = (dateString) => {
@@ -189,7 +204,7 @@ export default function StudentPurchases() {
       <Container>
         <Header isTeamName="true" isCredit="true" isMyTeam="true" />
         <Body>
-          <LoadingState>구매 기록을 불러오는 중...</LoadingState>
+          <LoadingState>데이터를 불러오는 중...</LoadingState>
         </Body>
       </Container>
     );
@@ -220,8 +235,8 @@ export default function StudentPurchases() {
 
         {team && (
           <TeamInfo>
-            <TeamName>{team.name || `${team.class_number}반 ${team.team_number}팀`}</TeamName>
-            <TeamCredit>현재 크레딧: {team.team_credit?.toLocaleString() || 0}원</TeamCredit>
+            <TeamName>{team.teamName}</TeamName>
+            <TeamCredit>현재 크레딧: {team.credit?.toLocaleString() || 0}원</TeamCredit>
           </TeamInfo>
         )}
 
@@ -229,28 +244,18 @@ export default function StudentPurchases() {
           {purchases.length === 0 ? (
             <EmptyState>아직 구매한 상품이 없습니다.</EmptyState>
           ) : (
-            purchases.map((purchase) => (
-              <PurchaseItem key={purchase.id}>
-                <ItemHeader>
-                  <ItemImage 
-                    src={purchase.image_url} 
-                    alt={purchase.item_name}
-                    onError={(e) => {
-                      e.target.src = '/placeholder-image.png';
-                    }}
-                  />
-                  <ItemInfo>
-                    <ItemName>{purchase.item_name}</ItemName>
-                    <ItemDetails>
-                      <span>수량: {purchase.quantity}개</span>
-                      <span>단가: {purchase.unit_price?.toLocaleString() || 0}원</span>
-                      <span>총액: {purchase.total_price?.toLocaleString() || 0}원</span>
-                    </ItemDetails>
-                  </ItemInfo>
-                  <PurchaseDate>
-                    {formatDate(purchase.purchased_at)}
-                  </PurchaseDate>
-                </ItemHeader>
+            purchases.map((purchase, index) => (
+              <PurchaseItem key={index}>
+                <ItemInfo>
+                  <ItemName>{purchase.item_name || getStoreName(purchase.itemId)}</ItemName>
+                  <ItemDetails>
+                    <span>수량: {purchase.quantity}개</span>
+                    <span>총액: {purchase.total_price?.toLocaleString() || 0}원</span>
+                  </ItemDetails>
+                </ItemInfo>
+                <PurchaseDate>
+                  {formatDate(purchase.purchased_at || purchase.when)}
+                </PurchaseDate>
               </PurchaseItem>
             ))
           )}
