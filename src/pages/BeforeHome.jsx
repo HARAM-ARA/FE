@@ -11,6 +11,7 @@ import { getUserRoleCached } from "../lib/auth.js";
 
 
 const Body = styled.div`
+    display: flex;
     width: 100vh;
     height: 575px;
     display: flex;
@@ -21,13 +22,13 @@ const Body = styled.div`
   `;
 
 const LeftBox = styled.div`
-
     height: 575px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: 27px;
-    margin: 0px 0px 0px 0px;
+    margin-left: 4.8rem;
+    margin-right: 1.5rem;
   `;
 
 const RightBox = styled.div`
@@ -53,6 +54,7 @@ const RankingSection = styled.div`
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
+    margin-left: 3rem;
   `;
 
 const TextBox = styled.div`
@@ -181,9 +183,10 @@ export default function BeforeHome() {
 
       <Body>
         <LeftBox>
-          <TimerBox onClick={()=>navigate("/timer")}>
+          <TimerBox onClick={() => navigate("/timer")}>
             <TextBox>
-              <TitleText>타이머</TitleText>
+              <TitleText style={{cursor: 'pointer'}}>타이머</TitleText>
+              <DescriptionText style={{marginTop: '0.5rem'}}>* 타이머 클릭 시 타이머 페이지로 이동합니다. </DescriptionText>
             </TextBox>
             <Timer />
           </TimerBox>
@@ -212,15 +215,15 @@ export default function BeforeHome() {
               <Card title="추억의 뽑기" />
               <Card title={"강화하기"} />
               <Card title="TTS 메세지" isItem={true} />
-              <Card title="음악 신청" isItem={true}/>
+              <Card title="음악 신청" isItem={true} />
             </MinigameBox>
           </GameSection>
 
-            <RankingSection>
-                <TitleText>팀 순위</TitleText>
-                <DescriptionText>* 해커톤 순위와는 별개로 1~5위까지 상품을 드립니다! </DescriptionText>
-                <TeamRanking isBeforeLogin={true} />
-            </RankingSection>
+          <RankingSection>
+            <TitleText>팀 순위</TitleText>
+            <DescriptionText>* 해커톤 순위와는 별개로 1~5위까지 상품을 드립니다! </DescriptionText>
+            <TeamRanking isBeforeLogin={true} />
+          </RankingSection>
         </RightBox>
 
       </Body >
