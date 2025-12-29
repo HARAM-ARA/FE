@@ -18,6 +18,7 @@ import TeacherTimer from "./pages/TeacherTimer.jsx";
 import MyTeam from "./pages/MyTeam.jsx";
 import StudentPurchases from "./pages/StudentPurchases.jsx";
 import TeacherPurchases from "./pages/TeacherPurchases.jsx";
+import Roulette from "./pages/Roulette.jsx";
 
 export default function App() {
   return (
@@ -36,6 +37,7 @@ export default function App() {
             <Route path="/std/purchases" element={<AuthConfirm allowedRoles={["student", "teamleader"]}><StudentPurchases /></AuthConfirm>} />
             <Route path="/store" element={<AuthConfirm allowedRoles={["student", "teamleader"]}><Store /></AuthConfirm>} />
             <Route path="/select" element={<AuthConfirm allowedRoles={["student", "teamleader"]}><Select /></AuthConfirm>} />
+            <Route path="/roulette" element={<AuthConfirm allowedRoles={["student", "teamleader"]}><Roulette /></AuthConfirm>} />
             <Route path="/credits" element={<AuthConfirm requiredRole="teacher"><Credits /></AuthConfirm>}/>
             <Route path="/enforce" element={<AuthConfirm allowedRoles={["student", "teamleader"]}><Enforce /></AuthConfirm>}/>
             
