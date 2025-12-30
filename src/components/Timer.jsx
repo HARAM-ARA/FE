@@ -90,7 +90,7 @@ const getNextWednesday1030 = () => {
     if (diff < 0) diff += 7;
 
     result.setDate(now.getDate() + diff);
-    result.setHours(10, 30, 0, 0);
+    result.setHours(11, 0, 0, 0);
 
     if (diff === 0 && now >= result) {
         result.setDate(result.getDate() + 7);
